@@ -8,7 +8,7 @@
 #
 # You can specify a version:
 # FROM node:10-slim
-FROM node:slim
+FROM node:12-alpine
 
 # Labels for GitHub to read your action
 LABEL "com.github.actions.name"="comment-on-pull-request"
