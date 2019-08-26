@@ -13,14 +13,14 @@ const zeitAPIClient = axios.create({
   },
   params: {
     teamId: process.env.ZEIT_TEAMID || undefined,
-    "meta-commit": 'd6200a8bf4bd77d1d35e13e174dcc5f30bee85e5'
+    "meta-commit": "d6200a8bf4bd77d1d35e13e174dcc5f30bee85e5"
   }
 });
 
 // Run your GitHub Action!
 Toolkit.run(async tools => {
   const { data: comments } = await tools.github.issues.listComments({
-    ...repo.owner,
+    ...tools.context.repo,
     issue_number: tools.context.payload.pull_request.number
   });
 
@@ -44,7 +44,7 @@ Toolkit.run(async tools => {
 
   if (zeitPreviewURLComment) {
     await tools.github.issues.updateComment({
-      ...repo.owner,
+      ...tools.context.repo,
       id: zeitPreviewURLComment.id,
       body: commentBody
     });
