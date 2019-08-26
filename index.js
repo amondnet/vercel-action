@@ -37,7 +37,7 @@ Toolkit.run(async tools => {
   const commentBody = stripIndents`
     Deploy preview for _website_ ready!
 
-    Build with commit ${process.env.GITHUB_SHA}
+    Built with commit ${process.env.GITHUB_SHA}
 
     https://${deployment.url}
   `;
