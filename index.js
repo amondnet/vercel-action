@@ -55,6 +55,4 @@ Toolkit.run(async tools => {
       body: commentBody
     });
   }
-
-  tools.exit.success("We did it!");
 });
