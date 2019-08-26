@@ -11,8 +11,8 @@
 FROM node:12-alpine
 
 # Labels for GitHub to read your action
-LABEL "com.github.actions.name"="comment-on-pull-request"
-LABEL "com.github.actions.description"="GitHub action to auto comment on the PR which triggers the action"
+LABEL "com.github.actions.name"="now-deploy-preview-comment"
+LABEL "com.github.actions.description"="GitHub action to comment with the now.sh deployment preview URL"
 # Here are all of the available icons: https://feathericons.com/
 LABEL "com.github.actions.icon"="message-circle"
 # And all of the available colors: https://developer.github.com/actions/creating-github-actions/creating-a-docker-container/#label
