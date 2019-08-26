@@ -13,7 +13,7 @@ const zeitAPIClient = axios.create({
   },
   params: {
     teamId: process.env.ZEIT_TEAMID || undefined,
-    "meta-commit": "d6200a8bf4bd77d1d35e13e174dcc5f30bee85e5"
+    "meta-commit": process.env.GITHUB_SHA
   }
 });
 
