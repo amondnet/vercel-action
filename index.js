@@ -40,7 +40,7 @@ Toolkit.run(async tools => {
     }
   });
 
-  if (deployment) {
+  if (commitDeployment) {
     deploymentUrl = commitDeployment.url;
     deploymentCommit = commitDeployment.meta.commit;
   } else {
