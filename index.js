@@ -45,15 +45,34 @@ Toolkit.run(async tools => {
     deploymentCommit = commitDeployment.meta.commit;
   } else {
     const {
-      data: { deployments: [lastBranchDeployment] }
+      data: {
+        deployments: [lastBranchDeployment]
+      }
     } = await zeitAPIClient.get("/v4/now/deployments", {
       params: {
         "meta-branch": process.env.GITHUB_REF
       }
     });
 
-    deploymentUrl = lastBranchDeployment.url;
-    deploymentCommit = lastBranchDeployment.meta.commit;
+    if (lastBranchDeployment) {
+      deploymentUrl = lastBranchDeployment.url;
+      deploymentCommit = lastBranchDeployment.meta.commit;
+    } else {
+      const {
+        data: {
+          deployments: [lastDeployment]
+        }
+      } = await zeitAPIClient.get("/v4/now/deployments", {
+        params: {
+          limit: 1
+        }
+      });
+
+      if (lastDeployment) {
+        deploymentUrl = lastDeployment.url;
+        deploymentCommit = lastDeployment.meta.commit;
+      }
+    }
   }
 
   const commentBody = stripIndents`
