@@ -32,7 +32,7 @@ jobs:
         env:
           ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
         run: now --no-clipboard -t ${ZEIT_TOKEN} -m commit=${GITHUB_SHA} -m branch=${GITHUB_REF}
-      - uses: iam4x/now-deploy-preview-comment@master
+      - uses: iam4x/now-deploy-preview-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
