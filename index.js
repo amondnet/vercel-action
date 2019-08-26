@@ -4,10 +4,10 @@ const { Toolkit } = require('actions-toolkit')
 Toolkit.run(async tools => {
   tools.log.info(JSON.stringify(tools.context, null, 4));
 
-  await tools.github.pulls.createComment({
+  await tools.github.issues.createComment({
     owner: tools.context.repo.owner,
     repo: tools.context.repo.repo,
-    pull_number: tools.context.payload.pull_request.number,
+    issue_number: tools.context.payload.pull_request.number,
     body: 'Auto Comment Test',
   });
 
