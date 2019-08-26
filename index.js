@@ -45,7 +45,7 @@ Toolkit.run(async tools => {
   if (zeitPreviewURLComment) {
     await tools.github.issues.updateComment({
       ...tools.context.repo,
-      id: zeitPreviewURLComment.id,
+      comment_id: zeitPreviewURLComment.id,
       body: commentBody
     });
   } else {
