@@ -10,3 +10,4 @@ jobs:
       - uses: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
