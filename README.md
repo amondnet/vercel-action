@@ -1,6 +1,12 @@
 # now-deploy-preview-comment
 
 > Github action to comment with the now.sh deployment preview URL
+>
+> Inspired by netlify.com deployment preview comments
+
+## Result
+
+![preview](./preview.png)
 
 ## Requirements
 
