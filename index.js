@@ -12,8 +12,7 @@ const zeitAPIClient = axios.create({
     Authorization: `Bearer ${process.env.ZEIT_TOKEN}`
   },
   params: {
-    teamId: process.env.ZEIT_TEAMID || undefined,
-    "meta-commit": process.env.GITHUB_SHA
+    teamId: process.env.ZEIT_TEAMID || undefined
   }
 });
 
@@ -28,18 +27,41 @@ Toolkit.run(async tools => {
     comment.body.startsWith("Deploy preview for _website_ ready!")
   );
 
+  let deploymentUrl;
+  let deploymentCommit;
+
   const {
     data: {
-      deployments: [deployment]
+      deployments: [commitDeployment]
     }
-  } = await zeitAPIClient.get("/v4/now/deployments");
+  } = await zeitAPIClient.get("/v4/now/deployments", {
+    params: {
+      "meta-commit": process.env.GITHUB_SHA
+    }
+  });
+
+  if (deployment) {
+    deploymentUrl = commitDeployment.url;
+    deploymentCommit = commitDeployment.meta.commit;
+  } else {
+    const {
+      data: { deployments: [lastBranchDeployment] }
+    } = await zeitAPIClient.get("/v4/now/deployments", {
+      params: {
+        "meta-branch": process.env.GITHUB_REF
+      }
+    });
+
+    deploymentUrl = lastBranchDeployment.url;
+    deploymentCommit = lastBranchDeployment.meta.commit;
+  }
 
   const commentBody = stripIndents`
     Deploy preview for _website_ ready!
 
-    Built with commit ${process.env.GITHUB_SHA}
+    Built with commit ${deploymentCommit}
 
-    https://${deployment.url}
+    https://${deploymentUrl}
   `;
 
   if (zeitPreviewURLComment) {
