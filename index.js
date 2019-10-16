@@ -38,7 +38,7 @@ async function run () {
     },
   } = await zeitAPIClient.get('/v4/now/deployments', {
     params: {
-      'meta-commit': context.sha,
+      'meta-githubCommitSha': context.sha,
     },
   })
 
@@ -52,7 +52,7 @@ async function run () {
       },
     } = await zeitAPIClient.get('/v4/now/deployments', {
       params: {
-        'meta-branch': context.ref,
+        'meta-githubCommitRef': context.ref,
       },
     })
 
@@ -96,6 +96,7 @@ async function run () {
       body: commentBody,
     })
   }
+
   core.setOutput('preview-url', `https://${deploymentUrl}`)
 }
 
