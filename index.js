@@ -24,7 +24,7 @@ async function run() {
   const comments = await octokit.issues.listComments({
     ...context.repo,
     issue_number: context.payload.pull_request.number
-  })
+  });
 
   const zeitPreviewURLComment = comments.find(comment =>
     comment.body.startsWith("Deploy preview for _website_ ready!")
