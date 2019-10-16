@@ -25,6 +25,7 @@ async function run() {
     ...context.repo,
     issue_number: context.payload.pull_request.number
   });
+  console.log(comments);
 
   const zeitPreviewURLComment = comments.find(comment =>
     comment.body.startsWith("Deploy preview for _website_ ready!")
