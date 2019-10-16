@@ -21,7 +21,7 @@ const zeitAPIClient = axios.create({
 const octokit = new github.GitHub(githubToken);
 
 async function run() {
-  await octokit.issues.listComments({
+  const comments = await octokit.issues.listComments({
     ...context.repo,
     issue_number: context.payload.pull_request.number
   })
@@ -87,15 +87,15 @@ async function run() {
   `;
 
   if (zeitPreviewURLComment) {
-    await tools.github.issues.updateComment({
-      ...tools.context.repo,
+    await octokit.issues.updateComment({
+      ...context.repo,
       comment_id: zeitPreviewURLComment.id,
       body: commentBody
     });
   } else {
-    await tools.github.issues.createComment({
-      ...tools.context.repo,
-      issue_number: tools.context.payload.pull_request.number,
+    await octokit.issues.createComment({
+      ...context.repo,
+      issue_number: context.payload.pull_request.number,
       body: commentBody
     });
   }
