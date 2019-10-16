@@ -1,0 +1,19 @@
+name: 'Now Deploy Preview Comment'
+description: 'GitHub action to comment with the Zeit now deployment preview URL'
+inputs:
+  zeit-token:
+    description: 'zeit.co token'
+    required: true
+  zeit-team-id:
+    description: ' This is required if your deployment is made on team project.'
+    required: false
+  github-token:
+    required: true
+
+outputs:
+  preview-url:
+    description: 'deployment preview URL'
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

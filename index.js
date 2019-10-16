@@ -1,27 +1,30 @@
 const axios = require("axios");
 const { stripIndents } = require("common-tags");
-const { Toolkit } = require("actions-toolkit");
+const core = require('@actions/core');
+const github = require('@actions/github');
+const context = github.context;
 
-if (!process.env.ZEIT_TOKEN) {
-  throw new Error(`ZEIT_TOKEN environment variable is not set`);
-}
+const zeitToken = core.getInput('zeit-token');
+const zeitTeamId = core.getInput('zeit-team-id');
+const githubToken = core.getInput('github-token');
 
 const zeitAPIClient = axios.create({
   baseURL: "https://api.zeit.co",
   headers: {
-    Authorization: `Bearer ${process.env.ZEIT_TOKEN}`
+    Authorization: `Bearer ${zeitToken}`
   },
   params: {
-    teamId: process.env.ZEIT_TEAMID || undefined
+    teamId: zeitTeamId || undefined
   }
 });
 
-// Run your GitHub Action!
-Toolkit.run(async tools => {
-  const { data: comments } = await tools.github.issues.listComments({
-    ...tools.context.repo,
-    issue_number: tools.context.payload.pull_request.number
-  });
+const octokit = new github.GitHub(githubToken);
+
+async function run() {
+  await octokit.issues.listComments({
+    ...context.repo,
+    issue_number: context.payload.pull_request.number
+  })
 
   const zeitPreviewURLComment = comments.find(comment =>
     comment.body.startsWith("Deploy preview for _website_ ready!")
@@ -96,4 +99,11 @@ Toolkit.run(async tools => {
       body: commentBody
     });
   }
+  core.setOutput('preview-url', `https://${deploymentUrl}`);
+}
+
+
+run().catch( error => {
+  core.setFailed(error.message);
 });
+

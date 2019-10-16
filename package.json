@@ -6,7 +6,8 @@
     "start": "node ./index.js"
   },
   "dependencies": {
-    "actions-toolkit": "^2.1.0",
+    "@actions/core": "^1.1.3",
+    "@actions/github": "^1.1.0",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0"
   },

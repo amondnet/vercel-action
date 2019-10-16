@@ -1,4 +1,4 @@
-# now-deploy-preview-comment
+# Now Deployment Comment
 
 > Github action to comment with the now.sh deployment preview URL
 >
@@ -32,7 +32,7 @@ jobs:
         env:
           ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
         run: now --no-clipboard -t ${ZEIT_TOKEN} -m commit=${GITHUB_SHA} -m branch=${GITHUB_REF}
-      - uses: iam4x/now-deploy-preview-comment@v1
+      - uses: amondnet/now-deployment-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
