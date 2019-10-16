@@ -9376,7 +9376,7 @@ async function run() {
     }
   } = await zeitAPIClient.get("/v4/now/deployments", {
     params: {
-      "meta-commit": process.env.GITHUB_SHA
+      "meta-commit": context.sha
     }
   });
 
@@ -9390,7 +9390,7 @@ async function run() {
       }
     } = await zeitAPIClient.get("/v4/now/deployments", {
       params: {
-        "meta-branch": process.env.GITHUB_REF
+        "meta-branch": context.ref
       }
     });
 
