@@ -70,10 +70,11 @@ async function nowDeploy () {
 }
 
 async function createComment () {
+
   const {
     data: comments,
   } = await octokit.issues.listComments({
-    ...context.repo, issue_number: context.payload.pull_request.number,
+    ...context.repo, issue_number: context.issue.number,
   })
   console.log(comments)
 
@@ -143,7 +144,7 @@ async function createComment () {
   } else {
     await octokit.issues.createComment({
       ...context.repo,
-      issue_number: context.payload.pull_request.number,
+      issue_number: context.issue.number,
       body: commentBody,
     })
   }
