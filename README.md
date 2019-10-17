@@ -30,6 +30,10 @@ This is required if your deployment is made on team project. example: `team_asdf
 
 **required** This is required to comment on pull request.
 
+### `now-args`
+
+This is optional args for `now` cli. Example: `--prod`
+
 ## Outputs
 
 ### `preview-url`
@@ -37,6 +41,24 @@ This is required if your deployment is made on team project. example: `team_asdf
 The url of deployment preview.
 
 ## Example Usage
+
+```json
+{
+  "name": "zeit-now-deployment",
+  "version": 2,
+  "scope": "amond",
+  "public": false,
+  "github": {
+    "enabled": false
+  },
+  "builds": [
+    { "src": "./public/**", "use": "@now/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "public/$1" }
+  ]
+}
+```
 
 * This is a complete `.github/workflow/deploy.yml` example.
 
@@ -48,9 +70,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: amondnet/now-deployment-comment@release/v1
+      - uses: amondnet/now-deployment@release/v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
           zeit-team-id: team_XXXXXXXXXXX
+          now-args: '--prod'
 ```
