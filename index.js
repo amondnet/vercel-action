@@ -2,14 +2,16 @@ const axios = require('axios')
 const { stripIndents } = require('common-tags')
 const core = require('@actions/core')
 const github = require('@actions/github')
+const { execSync } = require('child_process')
+const exec = require('@actions/exec')
+
 const context = github.context
 
 const zeitToken = core.getInput('zeit-token')
 const zeitTeamId = core.getInput('zeit-team-id')
+const nowArgs = core.getInput('now-agrs')
 const githubToken = core.getInput('github-token')
 const githubDeployment = core.getInput('github-deployment')
-
-const { spawn } = require('child_process')
 
 const zeitAPIClient = axios.create({
   baseURL: 'https://api.zeit.co', headers: {
@@ -22,27 +24,50 @@ const zeitAPIClient = axios.create({
 const octokit = new github.GitHub(githubToken)
 
 async function run () {
-  const now = spawn('npx now', [])
-
-  now.stdout.on('data', (data) => {
-    console.log(`stdout': ${data}`)
-  })
-
-  now.stderr.on(`data`, (data) => {
-    console.error(`stderr: ${data}`)
-  })
-
-  now.on('close', (code) => {
-    if (code === 0) {
-      console.log(`child process exited with code ${code}`)
-    }
-    createComment()
-  })
-
-
+  await nowDeploy()
+  await createComment()
 }
 
-async function createComment() {
+async function nowDeploy () {
+  const commit = execSync('git log -1 --pretty=format:%B').toString().trim()
+
+  let myOutput = ''
+  let myError = ''
+  const options = {}
+  options.listeners = {
+    stdout: (data: Buffer) => {
+      myOutput += data.toString()
+      core.info(data.toString())
+    }, stderr: (data: Buffer) => {
+      myError += data.toString()
+      core.error(data.toString())
+    },
+  }
+
+  return await exec.exec('npx', [
+    `now ${nowArgs}`,
+    '-m',
+    `githubCommitSha=${context.sha}`,
+    '-m',
+    `githubCommitAuthorName=amond`,
+    '-m',
+    'githubCommitAuthorLogin=amondnet',
+    '-m',
+    'githubDeployment=1',
+    '-m',
+    `githubOrg=${context.repo.owner}`,
+    '-m',
+    `githubRepo=${context.repo.repo}`,
+    '-m',
+    `githubCommitOrg=${context.repo.owner}`,
+    '-m',
+    `githubCommitRepo=${context.repo.repo}`,
+    '-m',
+    `githubCommitMessage=${commit}`], options).then(() => {
+  })
+}
+
+async function createComment () {
   const {
     data: comments,
   } = await octokit.issues.listComments({
