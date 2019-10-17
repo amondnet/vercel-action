@@ -1,0 +1,25 @@
+name: deploy website preview
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    if: "! contains(github.event.head_commit.message, '[ci skip]') && ! contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - run: echo "${{ github.event.head_commit.message }}"
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ./
+        id: now-deployment
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          #ZEIT_TEAMID: amond

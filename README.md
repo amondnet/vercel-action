@@ -10,10 +10,7 @@
 
 ## Requirements
 
-* `ZEIT_TOKEN` => The token used for deployment and query the zeit.co API
-* `ZEIT_TEAMID` => This is required if your deployment is made on team project.
-* `meta-commit` => Add the SHA commit to the meta of the deployment (`-m commit=${GITHUB_SHA}`)
-* `meta-branch` => Add the ref/branch to the meta of the deployment (`-m commit=${GITHUB_REF}`)
+
 
 ## Example
 
@@ -28,15 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: deploy now
-        env:
-          ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
-        run: now --no-clipboard -t ${ZEIT_TOKEN} -m commit=${GITHUB_SHA} -m branch=${GITHUB_REF}
-      - uses: amondnet/now-deployment-comment@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
-          ZEIT_TEAMID: team_XXXXXXXXXXX
+      - uses: amondnet/now-deployment-comment@release/v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          zeit-team-id: team_XXXXXXXXXXX
 ```
 
 ## License WTFPL2

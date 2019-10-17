@@ -25,7 +25,10 @@ const octokit = new github.GitHub(githubToken)
 
 async function run () {
   await nowDeploy()
-  await createComment()
+  if (context.issue.number) {
+    core.info('this is related issue or pull_request ')
+    await createComment()
+  }
 }
 
 async function nowDeploy () {
@@ -35,17 +38,19 @@ async function nowDeploy () {
   let myError = ''
   const options = {}
   options.listeners = {
-    stdout: (data: Buffer) => {
+    stdout: (data) => {
       myOutput += data.toString()
       core.info(data.toString())
-    }, stderr: (data: Buffer) => {
+    }, stderr: (data) => {
       myError += data.toString()
       core.error(data.toString())
     },
   }
 
   return await exec.exec('npx', [
-    `now ${nowArgs}`,
+    `now ${nowArgs}`.trim(),
+    '-t',
+    zeitToken,
     '-m',
     `githubCommitSha=${context.sha}`,
     '-m',
@@ -68,10 +73,11 @@ async function nowDeploy () {
 }
 
 async function createComment () {
+
   const {
     data: comments,
   } = await octokit.issues.listComments({
-    ...context.repo, issue_number: context.payload.pull_request.number,
+    ...context.repo, issue_number: context.issue.number,
   })
   console.log(comments)
 
@@ -140,9 +146,7 @@ async function createComment () {
     })
   } else {
     await octokit.issues.createComment({
-      ...context.repo,
-      issue_number: context.payload.pull_request.number,
-      body: commentBody,
+      ...context.repo, issue_number: context.issue.number, body: commentBody,
     })
   }
 

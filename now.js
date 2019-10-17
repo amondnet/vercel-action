@@ -6,8 +6,6 @@ function nowDeploy( context ) {
   const now = spawn('npx', [
     'now',
     '-m',
-    `githubCommitSha=${context.}`,
-    '-m',
     'githubCommitAuthorName=Minsu Lee',
     '-m',
     'githubCommitAuthorLogin=amondnet',
