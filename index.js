@@ -46,6 +46,8 @@ async function nowDeploy () {
 
   return await exec.exec('npx', [
     `now ${nowArgs}`.trim(),
+    '-t',
+    zeitToken,
     '-m',
     `githubCommitSha=${context.sha}`,
     '-m',
