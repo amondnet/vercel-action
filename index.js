@@ -43,7 +43,7 @@ async function nowDeploy () {
       core.info(data.toString())
     }, stderr: (data) => {
       myError += data.toString()
-      core.error(data.toString())
+      core.info(data.toString())
     },
   }
 
