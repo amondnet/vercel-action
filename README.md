@@ -1,4 +1,4 @@
-# Now Deployment Comment
+# Now Deployment
 
 > Github action to comment with the now.sh deployment preview URL
 >

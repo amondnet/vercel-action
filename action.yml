@@ -7,8 +7,13 @@ inputs:
   zeit-team-id:
     description: ' This is required if your deployment is made on team project.'
     required: false
+
   github-token:
     required: true
+  githb-deployment:
+    required: false
+    default: 'false'
+    description: 'if you want to create github deployment, set true, default: false'
 
 outputs:
   preview-url:

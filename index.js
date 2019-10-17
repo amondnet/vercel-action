@@ -7,6 +7,9 @@ const context = github.context
 const zeitToken = core.getInput('zeit-token')
 const zeitTeamId = core.getInput('zeit-team-id')
 const githubToken = core.getInput('github-token')
+const githubDeployment = core.getInput('github-deployment')
+
+const { spawn } = require('child_process')
 
 const zeitAPIClient = axios.create({
   baseURL: 'https://api.zeit.co', headers: {
@@ -19,12 +22,33 @@ const zeitAPIClient = axios.create({
 const octokit = new github.GitHub(githubToken)
 
 async function run () {
+  const now = spawn('npx now', [])
+
+  now.stdout.on('data', (data) => {
+    console.log(`stdout': ${data}`)
+  })
+
+  now.stderr.on(`data`, (data) => {
+    console.error(`stderr: ${data}`)
+  })
+
+  now.on('close', (code) => {
+    if (code === 0) {
+      console.log(`child process exited with code ${code}`)
+    }
+    createComment()
+  })
+
+
+}
+
+async function createComment() {
   const {
     data: comments,
   } = await octokit.issues.listComments({
     ...context.repo, issue_number: context.payload.pull_request.number,
-  });
-  console.log(comments);
+  })
+  console.log(comments)
 
   const zeitPreviewURLComment = comments.find(
     comment => comment.body.startsWith('Deploy preview for _website_ ready!'))
