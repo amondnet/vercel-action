@@ -6,6 +6,7 @@ This action make a deployment with github actions instead of ZEIT Now builder.
 
 - [x] Deploy to ZEIT now.
 - [x] Comment on pull request.
+- [x] Comment on commit.
 - [ ] Create Deployment on github.
 
 ## Result
@@ -14,6 +15,7 @@ This action make a deployment with github actions instead of ZEIT Now builder.
 
 [pull request example](https://github.com/amondnet/now-deployment/pull/2)
 
+[commit](https://github.com/amondnet/now-deployment/commit/6c50b33f1272262ae1ab14a4e703e5b1b46cb46c)
 ## Inputs
 
 ### `zeit-token`
