@@ -13,28 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-
-      - name: create deployment
-        uses: chrnorm/deployment-action@releases/v1
-        id: deployment
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          environment: staging
-
       - uses: ./
         id: now-deployment
         with:
           github-token: ${{ secrets.BOT_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
           #ZEIT_TEAMID: amond
-
-      - name: set deployment status (failure)
-        uses: chrnorm/deployment-action@releases/v1
-        if: always()
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          target-url: ${{ steps.now-deployment.outputs.preview-url }}
-          state: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          environment: staging
-
