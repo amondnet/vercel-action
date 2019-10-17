@@ -28,6 +28,9 @@ async function run () {
   if (context.issue.number) {
     core.info('this is related issue or pull_request ')
     await createComment()
+  } else if (context.payload.push) {
+    core.info('this is push event')
+
   }
 }
 
@@ -70,6 +73,95 @@ async function nowDeploy () {
     '-m',
     `githubCommitMessage=${commit}`], options).then(() => {
   })
+}
+
+async function listCommentsForCommit() {
+  const {
+    data: comments,
+  } = await octokit.repos.listCommentsForCommit({
+    ...context.repo, commit_sha: context.sha,
+  })
+  return comments;
+}
+
+async function createCommentOnCommit () {
+
+  const {
+    data: comments,
+  } = await octokit.repos.listCommentsForCommit({
+    ...context.repo, commit_sha: context.sha,
+  })
+
+  const zeitPreviewURLComment = comments.find(
+    comment => comment.body.startsWith('Deploy preview for _website_ ready!'))
+
+  let deploymentUrl
+  let deploymentCommit
+
+  const {
+    data: {
+      deployments: [commitDeployment],
+    },
+  } = await zeitAPIClient.get('/v4/now/deployments', {
+    params: {
+      'meta-githubCommitSha': context.sha,
+    },
+  })
+
+  if (commitDeployment) {
+    deploymentUrl = commitDeployment.url
+    deploymentCommit = commitDeployment.meta.commit
+  } else {
+    const {
+      data: {
+        deployments: [lastBranchDeployment],
+      },
+    } = await zeitAPIClient.get('/v4/now/deployments', {
+      params: {
+        'meta-githubCommitRef': context.ref,
+      },
+    })
+
+    if (lastBranchDeployment) {
+      deploymentUrl = lastBranchDeployment.url
+      deploymentCommit = lastBranchDeployment.meta.commit
+    } else {
+      const {
+        data: {
+          deployments: [lastDeployment],
+        },
+      } = await zeitAPIClient.get('/v4/now/deployments', {
+        params: {
+          limit: 1,
+        },
+      })
+
+      if (lastDeployment) {
+        deploymentUrl = lastDeployment.url
+        deploymentCommit = lastDeployment.meta.commit
+      }
+    }
+  }
+
+  const commentBody = stripIndents`
+    Deploy preview for _website_ ready!
+
+    Built with commit ${deploymentCommit}
+
+    https://${deploymentUrl}
+  `
+
+  if (zeitPreviewURLComment) {
+    await octokit.repos.updateCommitComment({
+      ...context.repo, comment_id: zeitPreviewURLComment.id, body: commentBody,
+    })
+  } else {
+    await octokit.repos.createCommitComment({
+      ...context.repo, commit_sha: context.sha, body: commentBody,
+    })
+  }
+
+  core.setOutput('preview-url', `https://${deploymentUrl}`)
 }
 
 async function createComment () {

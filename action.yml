@@ -1,5 +1,5 @@
-name: 'Now Deploy Preview Comment'
-description: 'GitHub action to comment with the Zeit now deployment preview URL'
+name: 'ZEIT Now Deployment'
+description: 'This action make a deployment with github actions instead of ZEIT Now builder.'
 inputs:
   zeit-token:
     description: 'zeit.co token'
@@ -27,3 +27,7 @@ outputs:
 runs:
   using: 'node12'
   main: 'index.js'
+
+branding:
+  icon: 'check'
+  color: 'black'
