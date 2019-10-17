@@ -25,7 +25,10 @@ const octokit = new github.GitHub(githubToken)
 
 async function run () {
   await nowDeploy()
-  await createComment()
+  if (context.issue.number) {
+    core.info('this is related issue or pull_request ')
+    await createComment()
+  }
 }
 
 async function nowDeploy () {
@@ -143,9 +146,7 @@ async function createComment () {
     })
   } else {
     await octokit.issues.createComment({
-      ...context.repo,
-      issue_number: context.issue.number,
-      body: commentBody,
+      ...context.repo, issue_number: context.issue.number, body: commentBody,
     })
   }
 
