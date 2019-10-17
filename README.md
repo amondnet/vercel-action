@@ -39,7 +39,7 @@ The url of deployment preview.
 * This is a complete `.github/workflow/deploy.yml` example.
 
 ```yaml
-name: deploy website preview
+name: deploy website
 on: [pull_request]
 jobs:
   deploy:

@@ -1,10 +1,9 @@
 {
-  "name": "now-deploy-preview-comment",
+  "name": "now-deployment",
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "node ./index.js",
-    "build": "npx ncc ./index.js"
+    "start": "node ./index.js"
   },
   "dependencies": {
     "@actions/core": "^1.1.3",
@@ -12,10 +11,10 @@
     "@actions/github": "^1.1.0",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0",
-    "git-last-commit": "^1.0.0",
     "now": "^16.3.1"
   },
-  "devDependencies": {
-    "ncc": "^0.3.6"
+  "devDependencies": {},
+  "engines": {
+    "node": "v12"
   }
 }
