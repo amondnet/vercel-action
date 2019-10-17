@@ -15,6 +15,6 @@ jobs:
       - uses: ./
         id: now-deployment
         with:
-          github-token: ${{ secrets.BOT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
           #ZEIT_TEAMID: amond
