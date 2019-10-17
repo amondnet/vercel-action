@@ -30,7 +30,7 @@ async function run () {
     await createComment()
   } else if (context.payload.push) {
     core.info('this is push event')
-
+    await createCommentOnCommit()
   }
 }
 
