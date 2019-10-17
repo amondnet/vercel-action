@@ -1,0 +1,18 @@
+{
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 6
+  },
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-console": "warn",
+    "require-jsdoc": "off",
+    "max-len": "off",
+    "valid-jsdoc": "off"
+  }
+}

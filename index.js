@@ -35,10 +35,10 @@ async function nowDeploy () {
   let myError = ''
   const options = {}
   options.listeners = {
-    stdout: (data: Buffer) => {
+    stdout: (data) => {
       myOutput += data.toString()
       core.info(data.toString())
-    }, stderr: (data: Buffer) => {
+    }, stderr: (data) => {
       myError += data.toString()
       core.error(data.toString())
     },
