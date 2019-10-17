@@ -15,7 +15,7 @@ This action make a deployment with github actions instead of ZEIT Now builder.
 
 [pull request example](https://github.com/amondnet/now-deployment/pull/2)
 
-[commit](https://github.com/amondnet/now-deployment/commit/6c50b33f1272262ae1ab14a4e703e5b1b46cb46c)
+[commit](https://github.com/amondnet/now-deployment/commit/3d926623510294463c589327f5420663b1b0b35f)
 ## Inputs
 
 ### `zeit-token`
