@@ -27,8 +27,8 @@ async function run () {
   await nowDeploy()
   if (context.issue.number) {
     core.info('this is related issue or pull_request ')
-    await createComment()
-  } else if (context.payload.push) {
+    await createCommentOnPullRequest()
+  } else if (context.eventName === 'push') {
     core.info('this is push event')
     await createCommentOnCommit()
   }
@@ -164,7 +164,7 @@ async function createCommentOnCommit () {
   core.setOutput('preview-url', `https://${deploymentUrl}`)
 }
 
-async function createComment () {
+async function createCommentOnPullRequest () {
 
   const {
     data: comments,
