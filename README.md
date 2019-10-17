@@ -1,24 +1,42 @@
-# Now Deployment
+# ZEIT Now Deployment
 
-> Github action to comment with the now.sh deployment preview URL
->
-> Inspired by netlify.com deployment preview comments
+> ZEIT Now is a cloud platform for static sites and Serverless Functions
+
+This action make a deployment with github actions instead of ZEIT Now builder. 
+
+- [x] Deploy to ZEIT now.
+- [x] Comment on pull request.
+- [ ] Create Deployment on github.
 
 ## Result
 
 ![preview](./preview.png)
 
-## Requirements
+[pull request example](https://github.com/amondnet/now-deployment/pull/2)
 
-* `ZEIT_TOKEN` => The token used for deployment and query the zeit.co API
-* `ZEIT_TEAMID` => This is required if your deployment is made on team project.
-* `meta-commit` => Add the SHA commit to the meta of the deployment (`-m commit=${GITHUB_SHA}`)
-* `meta-branch` => Add the ref/branch to the meta of the deployment (`-m commit=${GITHUB_REF}`)
+## Inputs
 
-## Example
+### `zeit-token`
 
-* This is a complete `.github/workflow/deploy-preview.yml` example.
-* Be sure to include `-m commit=${GITHUB_SHA} -m branch=${GITHUB_REF}` in the now deploy command or the pull request comment will fail.
+**required** ZEIT now token.
+
+### `zeit-team-id`
+
+This is required if your deployment is made on team project. example: `team_asdf1234`
+
+### `github-token`
+
+**required** This is required to comment on pull request.
+
+## Outputs
+
+### `preview-url`
+
+The url of deployment preview.
+
+## Example Usage
+
+* This is a complete `.github/workflow/deploy.yml` example.
 
 ```yaml
 name: deploy website preview
@@ -28,31 +46,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: deploy now
-        env:
-          ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
-        run: now --no-clipboard -t ${ZEIT_TOKEN} -m commit=${GITHUB_SHA} -m branch=${GITHUB_REF}
-      - uses: amondnet/now-deployment-comment@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ZEIT_TOKEN: ${{ secrets.ZEIT_TOKEN }}
-          ZEIT_TEAMID: team_XXXXXXXXXXX
+      - uses: amondnet/now-deployment-comment@release/v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          zeit-team-id: team_XXXXXXXXXXX
 ```
-
-## License WTFPL2
-
-```
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                   Version 2, December 2004
-
-Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-Everyone is permitted to copy and distribute verbatim or modified
-copies of this license document, and changing it is allowed as long
-as the name is changed.
-
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
- 0. You just DO WHAT THE FUCK YOU WANT TO.
- ```
