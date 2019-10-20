@@ -2,7 +2,7 @@
 
 > ZEIT Now is a cloud platform for static sites and Serverless Functions
 
-This action make a deployment with github actions instead of ZEIT Now builder. 
+This action make a ZEIT Now deployment with github actions. 
 
 - [x] Deploy to ZEIT now.
 - [x] Comment on pull request.
