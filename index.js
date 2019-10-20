@@ -9,7 +9,7 @@ const context = github.context
 
 const zeitToken = core.getInput('zeit-token')
 const zeitTeamId = core.getInput('zeit-team-id')
-const nowArgs = core.getInput('now-agrs')
+const nowArgs = core.getInput('now-args')
 const githubToken = core.getInput('github-token')
 const githubDeployment = core.getInput('github-deployment')
 
