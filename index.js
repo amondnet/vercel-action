@@ -51,7 +51,8 @@ async function nowDeploy () {
   }
 
   return await exec.exec('npx', [
-    `now ${nowArgs}`.trim(),
+    'now',
+    ...(nowArgs.split(/ +/)),
     '-t',
     zeitToken,
     '-m',
