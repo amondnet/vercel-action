@@ -1,6 +1,6 @@
 name: deploy website preview
 on:
-  pull_request:
+  push:
     branches:
       - master
 
@@ -14,4 +14,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
-          #ZEIT_TEAMID: amond
+          now-args: '--prod'
