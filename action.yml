@@ -14,7 +14,7 @@ inputs:
 
   github-token:
     required: true
-  githb-deployment:
+  github-deployment:
     required: false
     default: 'false'
     description: 'if you want to create github deployment, set true, default: false'
