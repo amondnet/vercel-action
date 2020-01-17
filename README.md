@@ -77,3 +77,16 @@ jobs:
           zeit-team-id: team_XXXXXXXXXXX
           now-args: '--prod'
 ```
+
+
+## specific working-directory
+
+```yml
+- uses: amondnet/now-deployment@v1
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    zeit-token: ${{ secrets.ZEIT_TOKEN }}
+    zeit-team-id: team_XXXXXXXXXXX
+    now-args: '--prod'
+    working-directory: ./sub-directory
+```

@@ -12,6 +12,7 @@ const zeitTeamId = core.getInput('zeit-team-id')
 const nowArgs = core.getInput('now-args')
 const githubToken = core.getInput('github-token')
 const githubDeployment = core.getInput('github-deployment')
+const workingDirectory = core.getInput('working-directory')
 
 const zeitAPIClient = axios.create({
   baseURL: 'https://api.zeit.co', headers: {
@@ -48,6 +49,9 @@ async function nowDeploy () {
       myError += data.toString()
       core.info(data.toString())
     },
+  }
+  if(workingDirectory){
+    options.cwd = workingDirectory
   }
 
   return await exec.exec('npx', [

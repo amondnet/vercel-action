@@ -18,6 +18,9 @@ inputs:
     required: false
     default: 'false'
     description: 'if you want to create github deployment, set true, default: false'
+  working-directory:
+    required: false
+    description: the working directory
 
 
 outputs:
