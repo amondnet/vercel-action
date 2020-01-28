@@ -11,7 +11,8 @@ const zeitToken = core.getInput('zeit-token')
 const zeitTeamId = core.getInput('zeit-team-id')
 const nowArgs = core.getInput('now-args')
 const githubToken = core.getInput('github-token')
-const githubDeployment = core.getInput('github-deployment')
+const githubComment = core.getInput('github-comment') === 'true'
+const githubDeployment = core.getInput('github-deployment') === 'true'
 const workingDirectory = core.getInput('working-directory')
 
 const zeitAPIClient = axios.create({
@@ -22,16 +23,23 @@ const zeitAPIClient = axios.create({
   },
 })
 
-const octokit = new github.GitHub(githubToken)
+let octokit
+if ( githubToken ) {
+  octokit = new github.GitHub(githubToken)
+}
 
 async function run () {
   await nowDeploy()
-  if (context.issue.number) {
-    core.info('this is related issue or pull_request ')
-    await createCommentOnPullRequest()
-  } else if (context.eventName === 'push') {
-    core.info('this is push event')
-    await createCommentOnCommit()
+  if ( githubComment && githubToken ) {
+    if (context.issue.number) {
+      core.info('this is related issue or pull_request ')
+      await createCommentOnPullRequest()
+    } else if (context.eventName === 'push') {
+      core.info('this is push event')
+      await createCommentOnCommit()
+    }
+  } else {
+    core.info('comment : disabled')
   }
 }
 
@@ -81,6 +89,9 @@ async function nowDeploy () {
 }
 
 async function listCommentsForCommit() {
+  if (!octokit) {
+    return;
+  }
   const {
     data: comments,
   } = await octokit.repos.listCommentsForCommit({
@@ -90,7 +101,9 @@ async function listCommentsForCommit() {
 }
 
 async function createCommentOnCommit () {
-
+  if (!octokit) {
+    return;
+  }
   const {
     data: comments,
   } = await octokit.repos.listCommentsForCommit({
@@ -170,7 +183,9 @@ async function createCommentOnCommit () {
 }
 
 async function createCommentOnPullRequest () {
-
+  if (!octokit) {
+    return;
+  }
   const {
     data: comments,
   } = await octokit.issues.listComments({

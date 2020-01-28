@@ -14,4 +14,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          github-comment: false
           #ZEIT_TEAMID: amond
