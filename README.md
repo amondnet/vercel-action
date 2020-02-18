@@ -71,8 +71,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: amondnet/now-deployment@v1
+      - uses: actions/checkout@v2
+      - uses: amondnet/now-deployment@v2
         with:
           zeit-token: ${{ secrets.ZEIT_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
