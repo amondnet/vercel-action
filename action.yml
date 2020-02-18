@@ -25,6 +25,12 @@ inputs:
   working-directory:
     required: false
     description: the working directory
+  now-project-id:
+    required: false
+    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+  now-org-id:
+    required: false
+    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
 
 
 outputs:

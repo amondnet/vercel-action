@@ -14,6 +14,8 @@ const githubToken = core.getInput('github-token')
 const githubComment = core.getInput('github-comment') === 'true'
 const githubDeployment = core.getInput('github-deployment') === 'true'
 const workingDirectory = core.getInput('working-directory')
+const nowOrgId = core.getInput('now-org-id')
+const nowProjectId = core.getInput('now-project-id')
 
 const zeitAPIClient = axios.create({
   baseURL: 'https://api.zeit.co', headers: {
@@ -29,6 +31,7 @@ if ( githubToken ) {
 }
 
 async function run () {
+  await setEnv()
   await nowDeploy()
   if ( githubComment && githubToken ) {
     if (context.issue.number) {
@@ -40,6 +43,18 @@ async function run () {
     }
   } else {
     core.info('comment : disabled')
+  }
+}
+
+async function setEnv() {
+  core.info('set environment for now cli 17+')
+  if ( nowOrgId ) {
+    core.info('set env variable : NOW_ORG_ID')
+    core.exportVariable('NOW_ORG_ID', nowOrgId )
+  }
+  if ( nowProjectId ) {
+    core.info('set env variable : NOW_PROJECT_ID')
+    core.exportVariable('NOW_PROJECT_ID', nowProjectId)
   }
 }
 

@@ -1,0 +1,12 @@
+{
+  "name": "zeit-now-deployment-action-example-static",
+  "version": 2,
+  "scope": "amond",
+  "public": false,
+  "github": {
+    "enabled": false
+  },
+  "builds": [
+    { "src": "./**", "use": "@now/static" }
+  ]
+}

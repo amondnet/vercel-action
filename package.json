@@ -21,7 +21,7 @@
     "@actions/github": "^1.1.0",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0",
-    "now": "^16.6.0"
+    "now": "^17.0.3"
   },
   "devDependencies": {},
   "engines": {
