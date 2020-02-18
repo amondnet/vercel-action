@@ -19,7 +19,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
           now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: $$ {{ secrets.NOW_PROJECT_ID_STATIC }}
+          now-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
           working-directory: example/static
       - uses: ./
         id: now-deployment-production
@@ -28,6 +28,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.ZEIT_TOKEN }}
           now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: $$ {{ secrets.NOW_PROJECT_ID_STATIC }}
+          now-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
           now-args: '--prod'
           working-directory: example/static
