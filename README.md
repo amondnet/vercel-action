@@ -38,12 +38,35 @@ The url of deployment preview.
 
 ## Example Usage
 
-`now.json`
-```
-github.enabled: false
-```
-When set to false, ZEIT Now for GitHub will not deploy the given project regardless of the GitHub app being installed.
+### Disable ZEIT Now for GitHub
 
+> The ZEIT Now for GitHub integration automatically deploys your GitHub projects with ZEIT Now, providing Preview Deployment URLs, and automatic Custom Domain updates.
+[link](https://zeit.co/docs/v2/git-integrations)
+
+We would like to to use `github actions` for build and deploy instead of `ZEIT Now`. 
+
+Set `github.enabled: false` in now.json
+
+```json
+{
+  "version": 2,
+  "public": false,
+  "github": {
+    "enabled": false
+  },
+  "builds": [
+    { "src": "./public/**", "use": "@now/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "public/$1" }
+  ]
+}
+
+```
+When set to false, `ZEIT Now for GitHub` will not deploy the given project regardless of the GitHub app being installed.
+
+
+`now.json` Example:
 ```json
 {
   "name": "zeit-now-deployment",
@@ -62,7 +85,37 @@ When set to false, ZEIT Now for GitHub will not deploy the given project regardl
 }
 ```
 
+### Project Linking
+
+You should link a project via [Now CLI](https://zeit.co/download) in locally.
+
+When running `now` in a directory for the first time, [Now CLI](https://zeit.co/download) needs to know which scope and Project you want to deploy your directory to. You can choose to either link an existing project or to create a new one.
+
+> NOTE: Project linking requires at least version 17 of [Now CLI](https://zeit.co/download). If you have an earlier version, please [update](https://zeit.co/guides/updating-now-cli) to the latest version.
+
+```bash
+now
+```
+
+```bash
+? Set up and deploy “~/web/my-lovely-project”? [Y/n] y
+? Which scope do you want to deploy to? My Awesome Team
+? Link to existing project? [y/N] y
+? What’s the name of your existing project? my-lovely-project
+🔗 Linked to awesome-team/my-lovely-project (created .now and added it to .gitignore)
+```
+
+Once set up, a new `.now` directory will be added to your directory. The `.now` directory contains both the organization(`now-org-id`) and project(`now-project-id`) id of your project.
+
+```json
+{"orgId":"example_org_id","projectId":"example_project_id"}
+```
+
+### Github Actions
+
 * This is a complete `.github/workflow/deploy.yml` example.
+
+Set the `now-project-id` and `now-org-id` you found above.
 
 ```yaml
 name: deploy website
@@ -78,8 +131,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
           zeit-team-id: team_XXXXXXXXXXX #Optional 
           now-args: '--prod' #Optional
-          now-org-id: 'YOUR_ORG' #Required
-          now-project-id: 'YOUR_PROJECT_ID' #Required 
+          now-org-id: 'example_org_id' #Required
+          now-project-id: 'example_project_id' #Required 
           working-directory: ./sub-directory
 ```
 
