@@ -1,0 +1,8 @@
+user=amondnet
+project=now-deployment
+future-release=v2.0.1
+since-tag=v1.0.1
+enhancement-labels=Type: Enhancement,Type: Feature,Type: Improvement
+bug-labels=Type: Bug
+breaking-labels=Type: Breaking Change
+exclude-tags=v2,v1
