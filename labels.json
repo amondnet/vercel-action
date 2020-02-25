@@ -1,0 +1,173 @@
+[
+  {
+    "name": "duplicate",
+    "color": "ededed",
+    "description": "This issue or Pull Request already exists"
+  },
+  {
+    "name": "help wanted",
+    "color": "e99695",
+    "description": "Extra attention is needed"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "Good for newcomers",
+    "aliases": [
+      "beginner-friendly",
+      "beginner",
+      "good-starter-issue",
+      "good for beginner",
+      "Good for beginners",
+      "starter-issue",
+      "starter"
+    ]
+  },
+  {
+    "name": "Priority: Critical",
+    "color": "ee0701"
+  },
+  {
+    "name": "Priority: High",
+    "color": "d93f0b"
+  },
+  {
+    "name": "Priority: Medium",
+    "color": "fbca04"
+  },
+  {
+    "name": "Priority: Low",
+    "color": "0e8a16"
+  },
+  {
+    "name": "Status: Abandoned",
+    "color": "000000",
+    "description": "The issue or Pull Request is wontfix",
+    "aliases": [
+      "wontfix",
+      "invalid"
+    ]
+  },
+  {
+    "name": "Status: Blocked",
+    "color": "ee0701",
+    "description": "Progress on the issue is Blocked",
+    "aliases": [
+      "blocked"
+    ]
+  },
+  {
+    "name": "Status: In Progress",
+    "description": "Work in Progress",
+    "color": "cccccc"
+  },
+  {
+    "name": "Status: Proposal",
+    "color": "d4c5f9",
+    "description": "Request for comments",
+    "aliases": [
+      "idea",
+      "Idea",
+      "proposal",
+      "Proposal",
+      "discussion"
+    ]
+  },
+  {
+    "name": "Status: PR Welcome",
+    "color": "2E7733",
+    "description": "Welcome to Pull Request",
+    "aliases": [
+      "Patch Welcome",
+      "Status: Ready for PR"
+    ]
+  },
+  {
+    "name": "Status: Review Needed",
+    "color": "fbca04",
+    "description": "Request for review comments"
+  },
+  {
+    "name": "Status: Need More Info",
+    "color": "F9C90A",
+    "description": "Lacks enough info to make progress"
+  },
+  {
+    "name": "Type: Breaking Change",
+    "color": "b60205",
+    "description": "Includes breaking changes",
+    "aliases": [
+      "breaking",
+      "breaking-change"
+    ]
+  },
+  {
+    "name": "Type: Bug",
+    "color": "ee0701",
+    "description": "Bug or Bug fixes",
+    "aliases": [
+      "bug"
+    ]
+  },
+  {
+    "name": "Type: Documentation",
+    "color": "5319e7",
+    "description": "Documentation only changes",
+    "aliases": [
+      "documents",
+      "document"
+    ]
+  },
+  {
+    "name": "Type: Feature",
+    "color": "1d76db",
+    "description": "New Feature",
+    "aliases": [
+      "enhancement"
+    ]
+  },
+  {
+    "name": "Type: Refactoring",
+    "color": "fbca04",
+    "description": "A code change that neither fixes a bug nor adds a feature",
+    "aliases": [
+      "refactor"
+    ]
+  },
+  {
+    "name": "Type: Testing",
+    "color": "257759",
+    "description": "Adding missing tests or correcting existing tests",
+    "aliases": [
+      "test",
+      "testing"
+    ]
+  },
+  {
+    "name": "Type: Maintenance",
+    "color": "abd406",
+    "description": "Repository Maintenance",
+    "aliases": [
+      "greenkeeper",
+      "maintenance"
+    ]
+  },
+  {
+    "name": "Type: CI",
+    "color": "ffd412",
+    "description": "Changes to CI configuration files and scripts",
+    "aliases": [
+      "travis",
+      "ci",
+      "circleci"
+    ]
+  },
+  {
+    "name": "Type: Question",
+    "color": "cc317c",
+    "description": "Further information is requested",
+    "aliases": [
+      "question"
+    ]
+  }
+]

@@ -23,7 +23,9 @@
     "common-tags": "^1.8.0",
     "now": "^17.0.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "prettier": "1.19.1"
+  },
   "engines": {
     "node": "v12"
   }
