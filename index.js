@@ -216,7 +216,7 @@ async function createCommentOnCommit(deploymentCommit, deploymentUrl) {
   `;
 
   if (commentId) {
-    await octokit.repos.commentId({
+    await octokit.repos.updateCommitComment({
       ...context.repo,
       comment_id: commentId,
       body: commentBody
