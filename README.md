@@ -111,6 +111,8 @@ Once set up, a new `.now` directory will be added to your directory. The `.now` 
 {"orgId":"example_org_id","projectId":"example_project_id"}
 ```
 
+You can save both values in the secrets setting in your repository. Read the [Official documentation](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets) if you want further info on how secrets work on Github.
+
 ### Github Actions
 
 * This is a complete `.github/workflow/deploy.yml` example.
@@ -131,8 +133,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
           zeit-team-id: team_XXXXXXXXXXX #Optional 
           now-args: '--prod' #Optional
-          now-org-id: 'example_org_id' #Required
-          now-project-id: 'example_project_id' #Required 
+          now-org-id: ${{ secrets.ORG_ID}}  #Required
+          now-project-id: ${{ secrets.PROJECT_ID}} #Required 
           working-directory: ./sub-directory
 ```
 
