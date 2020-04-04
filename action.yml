@@ -4,9 +4,6 @@ inputs:
   zeit-token:
     description: 'zeit.co token'
     required: true
-  zeit-team-id:
-    description: ' This is required if your deployment is made on team project.'
-    required: false
   now-args:
     description: ''
     required: false

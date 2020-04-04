@@ -1,12 +1,36 @@
 # Changelog
 
+## [v2.0.2](https://github.com/amondnet/now-deployment/tree/v2.0.2) (2020-04-04)
+
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2.0.1...v2.0.2)
+
+**Implemented enhancements:**
+
+- team\_id seems to be not working [\#19](https://github.com/amondnet/now-deployment/issues/19)
+
+**Fixed bugs:**
+
+- undefined url on pull request comment [\#37](https://github.com/amondnet/now-deployment/issues/37)
+- Branch is undefined [\#31](https://github.com/amondnet/now-deployment/issues/31)
+- Outputs object is always empty [\#25](https://github.com/amondnet/now-deployment/issues/25)
+- Fix empty output object [\#38](https://github.com/amondnet/now-deployment/pull/38) ([hakonkrogh](https://github.com/hakonkrogh))
+- fix: branch is undefined [\#33](https://github.com/amondnet/now-deployment/pull/33) ([amondnet](https://github.com/amondnet))
+
+**Closed issues:**
+
+- Validation failed: commit\_id has been locked when deploying multiple projects [\#21](https://github.com/amondnet/now-deployment/issues/21)
+
+**Merged pull requests:**
+
+- docs\(README\): Update documentation regarding github secrets [\#35](https://github.com/amondnet/now-deployment/pull/35) ([amalv](https://github.com/amalv))
+
 ## [v2.0.1](https://github.com/amondnet/now-deployment/tree/v2.0.1) (2020-02-25)
 
 [Full Changelog](https://github.com/amondnet/now-deployment/compare/v2...v2.0.1)
 
 **Fixed bugs:**
 
-- Outputs object is always empty [\#25](https://github.com/amondnet/now-deployment/issues/25)
+- fix: octokit.repos.commentId is not a function [\#32](https://github.com/amondnet/now-deployment/pull/32) ([amondnet](https://github.com/amondnet))
 - fix: outputs object is always empty [\#29](https://github.com/amondnet/now-deployment/pull/29) ([amondnet](https://github.com/amondnet))
 
 **Closed issues:**

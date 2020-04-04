@@ -21,7 +21,6 @@ This action make a ZEIT Now deployment with github actions.
 | Name              | Required | Default | Description                                                                                       |
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
 | zeit-token        |    [x]   |         | ZEIT now token.                                                                                   |
-| zeit-team-id      |    [ ]   |         | if your deployment is made on team project and `github-comment` is true. example: `team_asdf1234` |
 | github-comment    |    [ ]   | true    | if you don't want to comment on pull request.                                                     |
 | github-token      |    [ ]   |         | if you want to comment on pull request.                                                           |
 | now-args          |    [ ]   |         | This is optional args for `now` cli. Example: `--prod`                                            |
@@ -131,7 +130,6 @@ jobs:
         with:
           zeit-token: ${{ secrets.ZEIT_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
-          zeit-team-id: team_XXXXXXXXXXX #Optional 
           now-args: '--prod' #Optional
           now-org-id: ${{ secrets.ORG_ID}}  #Required
           now-project-id: ${{ secrets.PROJECT_ID}} #Required 

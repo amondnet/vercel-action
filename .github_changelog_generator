@@ -1,6 +1,6 @@
 user=amondnet
 project=now-deployment
-future-release=v2.0.1
+future-release=v2.0.2
 since-tag=v1.0.1
 enhancement-labels=Type: Enhancement,Type: Feature,Type: Improvement
 bug-labels=Type: Bug
