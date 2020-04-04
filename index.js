@@ -1,4 +1,3 @@
-const axios = require("axios");
 const { stripIndents } = require("common-tags");
 const core = require("@actions/core");
 const github = require("@actions/github");
@@ -8,24 +7,12 @@ const exec = require("@actions/exec");
 const context = github.context;
 
 const zeitToken = core.getInput("zeit-token");
-const zeitTeamId = core.getInput("zeit-team-id");
 const nowArgs = core.getInput("now-args");
 const githubToken = core.getInput("github-token");
 const githubComment = core.getInput("github-comment") === "true";
-const githubDeployment = core.getInput("github-deployment") === "true";
 const workingDirectory = core.getInput("working-directory");
 const nowOrgId = core.getInput("now-org-id");
 const nowProjectId = core.getInput("now-project-id");
-
-const zeitAPIClient = axios.create({
-  baseURL: "https://api.zeit.co",
-  headers: {
-    Authorization: `Bearer ${zeitToken}`
-  },
-  params: {
-    teamId: zeitTeamId || undefined
-  }
-});
 
 let octokit;
 if (githubToken) {
@@ -34,13 +21,10 @@ if (githubToken) {
 
 async function run() {
   await setEnv();
-  await nowDeploy();
-  const deployment = await findPreviewUrl();
-  const deploymentUrl = deployment.deploymentUrl;
-  const deploymentCommit = deployment.deploymentCommit;
+  const deploymentUrl = await nowDeploy();
   if (deploymentUrl) {
     core.info("set preview-url output");
-    core.setOutput("preview-url", `https://${deploymentUrl}`);
+    core.setOutput("preview-url", deploymentUrl);
   } else {
     core.warning("get preview-url error");
   }
@@ -91,36 +75,36 @@ async function nowDeploy() {
     options.cwd = workingDirectory;
   }
 
-  return await exec
-    .exec(
-      "npx",
-      [
-        "now",
-        ...nowArgs.split(/ +/),
-        "-t",
-        zeitToken,
-        "-m",
-        `githubCommitSha=${context.sha}`,
-        "-m",
-        `githubCommitAuthorName=${context.actor}`,
-        "-m",
-        `githubCommitAuthorLogin=${context.actor}`,
-        "-m",
-        "githubDeployment=1",
-        "-m",
-        `githubOrg=${context.repo.owner}`,
-        "-m",
-        `githubRepo=${context.repo.repo}`,
-        "-m",
-        `githubCommitOrg=${context.repo.owner}`,
-        "-m",
-        `githubCommitRepo=${context.repo.repo}`,
-        "-m",
-        `githubCommitMessage=${commit}`,
-      ],
-      options
-    )
-    .then(() => {});
+  await exec.exec(
+    "npx",
+    [
+      "now",
+      ...nowArgs.split(/ +/),
+      "-t",
+      zeitToken,
+      "-m",
+      `githubCommitSha=${context.sha}`,
+      "-m",
+      `githubCommitAuthorName=${context.actor}`,
+      "-m",
+      `githubCommitAuthorLogin=${context.actor}`,
+      "-m",
+      "githubDeployment=1",
+      "-m",
+      `githubOrg=${context.repo.owner}`,
+      "-m",
+      `githubRepo=${context.repo.repo}`,
+      "-m",
+      `githubCommitOrg=${context.repo.owner}`,
+      "-m",
+      `githubCommitRepo=${context.repo.repo}`,
+      "-m",
+      `githubCommitMessage=${commit}`
+    ],
+    options
+  );
+
+  return myOutput;
 }
 
 async function findPreviousComment(text) {
@@ -143,60 +127,6 @@ async function findPreviousComment(text) {
     core.info("previous comment not found");
     return null;
   }
-}
-
-async function findPreviewUrl() {
-  let deploymentUrl;
-  let deploymentCommit;
-
-  const {
-    data: {
-      deployments: [commitDeployment]
-    }
-  } = await zeitAPIClient.get("/v4/now/deployments", {
-    params: {
-      "meta-githubCommitSha": context.sha
-    }
-  });
-
-  if (commitDeployment) {
-    deploymentUrl = commitDeployment.url;
-    deploymentCommit = commitDeployment.meta.githubCommitSha;
-  } else {
-    const {
-      data: {
-        deployments: [lastBranchDeployment]
-      }
-    } = await zeitAPIClient.get("/v4/now/deployments", {
-      params: {
-        "meta-githubCommitRef": context.ref
-      }
-    });
-
-    if (lastBranchDeployment) {
-      deploymentUrl = lastBranchDeployment.url;
-      deploymentCommit = lastBranchDeployment.meta.githubCommitSha;
-    } else {
-      const {
-        data: {
-          deployments: [lastDeployment]
-        }
-      } = await zeitAPIClient.get("/v4/now/deployments", {
-        params: {
-          limit: 1
-        }
-      });
-
-      if (lastDeployment) {
-        deploymentUrl = lastDeployment.url;
-        deploymentCommit = lastDeployment.meta.githubCommitSha;
-      }
-    }
-  }
-  return {
-    deploymentUrl: deploymentUrl,
-    deploymentCommit: deploymentCommit
-  };
 }
 
 async function createCommentOnCommit(deploymentCommit, deploymentUrl) {
