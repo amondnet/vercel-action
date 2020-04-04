@@ -20,8 +20,41 @@ if (githubToken) {
 }
 
 async function run() {
+  core.debug(`action : ${context.action}`);
+  core.debug(`ref : ${context.ref}`);
+  core.debug(`eventName : ${context.eventName}`);
+  core.debug(`actor : ${context.actor}`);
+  core.debug(`sha : ${context.sha}`);
+  core.debug(`workflow : ${context.workflow}`);
+  let ref = context.ref;
+  let sha = context.sha;
   await setEnv();
-  const deploymentUrl = await nowDeploy();
+
+  let commit = execSync("git log -1 --pretty=format:%B")
+    .toString()
+    .trim();
+  if (github.context.eventName === 'push') {
+    const pushPayload = github.context.payload;
+    core.debug(`The head commit is: ${pushPayload.head_commit}`);
+  } else if ( github.context.eventName === 'pull_request') {
+    const pullRequestPayload = github.context.payload;
+    core.debug(`head : ${pullRequestPayload.pull_request.head}`);
+
+    ref = pullRequestPayload.pull_request.head.ref;
+    sha = pullRequestPayload.pull_request.head.sha;
+    core.debug(`The head ref is: ${pullRequestPayload.pull_request.head.ref}`);
+    core.debug(`The head sha is: ${pullRequestPayload.pull_request.head.sha}`);
+
+    if ( octokit ) {
+      const { data: commitData } = await octokit.git.getCommit({
+        ...context.repo, commit_sha: sha
+      });
+      commit = commitData.message;
+      core.debug(`The head commit is: ${commit}`);
+    }
+  }
+
+  const deploymentUrl = await nowDeploy(ref, commit);
   if (deploymentUrl) {
     core.info("set preview-url output");
     core.setOutput("preview-url", deploymentUrl);
@@ -31,10 +64,10 @@ async function run() {
   if (githubComment && githubToken) {
     if (context.issue.number) {
       core.info("this is related issue or pull_request ");
-      await createCommentOnPullRequest(deploymentCommit, deploymentUrl);
+      await createCommentOnPullRequest(sha, deploymentUrl);
     } else if (context.eventName === "push") {
       core.info("this is push event");
-      await createCommentOnCommit(deploymentCommit, deploymentUrl);
+      await createCommentOnCommit(sha, deploymentUrl);
     }
   } else {
     core.info("comment : disabled");
@@ -53,11 +86,7 @@ async function setEnv() {
   }
 }
 
-async function nowDeploy() {
-  const commit = execSync("git log -1 --pretty=format:%B")
-    .toString()
-    .trim();
-
+async function nowDeploy(ref, commit) {
   let myOutput = "";
   let myError = "";
   const options = {};
@@ -99,7 +128,9 @@ async function nowDeploy() {
       "-m",
       `githubCommitRepo=${context.repo.repo}`,
       "-m",
-      `githubCommitMessage=${commit}`
+      `githubCommitMessage=${commit}`,
+      "-m",
+      `githubCommitRef=${ref}`
     ],
     options
   );
@@ -165,15 +196,15 @@ async function createCommentOnPullRequest(deploymentCommit, deploymentUrl) {
     return;
   }
   const commentId = await findPreviousComment(
-    "Deploy preview for _website_ ready!"
+    "This pull request is being automatically deployed with"
   );
 
   const commentBody = stripIndents`
-    Deploy preview for _website_ ready!
+    This pull request is being automatically deployed with [now-deployment](https://github.com/amondnet/now-deployment)
 
     Built with commit ${deploymentCommit}
 
-    https://${deploymentUrl}
+    ✅ Preview: ${deploymentUrl}
   `;
 
   if (commentId) {

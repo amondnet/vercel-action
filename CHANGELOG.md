@@ -2,7 +2,7 @@
 
 ## [v2.0.1](https://github.com/amondnet/now-deployment/tree/v2.0.1) (2020-02-25)
 
-[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2.0.0...v2.0.1)
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2...v2.0.1)
 
 **Fixed bugs:**
 
@@ -24,13 +24,16 @@
 
 **Implemented enhancements:**
 
-- Support for Now CLI v17 [\#24](https://github.com/amondnet/now-deployment/issues/24)
 - Do not want to receive comments from action [\#14](https://github.com/amondnet/now-deployment/issues/14)
+- Support for Now CLI v17 [\#24](https://github.com/amondnet/now-deployment/issues/24)
 - feat: now cli v17, add `NOW\_PROJECT\_ID` and `NOW\_ORG\_ID` env variable [\#26](https://github.com/amondnet/now-deployment/pull/26) ([amondnet](https://github.com/amondnet))
+
+**Fixed bugs:**
+
+- Deploy stalled [\#23](https://github.com/amondnet/now-deployment/issues/23)
 
 **Closed issues:**
 
-- Deploy stalled [\#23](https://github.com/amondnet/now-deployment/issues/23)
 - Can I upload the contents of a folder with pre-built assets? [\#22](https://github.com/amondnet/now-deployment/issues/22)
 - getting 403 error every time it tries to comment [\#18](https://github.com/amondnet/now-deployment/issues/18)
 - Feature: Ability to specify path for --local-config flag [\#16](https://github.com/amondnet/now-deployment/issues/16)
