@@ -35,6 +35,10 @@ This action make a ZEIT Now deployment with github actions.
 
 The url of deployment preview.
 
+### `preview-name`
+
+The name of deployment name.
+
 ## Example Usage
 
 ### Disable ZEIT Now for GitHub
@@ -68,7 +72,6 @@ When set to false, `ZEIT Now for GitHub` will not deploy the given project regar
 `now.json` Example:
 ```json
 {
-  "name": "zeit-now-deployment",
   "version": 2,
   "scope": "amond",
   "public": false,
@@ -137,6 +140,15 @@ jobs:
 ```
 
 
-### Agnular Example
+### Angular Example
 
 See [.github/workflow/example-angular.yml](/.github/workflows/example-angular.yml) , 
+
+
+### Basic Auth Example
+
+How to add Basic Authentication to a Now deployment
+
+See [.github/workflow/examole-express-basic-auth.yml](.github/workflow/examole-express-basic-auth.yml)
+
+[https://github.com/amondnet/now-deployment/tree/master/example/angular](Source Code)
