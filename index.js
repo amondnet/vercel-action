@@ -61,13 +61,22 @@ async function run() {
   } else {
     core.warning("get preview-url error");
   }
+
+  const deploymentName = await nowInspect(deploymentUrl);
+  if (deploymentName) {
+    core.info("set preview-name output");
+    core.setOutput("preview-name", deploymentName);
+  } else {
+    core.warning("get preview-name error");
+  }
+
   if (githubComment && githubToken) {
     if (context.issue.number) {
       core.info("this is related issue or pull_request ");
-      await createCommentOnPullRequest(sha, deploymentUrl);
+      await createCommentOnPullRequest(sha, deploymentUrl, deploymentName);
     } else if (context.eventName === "push") {
       core.info("this is push event");
-      await createCommentOnCommit(sha, deploymentUrl);
+      await createCommentOnCommit(sha, deploymentUrl, deploymentName);
     }
   } else {
     core.info("comment : disabled");
@@ -138,6 +147,40 @@ async function nowDeploy(ref, commit) {
   return myOutput;
 }
 
+async function nowInspect(deploymentUrl) {
+  let myOutput = "";
+  let myError = "";
+  const options = {};
+  options.listeners = {
+    stdout: data => {
+      myOutput += data.toString();
+      core.info(data.toString());
+    },
+    stderr: data => {
+      myError += data.toString();
+      core.info(data.toString());
+    }
+  };
+  if (workingDirectory) {
+    options.cwd = workingDirectory;
+  }
+
+  await exec.exec(
+    "npx",
+    [
+      "now",
+      "inspect",
+      deploymentUrl,
+      "-t",
+      zeitToken,
+    ],
+    options
+  );
+
+  const match = myError.match(/^\s+name\s+(.+)$/m);
+  return match && match.length ? match[1] : null;
+}
+
 async function findPreviousComment(text) {
   if (!octokit) {
     return null;
@@ -160,16 +203,16 @@ async function findPreviousComment(text) {
   }
 }
 
-async function createCommentOnCommit(deploymentCommit, deploymentUrl) {
+async function createCommentOnCommit(deploymentCommit, deploymentUrl, deploymentName) {
   if (!octokit) {
     return;
   }
   const commentId = await findPreviousComment(
-    "Deploy preview for _website_ ready!"
+    `Deploy preview for _${deploymentName}_ ready!`
   );
 
   const commentBody = stripIndents`
-    Deploy preview for _website_ ready!
+    Deploy preview for _${deploymentName}_ ready!
 
     Built with commit ${deploymentCommit}
 
@@ -191,20 +234,22 @@ async function createCommentOnCommit(deploymentCommit, deploymentUrl) {
   }
 }
 
-async function createCommentOnPullRequest(deploymentCommit, deploymentUrl) {
+async function createCommentOnPullRequest(deploymentCommit, deploymentUrl, deploymentName) {
   if (!octokit) {
     return;
   }
   const commentId = await findPreviousComment(
-    "This pull request is being automatically deployed with"
+    `Deploy preview for _${deploymentName}_ ready!`
   );
 
   const commentBody = stripIndents`
-    This pull request is being automatically deployed with [now-deployment](https://github.com/amondnet/now-deployment)
+    Deploy preview for _${deploymentName}_ ready!
 
     Built with commit ${deploymentCommit}
 
     ✅ Preview: ${deploymentUrl}
+
+    This pull request is being automatically deployed with [now-deployment](https://github.com/amondnet/now-deployment)
   `;
 
   if (commentId) {
