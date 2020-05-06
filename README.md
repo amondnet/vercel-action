@@ -151,4 +151,4 @@ How to add Basic Authentication to a Now deployment
 
 See [.github/workflow/examole-express-basic-auth.yml](.github/workflow/examole-express-basic-auth.yml)
 
-[https://github.com/amondnet/now-deployment/tree/master/example/angular](Source Code)
+[source code](https://github.com/amondnet/now-deployment/tree/master/example/express-basic-auth)
