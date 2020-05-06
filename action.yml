@@ -33,11 +33,12 @@ inputs:
 outputs:
   preview-url:
     description: 'deployment preview URL'
-
+  preview-name:
+    description: 'deployment preview name'
 runs:
   using: 'node12'
   main: 'index.js'
 
 branding:
   icon: 'check'
-  color: 'black'
+  color: 'gray-dark'
