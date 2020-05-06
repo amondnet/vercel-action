@@ -1,5 +1,22 @@
 # Changelog
 
+## [v2.0.3](https://github.com/amondnet/now-deployment/tree/v2.0.3) (2020-05-06)
+
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2.0.2...v2.0.3)
+
+**Implemented enhancements:**
+
+- Show project name in Github comment [\#44](https://github.com/amondnet/now-deployment/pull/44) ([rodrigorm](https://github.com/rodrigorm))
+
+**Closed issues:**
+
+- Update now version to v18 [\#41](https://github.com/amondnet/now-deployment/issues/41)
+
+**Merged pull requests:**
+
+- docs: basic auth example [\#46](https://github.com/amondnet/now-deployment/pull/46) ([amondnet](https://github.com/amondnet))
+- build: now@18.0.0 [\#45](https://github.com/amondnet/now-deployment/pull/45) ([amondnet](https://github.com/amondnet))
+
 ## [v2.0.2](https://github.com/amondnet/now-deployment/tree/v2.0.2) (2020-04-04)
 
 [Full Changelog](https://github.com/amondnet/now-deployment/compare/v2.0.1...v2.0.2)
@@ -22,15 +39,15 @@
 
 **Merged pull requests:**
 
+- chore\(release\): 2.0.2  [\#39](https://github.com/amondnet/now-deployment/pull/39) ([amondnet](https://github.com/amondnet))
 - docs\(README\): Update documentation regarding github secrets [\#35](https://github.com/amondnet/now-deployment/pull/35) ([amalv](https://github.com/amalv))
 
 ## [v2.0.1](https://github.com/amondnet/now-deployment/tree/v2.0.1) (2020-02-25)
 
-[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2...v2.0.1)
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v2.0.0...v2.0.1)
 
 **Fixed bugs:**
 
-- fix: octokit.repos.commentId is not a function [\#32](https://github.com/amondnet/now-deployment/pull/32) ([amondnet](https://github.com/amondnet))
 - fix: outputs object is always empty [\#29](https://github.com/amondnet/now-deployment/pull/29) ([amondnet](https://github.com/amondnet))
 
 **Closed issues:**
@@ -44,7 +61,7 @@
 
 ## [v2.0.0](https://github.com/amondnet/now-deployment/tree/v2.0.0) (2020-02-18)
 
-[Full Changelog](https://github.com/amondnet/now-deployment/compare/v1...v2.0.0)
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v1.2.0...v2.0.0)
 
 **Implemented enhancements:**
 
@@ -64,7 +81,7 @@
 
 ## [v1.2.0](https://github.com/amondnet/now-deployment/tree/v1.2.0) (2020-01-28)
 
-[Full Changelog](https://github.com/amondnet/now-deployment/compare/v1.1.0...v1.2.0)
+[Full Changelog](https://github.com/amondnet/now-deployment/compare/v1...v1.2.0)
 
 **Implemented enhancements:**
 
