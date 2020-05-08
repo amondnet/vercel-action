@@ -1,0 +1,22 @@
+name: test released action
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: amondnet/now-deployment@v2.0.3
+        id: now-deployment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          github-comment: false
+          now-org-id: ${{ secrets.NOW_ORG_ID }}
+          now-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
+      - name: preview-url
+        run: |
+          echo ${{ steps.now-deployment.outputs.preview-url }}
