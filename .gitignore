@@ -1,4 +1,5 @@
-#node_modules
+# comment this out distribution branches
+node_modules
 .idea
 
 .now
