@@ -23,7 +23,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
       - uses: ./
         id: vercel-action-production
@@ -32,6 +32,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
           vercel-args: '--prod '

@@ -9,8 +9,8 @@
 This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). 
 ![stars](https://badgen.net/github/stars/amondnet/now-deployment) ![forks](https://badgen.net/github/forks/amondnet/now-deployment) 
 
-> Vercel a cloud platform for static sites and Serverless Functions
----
+## Introduction to Vercel
+​Vercel is a cloud platform for **static sites** and **Serverless Functions** that fits perfectly with your workflow. It enables developers to host **Jamstack** websites and web services that **deploy instantly**, **scale automatically**, and requires **no supervision**, all with **no configuration**.
 
 This action make a Vercel deployment with github actions. 
 
