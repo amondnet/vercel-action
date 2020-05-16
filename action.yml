@@ -2,9 +2,9 @@ name: 'Vercel Action'
 description: 'This action make a deployment with github actions instead of Vercel builder.'
 inputs:
   vercel-token:
-    description: 'Vercel token'
+    description: 'zeit token'
     required: true
-  now-args:
+  vercel-args:
     description: ''
     required: false
     default: ''
@@ -28,7 +28,23 @@ inputs:
   vercel-org-id:
     required: false
     description: 'Vercel CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
-
+  zeit-token:
+    description: 'zeit.co token'
+    required: true
+    deprecationMessage: 'Zeit is now Vercel. Use "vercel-token" instead'
+  now-args:
+    description: ''
+    required: false
+    default: ''
+    deprecationMessage: 'Zeit is now Vercel. Use "vercel-args" instead.'
+  now-project-id:
+    required: false
+    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    deprecationMessage: 'Zeit is now Vercel. Use "vercel-project-id" instead.'
+  now-org-id:
+    required: false
+    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    deprecationMessage: 'Zeit is now Vercel. Use "vercel-org-id" instead.'
 
 outputs:
   preview-url:

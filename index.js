@@ -6,13 +6,15 @@ const exec = require("@actions/exec");
 
 const context = github.context;
 
-const zeitToken = core.getInput("zeit-token");
-const nowArgs = core.getInput("now-args");
 const githubToken = core.getInput("github-token");
 const githubComment = core.getInput("github-comment") === "true";
 const workingDirectory = core.getInput("working-directory");
-const nowOrgId = core.getInput("now-org-id");
-const nowProjectId = core.getInput("now-project-id");
+
+// Vercel
+const vercelToken = core.getInput("vercel-token") ?? core.getInput("zeit-token");
+const vercelArgs = core.getInput("vercel-args") ?? core.getInput("now-args");
+const vercelOrgId = core.getInput("vercel-org-id") ?? core.getInput("now-org-id");;
+const vercelProjectId = core.getInput("vercel-project-id") ?? core.getInput("now-project-id");
 
 let octokit;
 if (githubToken) {
@@ -54,7 +56,7 @@ async function run() {
     }
   }
 
-  const deploymentUrl = await nowDeploy(ref, commit);
+  const deploymentUrl = await vercelDeploy(ref, commit);
   if (deploymentUrl) {
     core.info("set preview-url output");
     core.setOutput("preview-url", deploymentUrl);
@@ -62,7 +64,7 @@ async function run() {
     core.warning("get preview-url error");
   }
 
-  const deploymentName = await nowInspect(deploymentUrl);
+  const deploymentName = await vercelInspect(deploymentUrl);
   if (deploymentName) {
     core.info("set preview-name output");
     core.setOutput("preview-name", deploymentName);
@@ -84,18 +86,18 @@ async function run() {
 }
 
 async function setEnv() {
-  core.info("set environment for now cli 17+");
-  if (nowOrgId) {
-    core.info("set env variable : NOW_ORG_ID");
-    core.exportVariable("NOW_ORG_ID", nowOrgId);
+  core.info("set environment for vercel cli");
+  if (vercelOrgId) {
+    core.info("set env variable : VERCEL_ORG_ID");
+    core.exportVariable("VERCEL_ORG_ID", vercelOrgId);
   }
-  if (nowProjectId) {
-    core.info("set env variable : NOW_PROJECT_ID");
-    core.exportVariable("NOW_PROJECT_ID", nowProjectId);
+  if (vercelProjectId) {
+    core.info("set env variable : VERCEL_PROJECT_ID");
+    core.exportVariable("VERCEL_PROJECT_ID", vercelProjectId);
   }
 }
 
-async function nowDeploy(ref, commit) {
+async function vercelDeploy(ref, commit) {
   let myOutput = "";
   let myError = "";
   const options = {};
@@ -116,10 +118,10 @@ async function nowDeploy(ref, commit) {
   await exec.exec(
     "npx",
     [
-      "now",
-      ...nowArgs.split(/ +/),
+      "vercel",
+      ...vercelArgs.split(/ +/),
       "-t",
-      zeitToken,
+      vercelToken,
       "-m",
       `githubCommitSha=${context.sha}`,
       "-m",
@@ -147,7 +149,7 @@ async function nowDeploy(ref, commit) {
   return myOutput;
 }
 
-async function nowInspect(deploymentUrl) {
+async function vercelInspect(deploymentUrl) {
   let myOutput = "";
   let myError = "";
   const options = {};
@@ -168,11 +170,11 @@ async function nowInspect(deploymentUrl) {
   await exec.exec(
     "npx",
     [
-      "now",
+      "vercel",
       "inspect",
       deploymentUrl,
       "-t",
-      zeitToken,
+      vercelToken,
     ],
     options
   );
@@ -191,12 +193,12 @@ async function findPreviousComment(text) {
     commit_sha: context.sha
   });
 
-  const zeitPreviewURLComment = comments.find(comment =>
+  const vercelPreviewURLComment = comments.find(comment =>
     comment.body.startsWith(text)
   );
-  if (zeitPreviewURLComment) {
+  if (vercelPreviewURLComment) {
     core.info("previous comment found");
-    return zeitPreviewURLComment.id;
+    return vercelPreviewURLComment.id;
   } else {
     core.info("previous comment not found");
     return null;
@@ -249,7 +251,7 @@ async function createCommentOnPullRequest(deploymentCommit, deploymentUrl, deplo
 
     ✅ Preview: ${deploymentUrl}
 
-    This pull request is being automatically deployed with [now-deployment](https://github.com/amondnet/now-deployment)
+    This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
   `;
 
   if (commentId) {
