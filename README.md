@@ -1,12 +1,15 @@
-# ZEIT Now Deployment
+# Vercel Action
 
-> ZEIT Now is a cloud platform for static sites and Serverless Functions
+> Vercel a cloud platform for static sites and Serverless Functions
 
-This action make a ZEIT Now deployment with github actions. 
+This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). ![stars](https://badgen.net/github/stars/amondnet/now-deployment)
 
-- [x] Deploy to ZEIT now.
+This action make a Vercel deployment with github actions. 
+
+- [x] Deploy to Vercel.
 - [x] Comment on pull request.
 - [x] Comment on commit.
+- [x] [Password Protect ( Basic Auth )](https://github.com/amondnet/vercel-action#basic-auth-example)
 - [ ] Create Deployment on github.
 
 ## Result

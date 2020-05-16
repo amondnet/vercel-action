@@ -25,6 +25,7 @@
     "@octokit/webhooks": "latest"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
     "prettier": "1.19.1"
   },
   "engines": {

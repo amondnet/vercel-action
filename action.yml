@@ -1,8 +1,8 @@
-name: 'ZEIT Now Deployment'
-description: 'This action make a deployment with github actions instead of ZEIT Now builder.'
+name: 'Vercel Action'
+description: 'This action make a deployment with github actions instead of Vercel builder.'
 inputs:
-  zeit-token:
-    description: 'zeit.co token'
+  vercel-token:
+    description: 'Vercel token'
     required: true
   now-args:
     description: ''
@@ -22,12 +22,12 @@ inputs:
   working-directory:
     required: false
     description: the working directory
-  now-project-id:
+  vercel-project-id:
     required: false
-    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
-  now-org-id:
+    description: 'Vercel CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+  vercel-org-id:
     required: false
-    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    description: 'Vercel CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
 
 
 outputs:
