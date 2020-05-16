@@ -1,4 +1,4 @@
-name: test now-deploysment action
+name: test now-deployment action
 on:
   push:
     branches:
