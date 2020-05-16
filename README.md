@@ -5,6 +5,8 @@
 ![example - static](https://github.com/amondnet/vercel-action/workflows/example%20-%20static/badge.svg)
 ![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
 ![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
+![stars](https://badgen.net/github/stars/amondnet/vercel-action) 
+![forks](https://badgen.net/github/forks/amondnet/vercel-action) 
 
 This action was formerly [Zeit Now Deployment](https://github.com/marketplace/actions/zeit-now-deployment). [Migration Guide](#migration-from-v2)
 ![stars](https://badgen.net/github/stars/amondnet/now-deployment) ![forks](https://badgen.net/github/forks/amondnet/now-deployment) 
