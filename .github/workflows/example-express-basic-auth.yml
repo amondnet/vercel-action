@@ -19,7 +19,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.NOW_PROJECT_ID_AUTH }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
           working-directory: example/express-basic-auth
       - uses: ./
         id: now-deployment-production
@@ -28,6 +28,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.NOW_PROJECT_ID_AUTH }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
           vercel-args: '--prod'
           working-directory: example/express-basic-auth
