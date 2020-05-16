@@ -1,8 +1,13 @@
 # Vercel Action
-
 > Vercel a cloud platform for static sites and Serverless Functions
 
 This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). ![stars](https://badgen.net/github/stars/amondnet/now-deployment)
+
+---
+![deploy website preview](https://github.com/amondnet/vercel-action/workflows/deploy%20website%20preview/badge.svg)
+
+
+
 
 This action make a Vercel deployment with github actions. 
 
