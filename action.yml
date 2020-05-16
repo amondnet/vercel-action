@@ -56,5 +56,5 @@ runs:
   main: 'dist/index.js'
 
 branding:
-  icon: 'check'
-  color: 'gray-dark'
+  icon: 'triangle'
+  color: 'white'

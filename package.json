@@ -1,6 +1,7 @@
 {
   "name": "now-deployment",
   "private": true,
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/amondnet/now-deployment"
@@ -10,10 +11,16 @@
     "email": "amond@amond.net",
     "url": "https://amond.dev"
   },
-  "version": "1.1.0",
+  "version": "19.0.1",
   "main": "index.js",
   "scripts": {
-    "package": "ncc build index.js -o dist"
+    "lint": "eslint index.js",
+    "start": "node ./index.js",
+    "package": "ncc build index.js -o dist",
+    "test": "jest",
+    "format": "prettier --write index.js",
+    "format-check": "prettier --check index.js",
+    "all": "npm run format && npm run lint && npm run package && npm test"
   },
   "dependencies": {
     "@actions/core": "^1.2.2",
@@ -26,9 +33,25 @@
   },
   "devDependencies": {
     "@zeit/ncc": "^0.22.1",
-    "prettier": "1.19.1"
+    "prettier": "1.19.1",
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.3",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^2.5.0",
+    "jest": "^26.0.1"
   },
   "engines": {
     "node": "v12"
-  }
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "Vercel",
+    "Zeit",
+    "Now"
+  ]
 }
