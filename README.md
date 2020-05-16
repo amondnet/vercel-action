@@ -6,7 +6,7 @@
 ![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
 ![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
 
-This action was formerly [Zeit Now Deployment](https://github.com/marketplace/actions/vercel-action).  (https://github.com/amondnet/now-deployment). 
+This action was formerly [Zeit Now Deployment](https://github.com/marketplace/actions/zeit-now-deployment). [Migration Guide](#migration-from-v2)
 ![stars](https://badgen.net/github/stars/amondnet/now-deployment) ![forks](https://badgen.net/github/forks/amondnet/now-deployment) 
 
 ## Introduction to Vercel
@@ -166,15 +166,13 @@ See [.github/workflow/examole-express-basic-auth.yml](.github/workflow/examole-e
 
 ## Migration from v2
 
-Change input values :
+1. Change action name in `workflows` from `now-deployment` to `vercel-action`
+   ```yaml
+    - name: Vercel Action
+      uses: amondnet/vercel-action@v19.0.1
+   ```
+2. Change input values.
+    - `zeit-token` -> `vercel-token`
+    - `now-org-id` -> `vercel-org-id`
+    - `now-project-id` -> `vercel-project-id`
 
-`zeit-token` -> `vercel-token`
-
-`now-org-id` -> `vercel-org-id`
-
-`now-project-id` -> `vercel-project-id`
-
-Change action name in `workflows` from `now-deployment` to `vercel-action`
-```yaml
-
-```
