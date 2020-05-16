@@ -6,7 +6,8 @@
 ![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
 ![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
 
-This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). ![stars](https://badgen.net/github/stars/amondnet/now-deployment)
+This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). 
+![stars](https://badgen.net/github/stars/amondnet/now-deployment) ![forks](https://badgen.net/github/forks/amondnet/now-deployment) 
 
 > Vercel a cloud platform for static sites and Serverless Functions
 ---
@@ -30,13 +31,13 @@ This action make a Vercel deployment with github actions.
 
 | Name              | Required | Default | Description                                                                                       |
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
-| zeit-token        |    [x]   |         | ZEIT now token.                                                                                   |
+| vercel-token        |    [x]   |         | Vercel token.                                                                                   |
 | github-comment    |    [ ]   | true    | if you don't want to comment on pull request.                                                     |
 | github-token      |    [ ]   |         | if you want to comment on pull request.                                                           |
-| now-args          |    [ ]   |         | This is optional args for `now` cli. Example: `--prod`                                            |
+| vercel-args          |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
 | working-directory |    [ ]   |         | the working directory                                                                             |
-| now-project-id    |    [x]   |         | ❗️Now CLI 17+,The `name` property in now.json is deprecated (https://zeit.ink/5F)                  |
-| now-org-id        |    [x]   |         | ❗️Now CLI 17+,The `name` property in now.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-project-id    |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-org-id        |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 
 
 ## Outputs
@@ -51,14 +52,14 @@ The name of deployment name.
 
 ## Example Usage
 
-### Disable ZEIT Now for GitHub
+### Disable Vercel for GitHub
 
-> The ZEIT Now for GitHub integration automatically deploys your GitHub projects with ZEIT Now, providing Preview Deployment URLs, and automatic Custom Domain updates.
-[link](https://zeit.co/docs/v2/git-integrations)
+> The Vercel for GitHub integration automatically deploys your GitHub projects with Vercel, providing Preview Deployment URLs, and automatic Custom Domain updates.
+[link](https://vercel.com/docs/v2/git-integrations)
 
-We would like to to use `github actions` for build and deploy instead of `ZEIT Now`. 
+We would like to to use `github actions` for build and deploy instead of `Vercel`. 
 
-Set `github.enabled: false` in now.json
+Set `github.enabled: false` in vercel.json
 
 ```json
 {
@@ -76,10 +77,10 @@ Set `github.enabled: false` in now.json
 }
 
 ```
-When set to false, `ZEIT Now for GitHub` will not deploy the given project regardless of the GitHub app being installed.
+When set to false, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
 
 
-`now.json` Example:
+`vercel.json` Example:
 ```json
 {
   "version": 2,
@@ -99,14 +100,14 @@ When set to false, `ZEIT Now for GitHub` will not deploy the given project regar
 
 ### Project Linking
 
-You should link a project via [Now CLI](https://zeit.co/download) in locally.
+You should link a project via [Vercel CLI](https://vercel.com/download) in locally.
 
-When running `now` in a directory for the first time, [Now CLI](https://zeit.co/download) needs to know which scope and Project you want to deploy your directory to. You can choose to either link an existing project or to create a new one.
+When running `vercel` in a directory for the first time, [Vercel CLI](https://vercel.com/download) needs to know which scope and Project you want to deploy your directory to. You can choose to either link an existing project or to create a new one.
 
-> NOTE: Project linking requires at least version 17 of [Now CLI](https://zeit.co/download). If you have an earlier version, please [update](https://zeit.co/guides/updating-now-cli) to the latest version.
+> NOTE: Project linking requires at least version 17 of [Vercel CLI](https://vercel.com/download). If you have an earlier version, please [update](https://vercel.com/guides/updating-vercel-cli) to the latest version.
 
 ```bash
-now
+vercel
 ```
 
 ```bash
@@ -114,10 +115,10 @@ now
 ? Which scope do you want to deploy to? My Awesome Team
 ? Link to existing project? [y/N] y
 ? What’s the name of your existing project? my-lovely-project
-🔗 Linked to awesome-team/my-lovely-project (created .now and added it to .gitignore)
+🔗 Linked to awesome-team/my-lovely-project (created .vercel and added it to .gitignore)
 ```
 
-Once set up, a new `.now` directory will be added to your directory. The `.now` directory contains both the organization(`now-org-id`) and project(`now-project-id`) id of your project.
+Once set up, a new `.vercel` directory will be added to your directory. The `.vercel` directory contains both the organization(`vercel-org-id`) and project(`vercel-project-id`) id of your project.
 
 ```json
 {"orgId":"example_org_id","projectId":"example_project_id"}
@@ -129,7 +130,7 @@ You can save both values in the secrets setting in your repository. Read the [Of
 
 * This is a complete `.github/workflow/deploy.yml` example.
 
-Set the `now-project-id` and `now-org-id` you found above.
+Set the `vercel-project-id` and `vercel-org-id` you found above.
 
 ```yaml
 name: deploy website
@@ -139,13 +140,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/now-deployment@v2
+      - uses: amondnet/vercel-action@v19
         with:
-          zeit-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
-          now-args: '--prod' #Optional
-          now-org-id: ${{ secrets.ORG_ID}}  #Required
-          now-project-id: ${{ secrets.PROJECT_ID}} #Required 
+          vercel-args: '--prod' #Optional
+          vercel-org-id: ${{ secrets.ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required 
           working-directory: ./sub-directory
 ```
 
@@ -157,8 +158,8 @@ See [.github/workflow/example-angular.yml](/.github/workflows/example-angular.ym
 
 ### Basic Auth Example
 
-How to add Basic Authentication to a Now deployment
+How to add Basic Authentication to a Vercel deployment
 
 See [.github/workflow/examole-express-basic-auth.yml](.github/workflow/examole-express-basic-auth.yml)
 
-[source code](https://github.com/amondnet/now-deployment/tree/master/example/express-basic-auth)
+[source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)

@@ -66,7 +66,7 @@
 **Implemented enhancements:**
 
 - Do not want to receive comments from action [\#14](https://github.com/amondnet/now-deployment/issues/14)
-- Support for Now CLI v17 [\#24](https://github.com/amondnet/now-deployment/issues/24)
+- Support for Vercel CLI v17 [\#24](https://github.com/amondnet/now-deployment/issues/24)
 - feat: now cli v17, add `NOW\_PROJECT\_ID` and `NOW\_ORG\_ID` env variable [\#26](https://github.com/amondnet/now-deployment/pull/26) ([amondnet](https://github.com/amondnet))
 
 **Fixed bugs:**
