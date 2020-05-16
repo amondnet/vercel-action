@@ -21,8 +21,8 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.ZEIT_TOKEN }}
-          vercel-org-id: ${{ secrets.NOW_ORG_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
       - uses: ./
@@ -30,8 +30,8 @@ jobs:
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.ZEIT_TOKEN }}
-          vercel-org-id: ${{ secrets.NOW_ORG_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
           vercel-args: '--prod '

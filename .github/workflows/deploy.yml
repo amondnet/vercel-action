@@ -13,10 +13,10 @@ jobs:
         id: vercel-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.ZEIT_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-comment: false
-          vercel-org-id: ${{ secrets.NOW_ORG_ID }}
-          vercel-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
       - name: preview-url
         run: |
           echo ${{ steps.vercel-action.outputs.preview-url }}

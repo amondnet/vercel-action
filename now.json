@@ -1,5 +1,5 @@
 {
-  "name": "zeit-now-deployment-action",
+  "name": "vercel-action",
   "version": 2,
   "scope": "amond",
   "public": false,

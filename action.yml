@@ -24,10 +24,10 @@ inputs:
     description: the working directory
   vercel-project-id:
     required: false
-    description: 'Vercel CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   vercel-org-id:
     required: false
-    description: 'Vercel CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   zeit-token:
     description: 'zeit.co token'
     required: true
@@ -39,11 +39,11 @@ inputs:
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-args" instead.'
   now-project-id:
     required: false
-    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    description: 'Now CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-project-id" instead.'
   now-org-id:
     required: false
-    description: 'Now CLI 17+, ❗️  The `name` property in now.json is deprecated (https://zeit.ink/5F)'
+    description: 'Now CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-org-id" instead.'
 
 outputs:

@@ -16,10 +16,10 @@ jobs:
         id: now-deployment
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          zeit-token: ${{ secrets.VERCEL_TOKEN }}
           github-comment: false
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
+          now-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          now-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
       - name: preview-url
         run: |
           echo ${{ steps.now-deployment.outputs.preview-url }}

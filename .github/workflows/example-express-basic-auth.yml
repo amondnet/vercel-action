@@ -17,8 +17,8 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
+          zeit-token: ${{ secrets.VERCEL_TOKEN }}
+          now-org-id: ${{ secrets.VERCEL_ORG_ID }}
           now-project-id: ${{ secrets.NOW_PROJECT_ID_AUTH }}
           working-directory: example/express-basic-auth
       - uses: ./
@@ -26,8 +26,8 @@ jobs:
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
+          zeit-token: ${{ secrets.VERCEL_TOKEN }}
+          now-org-id: ${{ secrets.VERCEL_ORG_ID }}
           now-project-id: ${{ secrets.NOW_PROJECT_ID_AUTH }}
           now-args: '--prod'
           working-directory: example/express-basic-auth

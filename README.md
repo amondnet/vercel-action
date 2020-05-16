@@ -134,7 +134,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: amondnet/now-deployment@v2
         with:
-          zeit-token: ${{ secrets.ZEIT_TOKEN }} # Required
+          zeit-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
           now-args: '--prod' #Optional
           now-org-id: ${{ secrets.ORG_ID}}  #Required
