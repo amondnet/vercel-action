@@ -13,7 +13,7 @@
   "version": "1.1.0",
   "main": "index.js",
   "scripts": {
-    "start": "node ./index.js"
+    "package": "ncc build index.js -o dist"
   },
   "dependencies": {
     "@actions/core": "^1.2.2",
@@ -21,10 +21,11 @@
     "@actions/github": "^2.1.1",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0",
-    "now": "^18.0.0",
+    "vercel": "19.0.1",
     "@octokit/webhooks": "latest"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
     "prettier": "1.19.1"
   },
   "engines": {

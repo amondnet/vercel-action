@@ -10,13 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        id: now-deployment
+        id: vercel-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-comment: false
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: ${{ secrets.NOW_PROJECT_ID_STATIC }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
       - name: preview-url
         run: |
-          echo ${{ steps.now-deployment.outputs.preview-url }}
+          echo ${{ steps.vercel-action.outputs.preview-url }}

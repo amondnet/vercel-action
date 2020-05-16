@@ -14,24 +14,24 @@ jobs:
       - name: build
         run: |
           cd example/angular
-          npm install
+          npm ci
           npx ng build --prod
       - uses: ./
-        id: now-deployment-staging
+        id: vercel-action-staging
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
       - uses: ./
-        id: now-deployment-production
+        id: vercel-action-production
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          zeit-token: ${{ secrets.ZEIT_TOKEN }}
-          now-org-id: ${{ secrets.NOW_ORG_ID }}
-          now-project-id: ${{ secrets.NOW_PROJECT_ID_ANGULAR }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
-          now-args: '--prod '
+          vercel-args: '--prod '
