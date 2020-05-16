@@ -6,7 +6,7 @@
 ![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
 ![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
 
-This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). 
+This action was formerly [Zeit Now Deployment](https://github.com/marketplace/actions/vercel-action).  (https://github.com/amondnet/now-deployment). 
 ![stars](https://badgen.net/github/stars/amondnet/now-deployment) ![forks](https://badgen.net/github/forks/amondnet/now-deployment) 
 
 ## Introduction to Vercel
@@ -163,3 +163,18 @@ How to add Basic Authentication to a Vercel deployment
 See [.github/workflow/examole-express-basic-auth.yml](.github/workflow/examole-express-basic-auth.yml)
 
 [source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)
+
+## Migration from v2
+
+Change input values :
+
+`zeit-token` -> `vercel-token`
+
+`now-org-id` -> `vercel-org-id`
+
+`now-project-id` -> `vercel-project-id`
+
+Change action name in `workflows` from `now-deployment` to `vercel-action`
+```yaml
+
+```
