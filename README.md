@@ -1,13 +1,15 @@
 # Vercel Action
-> Vercel a cloud platform for static sites and Serverless Functions
+
+![deploy website preview](https://github.com/amondnet/vercel-action/workflows/deploy%20website%20preview/badge.svg)
+![test now-deploysment action](https://github.com/amondnet/vercel-action/workflows/test%20now-deploysment%20action/badge.svg)
+![example - static](https://github.com/amondnet/vercel-action/workflows/example%20-%20static/badge.svg)
+![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
+![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
 
 This action was formerly [Zeit Now Deployment](https://github.com/amondnet/now-deployment). ![stars](https://badgen.net/github/stars/amondnet/now-deployment)
 
+> Vercel a cloud platform for static sites and Serverless Functions
 ---
-![deploy website preview](https://github.com/amondnet/vercel-action/workflows/deploy%20website%20preview/badge.svg)
-
-
-
 
 This action make a Vercel deployment with github actions. 
 

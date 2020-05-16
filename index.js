@@ -11,10 +11,10 @@ const githubComment = core.getInput("github-comment") === "true";
 const workingDirectory = core.getInput("working-directory");
 
 // Vercel
-const vercelToken = core.getInput("vercel-token") ?? core.getInput("zeit-token");
-const vercelArgs = core.getInput("vercel-args") ?? core.getInput("now-args");
-const vercelOrgId = core.getInput("vercel-org-id") ?? core.getInput("now-org-id");;
-const vercelProjectId = core.getInput("vercel-project-id") ?? core.getInput("now-project-id");
+const vercelToken = core.getInput("vercel-token", { required: true });
+const vercelArgs = core.getInput("vercel-args");
+const vercelOrgId = core.getInput("vercel-org-id");
+const vercelProjectId = core.getInput("vercel-project-id");
 
 let octokit;
 if (githubToken) {
@@ -35,10 +35,10 @@ async function run() {
   let commit = execSync("git log -1 --pretty=format:%B")
     .toString()
     .trim();
-  if (github.context.eventName === 'push') {
+  if (github.context.eventName === "push") {
     const pushPayload = github.context.payload;
     core.debug(`The head commit is: ${pushPayload.head_commit}`);
-  } else if ( github.context.eventName === 'pull_request') {
+  } else if (github.context.eventName === "pull_request") {
     const pullRequestPayload = github.context.payload;
     core.debug(`head : ${pullRequestPayload.pull_request.head}`);
 
@@ -47,9 +47,10 @@ async function run() {
     core.debug(`The head ref is: ${pullRequestPayload.pull_request.head.ref}`);
     core.debug(`The head sha is: ${pullRequestPayload.pull_request.head.sha}`);
 
-    if ( octokit ) {
+    if (octokit) {
       const { data: commitData } = await octokit.git.getCommit({
-        ...context.repo, commit_sha: sha
+        ...context.repo,
+        commit_sha: sha
       });
       commit = commitData.message;
       core.debug(`The head commit is: ${commit}`);
@@ -169,13 +170,7 @@ async function vercelInspect(deploymentUrl) {
 
   await exec.exec(
     "npx",
-    [
-      "vercel",
-      "inspect",
-      deploymentUrl,
-      "-t",
-      vercelToken,
-    ],
+    ["vercel", "inspect", deploymentUrl, "-t", vercelToken],
     options
   );
 
@@ -205,7 +200,11 @@ async function findPreviousComment(text) {
   }
 }
 
-async function createCommentOnCommit(deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnCommit(
+  deploymentCommit,
+  deploymentUrl,
+  deploymentName
+) {
   if (!octokit) {
     return;
   }
@@ -236,7 +235,11 @@ async function createCommentOnCommit(deploymentCommit, deploymentUrl, deployment
   }
 }
 
-async function createCommentOnPullRequest(deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnPullRequest(
+  deploymentCommit,
+  deploymentUrl,
+  deploymentName
+) {
   if (!octokit) {
     return;
   }
