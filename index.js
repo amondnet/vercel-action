@@ -153,7 +153,7 @@ async function createCommentOnCommit(
 
     Built with commit ${deploymentCommit}
 
-    https://${deploymentUrl}
+    ${deploymentUrl}
   `;
 
   if (commentId) {
