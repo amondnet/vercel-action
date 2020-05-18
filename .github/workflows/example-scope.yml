@@ -1,4 +1,4 @@
-name: example - static
+name: example - team scope
 on:
   push:
     branches:
@@ -18,16 +18,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
-          working-directory: example/static
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
+          working-directory: example/team-scope
+          scope: ${{ secrets.VERCEL_SCOPE }}
       - uses: ./
         id: now-deployment-production
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
           vercel-args: '--prod'
-          working-directory: example/static
+          scope: ${{ secrets.VERCEL_SCOPE }}
+          working-directory: example/team-scope
