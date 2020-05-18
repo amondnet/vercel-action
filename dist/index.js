@@ -1050,6 +1050,7 @@ const vercelToken = core.getInput('vercel-token', { required: true });
 const vercelArgs = core.getInput('vercel-args');
 const vercelOrgId = core.getInput('vercel-org-id');
 const vercelProjectId = core.getInput('vercel-project-id');
+const vercelScope = core.getInput('scope');
 
 let octokit;
 if (githubToken) {
@@ -1140,11 +1141,12 @@ async function vercelInspect(deploymentUrl) {
     options.cwd = workingDirectory;
   }
 
-  await exec.exec(
-    'npx',
-    ['vercel', 'inspect', deploymentUrl, '-t', vercelToken],
-    options,
-  );
+  const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
+  if (vercelScope) {
+    core.info('using scope');
+    args.push(['--scope', vercelScope]);
+  }
+  await exec.exec('npx', args, options);
 
   const match = myError.match(/^\s+name\s+(.+)$/m);
   return match && match.length ? match[1] : null;

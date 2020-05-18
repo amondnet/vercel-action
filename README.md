@@ -48,7 +48,7 @@ This action make a Vercel deployment with github actions.
 | working-directory |    [ ]   |         | the working directory                                                                             |
 | vercel-project-id |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-org-id     |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| scope             |    [ ]   |         | If you are using this action on           
+| scope             |    [ ]   |         | If you are working in a team scope, you should set this value to your `team ID`.           
 
 ## Outputs
 
