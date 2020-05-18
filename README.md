@@ -179,7 +179,7 @@ See [.github/workflow/example-express-basic-auth.yml](.github/workflow/example-e
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
    ```yaml
     - name: Vercel Action
-      uses: amondnet/vercel-action@v19.0.1
+      uses: amondnet/vercel-action@v19
    ```
 2. Change input values.
     - `zeit-token` -> `vercel-token`
