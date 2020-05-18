@@ -1,7 +1,7 @@
 # Vercel Action
 
 ![deploy website preview](https://github.com/amondnet/vercel-action/workflows/deploy%20website%20preview/badge.svg)
-![test now-deploysment action](https://github.com/amondnet/vercel-action/workflows/test%20now-deploysment%20action/badge.svg)
+![test now-deployment action](https://github.com/amondnet/vercel-action/workflows/test%20now-deployment%20action/badge.svg)
 ![example - static](https://github.com/amondnet/vercel-action/workflows/example%20-%20static/badge.svg)
 ![example - basic auth](https://github.com/amondnet/vercel-action/workflows/example%20-%20basic%20auth/badge.svg)
 ![example - angular](https://github.com/amondnet/vercel-action/workflows/example%20-%20angular/badge.svg)
