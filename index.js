@@ -106,20 +106,10 @@ async function vercelInspect(deploymentUrl) {
     options.cwd = workingDirectory;
   }
 
-  let args;
+  const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
   if (vercelScope) {
     core.info('using scope');
-    args = [
-      'vercel',
-      'inspect',
-      deploymentUrl,
-      '-t',
-      vercelToken,
-      '--scope',
-      vercelScope,
-    ];
-  } else {
-    args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
+    args.push('--scope', vercelScope);
   }
   await exec.exec('npx', args, options);
 
