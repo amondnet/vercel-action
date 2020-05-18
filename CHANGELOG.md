@@ -2,6 +2,14 @@
 
 ## [v19.0.1+1](https://github.com/amondnet/vercel-action/tree/v19.0.1+1) (2020-05-18)
 
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+1...v19.0.1+1)
+
+**Fixed bugs:**
+
+- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
+
+## [v19.0.1+1](https://github.com/amondnet/vercel-action/tree/v19.0.1+1) (2020-05-18)
+
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1...v19.0.1+1)
 
 **Fixed bugs:**
@@ -14,7 +22,6 @@
 
 **Fixed bugs:**
 
-- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
 - Remove double https:// [\#3](https://github.com/amondnet/vercel-action/pull/3) ([sunderipranata](https://github.com/sunderipranata))
 
 **Merged pull requests:**
