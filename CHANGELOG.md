@@ -4,8 +4,13 @@
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v2.0.3...v19.0.1)
 
+**Fixed bugs:**
+
+- Remove double https:// [\#3](https://github.com/amondnet/vercel-action/pull/3) ([sunderipranata](https://github.com/sunderipranata))
+
 **Merged pull requests:**
 
+- refactor: eslint [\#2](https://github.com/amondnet/vercel-action/pull/2) ([amondnet](https://github.com/amondnet))
 - feat: rename to vercel [\#1](https://github.com/amondnet/vercel-action/pull/1) ([amondnet](https://github.com/amondnet))
 
 

@@ -1039,103 +1039,39 @@ const github = __webpack_require__(469);
 const { execSync } = __webpack_require__(129);
 const exec = __webpack_require__(986);
 
-const context = github.context;
+const { context } = github;
 
-const githubToken = core.getInput("github-token");
-const githubComment = core.getInput("github-comment") === "true";
-const workingDirectory = core.getInput("working-directory");
+const githubToken = core.getInput('github-token');
+const githubComment = core.getInput('github-comment') === 'true';
+const workingDirectory = core.getInput('working-directory');
 
 // Vercel
-const vercelToken = core.getInput("vercel-token", { required: true });
-const vercelArgs = core.getInput("vercel-args");
-const vercelOrgId = core.getInput("vercel-org-id");
-const vercelProjectId = core.getInput("vercel-project-id");
+const vercelToken = core.getInput('vercel-token', { required: true });
+const vercelArgs = core.getInput('vercel-args');
+const vercelOrgId = core.getInput('vercel-org-id');
+const vercelProjectId = core.getInput('vercel-project-id');
 
 let octokit;
 if (githubToken) {
   octokit = new github.GitHub(githubToken);
 }
 
-async function run() {
-  core.debug(`action : ${context.action}`);
-  core.debug(`ref : ${context.ref}`);
-  core.debug(`eventName : ${context.eventName}`);
-  core.debug(`actor : ${context.actor}`);
-  core.debug(`sha : ${context.sha}`);
-  core.debug(`workflow : ${context.workflow}`);
-  let ref = context.ref;
-  let sha = context.sha;
-  await setEnv();
-
-  let commit = execSync("git log -1 --pretty=format:%B")
-    .toString()
-    .trim();
-  if (github.context.eventName === "push") {
-    const pushPayload = github.context.payload;
-    core.debug(`The head commit is: ${pushPayload.head_commit}`);
-  } else if (github.context.eventName === "pull_request") {
-    const pullRequestPayload = github.context.payload;
-    core.debug(`head : ${pullRequestPayload.pull_request.head}`);
-
-    ref = pullRequestPayload.pull_request.head.ref;
-    sha = pullRequestPayload.pull_request.head.sha;
-    core.debug(`The head ref is: ${pullRequestPayload.pull_request.head.ref}`);
-    core.debug(`The head sha is: ${pullRequestPayload.pull_request.head.sha}`);
-
-    if (octokit) {
-      const { data: commitData } = await octokit.git.getCommit({
-        ...context.repo,
-        commit_sha: sha
-      });
-      commit = commitData.message;
-      core.debug(`The head commit is: ${commit}`);
-    }
-  }
-
-  const deploymentUrl = await vercelDeploy(ref, commit);
-  if (deploymentUrl) {
-    core.info("set preview-url output");
-    core.setOutput("preview-url", deploymentUrl);
-  } else {
-    core.warning("get preview-url error");
-  }
-
-  const deploymentName = await vercelInspect(deploymentUrl);
-  if (deploymentName) {
-    core.info("set preview-name output");
-    core.setOutput("preview-name", deploymentName);
-  } else {
-    core.warning("get preview-name error");
-  }
-
-  if (githubComment && githubToken) {
-    if (context.issue.number) {
-      core.info("this is related issue or pull_request ");
-      await createCommentOnPullRequest(sha, deploymentUrl, deploymentName);
-    } else if (context.eventName === "push") {
-      core.info("this is push event");
-      await createCommentOnCommit(sha, deploymentUrl, deploymentName);
-    }
-  } else {
-    core.info("comment : disabled");
-  }
-}
-
 async function setEnv() {
-  core.info("set environment for vercel cli");
+  core.info('set environment for vercel cli');
   if (vercelOrgId) {
-    core.info("set env variable : VERCEL_ORG_ID");
-    core.exportVariable("VERCEL_ORG_ID", vercelOrgId);
+    core.info('set env variable : VERCEL_ORG_ID');
+    core.exportVariable('VERCEL_ORG_ID', vercelOrgId);
   }
   if (vercelProjectId) {
-    core.info("set env variable : VERCEL_PROJECT_ID");
-    core.exportVariable("VERCEL_PROJECT_ID", vercelProjectId);
+    core.info('set env variable : VERCEL_PROJECT_ID');
+    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId);
   }
 }
 
 async function vercelDeploy(ref, commit) {
-  let myOutput = "";
-  let myError = "";
+  let myOutput = '';
+  // eslint-disable-next-line no-unused-vars
+  let myError = '';
   const options = {};
   options.listeners = {
     stdout: data => {
@@ -1145,49 +1081,50 @@ async function vercelDeploy(ref, commit) {
     stderr: data => {
       myError += data.toString();
       core.info(data.toString());
-    }
+    },
   };
   if (workingDirectory) {
     options.cwd = workingDirectory;
   }
 
   await exec.exec(
-    "npx",
+    'npx',
     [
-      "vercel",
+      'vercel',
       ...vercelArgs.split(/ +/),
-      "-t",
+      '-t',
       vercelToken,
-      "-m",
+      '-m',
       `githubCommitSha=${context.sha}`,
-      "-m",
+      '-m',
       `githubCommitAuthorName=${context.actor}`,
-      "-m",
+      '-m',
       `githubCommitAuthorLogin=${context.actor}`,
-      "-m",
-      "githubDeployment=1",
-      "-m",
+      '-m',
+      'githubDeployment=1',
+      '-m',
       `githubOrg=${context.repo.owner}`,
-      "-m",
+      '-m',
       `githubRepo=${context.repo.repo}`,
-      "-m",
+      '-m',
       `githubCommitOrg=${context.repo.owner}`,
-      "-m",
+      '-m',
       `githubCommitRepo=${context.repo.repo}`,
-      "-m",
+      '-m',
       `githubCommitMessage=${commit}`,
-      "-m",
-      `githubCommitRef=${ref}`
+      '-m',
+      `githubCommitRef=${ref}`,
     ],
-    options
+    options,
   );
 
   return myOutput;
 }
 
 async function vercelInspect(deploymentUrl) {
-  let myOutput = "";
-  let myError = "";
+  // eslint-disable-next-line no-unused-vars
+  let myOutput = '';
+  let myError = '';
   const options = {};
   options.listeners = {
     stdout: data => {
@@ -1197,16 +1134,16 @@ async function vercelInspect(deploymentUrl) {
     stderr: data => {
       myError += data.toString();
       core.info(data.toString());
-    }
+    },
   };
   if (workingDirectory) {
     options.cwd = workingDirectory;
   }
 
   await exec.exec(
-    "npx",
-    ["vercel", "inspect", deploymentUrl, "-t", vercelToken],
-    options
+    'npx',
+    ['vercel', 'inspect', deploymentUrl, '-t', vercelToken],
+    options,
   );
 
   const match = myError.match(/^\s+name\s+(.+)$/m);
@@ -1217,34 +1154,33 @@ async function findPreviousComment(text) {
   if (!octokit) {
     return null;
   }
-  core.info("find comment");
+  core.info('find comment');
   const { data: comments } = await octokit.repos.listCommentsForCommit({
     ...context.repo,
-    commit_sha: context.sha
+    commit_sha: context.sha,
   });
 
   const vercelPreviewURLComment = comments.find(comment =>
-    comment.body.startsWith(text)
+    comment.body.startsWith(text),
   );
   if (vercelPreviewURLComment) {
-    core.info("previous comment found");
+    core.info('previous comment found');
     return vercelPreviewURLComment.id;
-  } else {
-    core.info("previous comment not found");
-    return null;
   }
+  core.info('previous comment not found');
+  return null;
 }
 
 async function createCommentOnCommit(
   deploymentCommit,
   deploymentUrl,
-  deploymentName
+  deploymentName,
 ) {
   if (!octokit) {
     return;
   }
   const commentId = await findPreviousComment(
-    `Deploy preview for _${deploymentName}_ ready!`
+    `Deploy preview for _${deploymentName}_ ready!`,
   );
 
   const commentBody = stripIndents`
@@ -1252,20 +1188,20 @@ async function createCommentOnCommit(
 
     Built with commit ${deploymentCommit}
 
-    https://${deploymentUrl}
+    ${deploymentUrl}
   `;
 
   if (commentId) {
     await octokit.repos.updateCommitComment({
       ...context.repo,
       comment_id: commentId,
-      body: commentBody
+      body: commentBody,
     });
   } else {
     await octokit.repos.createCommitComment({
       ...context.repo,
       commit_sha: context.sha,
-      body: commentBody
+      body: commentBody,
     });
   }
 }
@@ -1273,13 +1209,13 @@ async function createCommentOnCommit(
 async function createCommentOnPullRequest(
   deploymentCommit,
   deploymentUrl,
-  deploymentName
+  deploymentName,
 ) {
   if (!octokit) {
     return;
   }
   const commentId = await findPreviousComment(
-    `Deploy preview for _${deploymentName}_ ready!`
+    `Deploy preview for _${deploymentName}_ ready!`,
   );
 
   const commentBody = stripIndents`
@@ -1296,14 +1232,79 @@ async function createCommentOnPullRequest(
     await octokit.issues.updateComment({
       ...context.repo,
       comment_id: commentId,
-      body: commentBody
+      body: commentBody,
     });
   } else {
     await octokit.issues.createComment({
       ...context.repo,
       issue_number: context.issue.number,
-      body: commentBody
+      body: commentBody,
     });
+  }
+}
+
+async function run() {
+  core.debug(`action : ${context.action}`);
+  core.debug(`ref : ${context.ref}`);
+  core.debug(`eventName : ${context.eventName}`);
+  core.debug(`actor : ${context.actor}`);
+  core.debug(`sha : ${context.sha}`);
+  core.debug(`workflow : ${context.workflow}`);
+  let { ref } = context;
+  let { sha } = context;
+  await setEnv();
+
+  let commit = execSync('git log -1 --pretty=format:%B')
+    .toString()
+    .trim();
+  if (github.context.eventName === 'push') {
+    const pushPayload = github.context.payload;
+    core.debug(`The head commit is: ${pushPayload.head_commit}`);
+  } else if (github.context.eventName === 'pull_request') {
+    const pullRequestPayload = github.context.payload;
+    core.debug(`head : ${pullRequestPayload.pull_request.head}`);
+
+    ref = pullRequestPayload.pull_request.head.ref;
+    sha = pullRequestPayload.pull_request.head.sha;
+    core.debug(`The head ref is: ${pullRequestPayload.pull_request.head.ref}`);
+    core.debug(`The head sha is: ${pullRequestPayload.pull_request.head.sha}`);
+
+    if (octokit) {
+      const { data: commitData } = await octokit.git.getCommit({
+        ...context.repo,
+        commit_sha: sha,
+      });
+      commit = commitData.message;
+      core.debug(`The head commit is: ${commit}`);
+    }
+  }
+
+  const deploymentUrl = await vercelDeploy(ref, commit);
+  if (deploymentUrl) {
+    core.info('set preview-url output');
+    core.setOutput('preview-url', deploymentUrl);
+  } else {
+    core.warning('get preview-url error');
+  }
+
+  const deploymentName = await vercelInspect(deploymentUrl);
+  if (deploymentName) {
+    core.info('set preview-name output');
+    core.setOutput('preview-name', deploymentName);
+  } else {
+    core.warning('get preview-name error');
+  }
+
+  if (githubComment && githubToken) {
+    if (context.issue.number) {
+      core.info('this is related issue or pull_request ');
+      await createCommentOnPullRequest(sha, deploymentUrl, deploymentName);
+    } else if (context.eventName === 'push') {
+      core.info('this is push event');
+      await createCommentOnCommit(sha, deploymentUrl, deploymentName);
+    }
+  } else {
+    core.info('comment : disabled');
   }
 }
 
@@ -2976,7 +2977,7 @@ exports.getUserAgent = getUserAgent;
 /***/ 215:
 /***/ (function(module) {
 
-module.exports = {"_from":"@octokit/rest@^16.43.1","_id":"@octokit/rest@16.43.1","_inBundle":false,"_integrity":"sha512-gfFKwRT/wFxq5qlNjnW2dh+qh74XgTQ2B179UX5K1HYCluioWj8Ndbgqw2PVqa1NnVJkGHp2ovMpVn/DImlmkw==","_location":"/@octokit/rest","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"@octokit/rest@^16.43.1","name":"@octokit/rest","escapedName":"@octokit%2frest","scope":"@octokit","rawSpec":"^16.43.1","saveSpec":null,"fetchSpec":"^16.43.1"},"_requiredBy":["/@actions/github"],"_resolved":"https://registry.npmjs.org/@octokit/rest/-/rest-16.43.1.tgz","_shasum":"3b11e7d1b1ac2bbeeb23b08a17df0b20947eda6b","_spec":"@octokit/rest@^16.43.1","_where":"/Users/amond/dietfriends/now-deployment/node_modules/@actions/github","author":{"name":"Gregor Martynus","url":"https://github.com/gr2m"},"bugs":{"url":"https://github.com/octokit/rest.js/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/octokit-rest.min.js.gz","maxSize":"33 kB"}],"contributors":[{"name":"Mike de Boer","email":"info@mikedeboer.nl"},{"name":"Fabian Jakobs","email":"fabian@c9.io"},{"name":"Joe Gallo","email":"joe@brassafrax.com"},{"name":"Gregor Martynus","url":"https://github.com/gr2m"}],"dependencies":{"@octokit/auth-token":"^2.4.0","@octokit/plugin-paginate-rest":"^1.1.1","@octokit/plugin-request-log":"^1.0.0","@octokit/plugin-rest-endpoint-methods":"2.4.0","@octokit/request":"^5.2.0","@octokit/request-error":"^1.0.2","atob-lite":"^2.0.0","before-after-hook":"^2.0.0","btoa-lite":"^1.0.0","deprecation":"^2.0.0","lodash.get":"^4.4.2","lodash.set":"^4.3.2","lodash.uniq":"^4.5.0","octokit-pagination-methods":"^1.1.0","once":"^1.4.0","universal-user-agent":"^4.0.0"},"deprecated":false,"description":"GitHub REST API client for Node.js","devDependencies":{"@gimenete/type-writer":"^0.1.3","@octokit/auth":"^1.1.1","@octokit/fixtures-server":"^5.0.6","@octokit/graphql":"^4.2.0","@types/node":"^13.1.0","bundlesize":"^0.18.0","chai":"^4.1.2","compression-webpack-plugin":"^3.1.0","cypress":"^3.0.0","glob":"^7.1.2","http-proxy-agent":"^4.0.0","lodash.camelcase":"^4.3.0","lodash.merge":"^4.6.1","lodash.upperfirst":"^4.3.1","lolex":"^5.1.2","mkdirp":"^1.0.0","mocha":"^7.0.1","mustache":"^4.0.0","nock":"^11.3.3","npm-run-all":"^4.1.2","nyc":"^15.0.0","prettier":"^1.14.2","proxy":"^1.0.0","semantic-release":"^17.0.0","sinon":"^8.0.0","sinon-chai":"^3.0.0","sort-keys":"^4.0.0","string-to-arraybuffer":"^1.0.0","string-to-jsdoc-comment":"^1.0.0","typescript":"^3.3.1","webpack":"^4.0.0","webpack-bundle-analyzer":"^3.0.0","webpack-cli":"^3.0.0"},"files":["index.js","index.d.ts","lib","plugins"],"homepage":"https://github.com/octokit/rest.js#readme","keywords":["octokit","github","rest","api-client"],"license":"MIT","name":"@octokit/rest","nyc":{"ignore":["test"]},"publishConfig":{"access":"public"},"release":{"publish":["@semantic-release/npm",{"path":"@semantic-release/github","assets":["dist/*","!dist/*.map.gz"]}]},"repository":{"type":"git","url":"git+https://github.com/octokit/rest.js.git"},"scripts":{"build":"npm-run-all build:*","build:browser":"npm-run-all build:browser:*","build:browser:development":"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json","build:browser:production":"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map","build:ts":"npm run -s update-endpoints:typescript","coverage":"nyc report --reporter=html && open coverage/index.html","generate-bundle-report":"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html","lint":"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","lint:fix":"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","postvalidate:ts":"tsc --noEmit --target es6 test/typescript-validate.ts","prebuild:browser":"mkdirp dist/","pretest":"npm run -s lint","prevalidate:ts":"npm run -s build:ts","start-fixtures-server":"octokit-fixtures-server","test":"nyc mocha test/mocha-node-setup.js \"test/*/**/*-test.js\"","test:browser":"cypress run --browser chrome","update-endpoints":"npm-run-all update-endpoints:*","update-endpoints:fetch-json":"node scripts/update-endpoints/fetch-json","update-endpoints:typescript":"node scripts/update-endpoints/typescript","validate:ts":"tsc --target es6 --noImplicitAny index.d.ts"},"types":"index.d.ts","version":"16.43.1"};
+module.exports = {"_args":[["@octokit/rest@16.43.1","/Users/lms/IdeaProjects/vercel-action"]],"_from":"@octokit/rest@16.43.1","_id":"@octokit/rest@16.43.1","_inBundle":false,"_integrity":"sha512-gfFKwRT/wFxq5qlNjnW2dh+qh74XgTQ2B179UX5K1HYCluioWj8Ndbgqw2PVqa1NnVJkGHp2ovMpVn/DImlmkw==","_location":"/@octokit/rest","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"@octokit/rest@16.43.1","name":"@octokit/rest","escapedName":"@octokit%2frest","scope":"@octokit","rawSpec":"16.43.1","saveSpec":null,"fetchSpec":"16.43.1"},"_requiredBy":["/@actions/github"],"_resolved":"https://registry.npmjs.org/@octokit/rest/-/rest-16.43.1.tgz","_spec":"16.43.1","_where":"/Users/lms/IdeaProjects/vercel-action","author":{"name":"Gregor Martynus","url":"https://github.com/gr2m"},"bugs":{"url":"https://github.com/octokit/rest.js/issues"},"bundlesize":[{"path":"./dist/octokit-rest.min.js.gz","maxSize":"33 kB"}],"contributors":[{"name":"Mike de Boer","email":"info@mikedeboer.nl"},{"name":"Fabian Jakobs","email":"fabian@c9.io"},{"name":"Joe Gallo","email":"joe@brassafrax.com"},{"name":"Gregor Martynus","url":"https://github.com/gr2m"}],"dependencies":{"@octokit/auth-token":"^2.4.0","@octokit/plugin-paginate-rest":"^1.1.1","@octokit/plugin-request-log":"^1.0.0","@octokit/plugin-rest-endpoint-methods":"2.4.0","@octokit/request":"^5.2.0","@octokit/request-error":"^1.0.2","atob-lite":"^2.0.0","before-after-hook":"^2.0.0","btoa-lite":"^1.0.0","deprecation":"^2.0.0","lodash.get":"^4.4.2","lodash.set":"^4.3.2","lodash.uniq":"^4.5.0","octokit-pagination-methods":"^1.1.0","once":"^1.4.0","universal-user-agent":"^4.0.0"},"description":"GitHub REST API client for Node.js","devDependencies":{"@gimenete/type-writer":"^0.1.3","@octokit/auth":"^1.1.1","@octokit/fixtures-server":"^5.0.6","@octokit/graphql":"^4.2.0","@types/node":"^13.1.0","bundlesize":"^0.18.0","chai":"^4.1.2","compression-webpack-plugin":"^3.1.0","cypress":"^3.0.0","glob":"^7.1.2","http-proxy-agent":"^4.0.0","lodash.camelcase":"^4.3.0","lodash.merge":"^4.6.1","lodash.upperfirst":"^4.3.1","lolex":"^5.1.2","mkdirp":"^1.0.0","mocha":"^7.0.1","mustache":"^4.0.0","nock":"^11.3.3","npm-run-all":"^4.1.2","nyc":"^15.0.0","prettier":"^1.14.2","proxy":"^1.0.0","semantic-release":"^17.0.0","sinon":"^8.0.0","sinon-chai":"^3.0.0","sort-keys":"^4.0.0","string-to-arraybuffer":"^1.0.0","string-to-jsdoc-comment":"^1.0.0","typescript":"^3.3.1","webpack":"^4.0.0","webpack-bundle-analyzer":"^3.0.0","webpack-cli":"^3.0.0"},"files":["index.js","index.d.ts","lib","plugins"],"homepage":"https://github.com/octokit/rest.js#readme","keywords":["octokit","github","rest","api-client"],"license":"MIT","name":"@octokit/rest","nyc":{"ignore":["test"]},"publishConfig":{"access":"public"},"release":{"publish":["@semantic-release/npm",{"path":"@semantic-release/github","assets":["dist/*","!dist/*.map.gz"]}]},"repository":{"type":"git","url":"git+https://github.com/octokit/rest.js.git"},"scripts":{"build":"npm-run-all build:*","build:browser":"npm-run-all build:browser:*","build:browser:development":"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json","build:browser:production":"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map","build:ts":"npm run -s update-endpoints:typescript","coverage":"nyc report --reporter=html && open coverage/index.html","generate-bundle-report":"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html","lint":"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","lint:fix":"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","postvalidate:ts":"tsc --noEmit --target es6 test/typescript-validate.ts","prebuild:browser":"mkdirp dist/","pretest":"npm run -s lint","prevalidate:ts":"npm run -s build:ts","start-fixtures-server":"octokit-fixtures-server","test":"nyc mocha test/mocha-node-setup.js \"test/*/**/*-test.js\"","test:browser":"cypress run --browser chrome","update-endpoints":"npm-run-all update-endpoints:*","update-endpoints:fetch-json":"node scripts/update-endpoints/fetch-json","update-endpoints:typescript":"node scripts/update-endpoints/typescript","validate:ts":"tsc --target es6 --noImplicitAny index.d.ts"},"types":"index.d.ts","version":"16.43.1"};
 
 /***/ }),
 
