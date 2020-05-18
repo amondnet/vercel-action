@@ -41,13 +41,13 @@ This action make a Vercel deployment with github actions.
 
 | Name              | Required | Default | Description                                                                                       |
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
-| vercel-token      |    [x]   |         | Vercel token.                                                                                   |
-| github-comment    |    [ ]   | true    | if you don't want to comment on pull request.                                                     |
-| github-token      |    [ ]   |         | if you want to comment on pull request.                                                           |
-| vercel-args       |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
-| working-directory |    [ ]   |         | the working directory                                                                             |
+| vercel-token      |    [x]   |         | Vercel token. see https://vercel.com/account/tokens                                                                                  |
+| github-comment    |    [ ]   |  true   | if you don't want to comment on pull request.                                                     |
+| github-token      |    [ ]   |         | if you want to comment on pull request. `${{ secrets.GITHUB_TOKEN }}`                                                         |
 | vercel-project-id |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-org-id     |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-args       |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
+| working-directory |    [ ]   |         | the working directory                                                                             |
 | scope             |    [ ]   |         | If you are working in a team scope, you should set this value to your `team ID`.           
 
 ## Outputs
