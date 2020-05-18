@@ -41,14 +41,14 @@ This action make a Vercel deployment with github actions.
 
 | Name              | Required | Default | Description                                                                                       |
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
-| vercel-token        |    [x]   |         | Vercel token.                                                                                   |
+| vercel-token      |    [x]   |         | Vercel token.                                                                                   |
 | github-comment    |    [ ]   | true    | if you don't want to comment on pull request.                                                     |
 | github-token      |    [ ]   |         | if you want to comment on pull request.                                                           |
-| vercel-args          |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
+| vercel-args       |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
 | working-directory |    [ ]   |         | the working directory                                                                             |
-| vercel-project-id    |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-org-id        |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-
+| vercel-project-id |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-org-id     |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| scope             |    [ ]   |         | If you are using this action on           
 
 ## Outputs
 
