@@ -8,6 +8,7 @@
 
 ![stars](https://badgen.net/github/stars/amondnet/vercel-action) 
 ![forks](https://badgen.net/github/forks/amondnet/vercel-action) 
+![HitCount](http://hits.dwyl.com/amondnet/vercel-action.svg)
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=amondnet_vercel-action&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=amondnet_vercel-action)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=amondnet_vercel-action&metric=sqale_index)](https://sonarcloud.io/dashboard?id=amondnet_vercel-action)
