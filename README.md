@@ -164,14 +164,14 @@ jobs:
 
 ### Angular Example
 
-See [.github/workflow/example-angular.yml](/.github/workflows/example-angular.yml) , 
+See [.github/workflows/example-angular.yml](/.github/workflows/example-angular.yml) , 
 
 
 ### Basic Auth Example
 
 How to add Basic Authentication to a Vercel deployment
 
-See [.github/workflow/example-express-basic-auth.yml](.github/workflow/example-express-basic-auth.yml)
+See [.github/workflows/example-express-basic-auth.yml](.github/workflows/example-express-basic-auth.yml)
 
 [source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)
 
