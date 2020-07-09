@@ -22015,12 +22015,21 @@ async function createCommentOnCommit(
     `Deploy preview for _${deploymentName}_ ready!`,
   );
 
+  let previewUrl = deploymentUrl;
+  if (aliasDomains.length) {
+    aliasDomains.forEach(domain => {
+      previewUrl += `\nhttps://${domain}`;
+    });
+  }
+
   const commentBody = stripIndents`
     Deploy preview for _${deploymentName}_ ready!
 
-    Built with commit ${deploymentCommit}
-
-    ${deploymentUrl}
+    ✅ Preview
+    ${previewUrl}
+    
+    Built with commit ${deploymentCommit}.
+    This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
   `;
 
   if (commentId) {
