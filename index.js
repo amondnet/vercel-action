@@ -117,15 +117,32 @@ async function vercelInspect(deploymentUrl) {
   return match && match.length ? match[1] : null;
 }
 
+async function findCommentsForEvent() {
+  core.debug('find comments for event');
+  if (context.eventName === 'commit') {
+    core.debug('event is "commit", use "listCommentsForCommit"');
+    return octokit.repos.listCommentsForCommit({
+      ...context.repo,
+      commit_sha: context.sha,
+    });
+  }
+  if (context.eventName === 'pull_request') {
+    core.debug('event is "pull_request", use "listComments"');
+    return octokit.issues.listComments({
+      ...context.repo,
+      issue_number: context.issue.number,
+    });
+  }
+  core.error('not supported event_type');
+  return [];
+}
+
 async function findPreviousComment(text) {
   if (!octokit) {
     return null;
   }
   core.info('find comment');
-  const { data: comments } = await octokit.repos.listCommentsForCommit({
-    ...context.repo,
-    commit_sha: context.sha,
-  });
+  const { data: comments } = await findCommentsForEvent();
 
   const vercelPreviewURLComment = comments.find(comment =>
     comment.body.startsWith(text),
