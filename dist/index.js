@@ -21949,7 +21949,7 @@ async function vercelInspect(deploymentUrl) {
 
 async function findCommentsForEvent() {
   core.debug('find comments for event');
-  if (context.eventName === 'commit') {
+  if (context.eventName === 'push') {
     core.debug('event is "commit", use "listCommentsForCommit"');
     return octokit.repos.listCommentsForCommit({
       ...context.repo,
