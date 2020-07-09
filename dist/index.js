@@ -21855,9 +21855,11 @@ const aliasDomains = core
   .filter(x => x !== '')
   .map(s => {
     let url = s;
-    let branch = context.ref.replace('/', '-');
+    let branch = context.ref.replace('refs/heads/', '').replace(/\//g, '-');
     if (context.eventName === 'pull_request') {
-      branch = context.payload.pull_request.head.ref.replace('/', '-');
+      branch = context.payload.pull_request.head.ref
+        .replace('refs/heads/', '')
+        .replace(/\//g, '-');
       url = url.replace(prNumberRegExp, context.issue.number.toString());
     }
     url = url.replace(branchRegExp, branch);
