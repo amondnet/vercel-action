@@ -22,6 +22,7 @@ jobs:
           cd example/angular
           npm ci
           npx ng build --prod
+
       - uses: ./
         id: vercel-action-staging
         if: github.event_name == 'pull_request'
@@ -31,6 +32,9 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
           working-directory: example/angular/dist/angular
+          alias-domains: |
+            staging.angular.vercel-action.amond.dev
+            pr-{{PR_NUMBER}}.angular.vercel-action.amond.dev
       - uses: ./
         id: vercel-action-production
         if: github.event_name == 'push'

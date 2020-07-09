@@ -48,6 +48,10 @@ inputs:
     required: false
     description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-org-id" instead.'
+  alias-domains:
+    required: false
+    description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
+    default: ''
 
 outputs:
   preview-url:
