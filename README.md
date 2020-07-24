@@ -29,6 +29,7 @@ This action make a Vercel deployment with github actions.
 - [x] Comment on pull request.
 - [x] Comment on commit.
 - [x] [Password Protect ( Basic Auth )](https://github.com/amondnet/vercel-action#basic-auth-example)
+- [x] [Alias domain to deployment.](https://github.com/amondnet/vercel-action#alias-domains)
 - [ ] Create Deployment on github.
 
 ## Result

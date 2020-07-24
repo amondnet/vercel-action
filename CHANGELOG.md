@@ -1,16 +1,37 @@
 # Changelog
 
-## [v19.0.1+1](https://github.com/amondnet/vercel-action/tree/v19.0.1+1) (2020-05-18)
+## [v19.0.1+2](https://github.com/amondnet/vercel-action/tree/v19.0.1+2) (2020-07-24)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+1...v19.0.1+1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+1...v19.0.1+2)
+
+**Implemented enhancements:**
+
+- feat: alias domain to deployment [\#7](https://github.com/amondnet/vercel-action/issues/7)
+- feat: alias domain to deployment [\#18](https://github.com/amondnet/vercel-action/pull/18) ([amondnet](https://github.com/amondnet))
 
 **Fixed bugs:**
 
 - Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
+- Don't send new comment for every pushed commit and just edit existed one [\#15](https://github.com/amondnet/vercel-action/issues/15)
+
+**Closed issues:**
+
+- There was an error when attempting to execute the process [\#16](https://github.com/amondnet/vercel-action/issues/16)
+- Custom env in action [\#13](https://github.com/amondnet/vercel-action/issues/13)
+- Action fails even when build succeeds [\#11](https://github.com/amondnet/vercel-action/issues/11)
+- Failed to find deployment \(url\) in \(user\) [\#10](https://github.com/amondnet/vercel-action/issues/10)
+- Error! Project not found [\#9](https://github.com/amondnet/vercel-action/issues/9)
+
+**Merged pull requests:**
+
+- build\(deps\): bump @actions/http-client from 1.0.6 to 1.0.8 [\#6](https://github.com/amondnet/vercel-action/pull/6) ([dependabot[bot]](https://github.com/apps/dependabot))
+- fix: don't send new comment for every pushed commit and just edit exi… [\#17](https://github.com/amondnet/vercel-action/pull/17) ([amondnet](https://github.com/amondnet))
+- chore: fix broken workflow\(s\) link [\#14](https://github.com/amondnet/vercel-action/pull/14) ([shunkakinoki](https://github.com/shunkakinoki))
+- build\(deps\): bump websocket-extensions from 0.1.3 to 0.1.4 in /example/angular [\#12](https://github.com/amondnet/vercel-action/pull/12) ([dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [v19.0.1+1](https://github.com/amondnet/vercel-action/tree/v19.0.1+1) (2020-05-18)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1...v19.0.1+1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+1)
 
 **Fixed bugs:**
 
