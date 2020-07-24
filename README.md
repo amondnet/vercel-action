@@ -50,6 +50,7 @@ This action make a Vercel deployment with github actions.
 | vercel-args       |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
 | working-directory |    [ ]   |         | the working directory                                                                             |
 | scope             |    [ ]   |         | If you are working in a team scope, you should set this value to your `team ID`.           
+| alias-domains     |    [ ]   |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.         
 
 ## Outputs
 
@@ -61,7 +62,7 @@ The url of deployment preview.
 
 The name of deployment name.
 
-## Example Usage
+## How To Use
 
 ### Disable Vercel for GitHub
 
@@ -174,6 +175,60 @@ How to add Basic Authentication to a Vercel deployment
 See [.github/workflows/example-express-basic-auth.yml](.github/workflows/example-express-basic-auth.yml)
 
 [source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)
+
+### Alias Domains
+
+You can assign a domain to this deployment. Please note that this domain must have been [configured](https://vercel.com/docs/v2/custom-domains#adding-a-domain) in the project.
+
+If you want to assign domain to branch or pr, you should add [Wildcard Domain](https://vercel.com/docs/v2/custom-domains#wildcard-domains).
+
+You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`
+
+#### Example 
+
+Wildcard Domains : *.angular.vercel-action.amond.dev
+
+*Per Pull Request*
+
+https://pr-{{PR_NUMBER}}.angular.vercel-action.amond.dev
+
+- PR-1 -> https://pr-1.angular.vercel-action.amond.dev
+- PR-2 -> https://pr-2.angular.vercel-action.amond.dev
+
+*Per Branch*
+
+https://{{BRANCH}}.angular.vercel-action.amond.dev
+
+- develop -> https://develop.angular.vercel-action.amond.dev
+- master -> https://master.angular.vercel-action.amond.dev
+- master -> https://master.angular.vercel-action.amond.dev
+
+
+
+See [.github/workflows/example-angular.yml](/.github/workflows/example-angular.yml) 
+
+```yaml
+name: deploy website
+on: [pull_request]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: amondnet/vercel-action@v19
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
+          vercel-args: '--prod' #Optional
+          vercel-org-id: ${{ secrets.ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required 
+          working-directory: ./sub-directory #Your Working Directory, Optional
+          alias-domains: | #Optional
+            staging.angular.vercel-action.amond.dev
+            pr-{{PR_NUMBER}}.angular.vercel-action.amond.dev
+```
+
+
 
 ## Migration from v2
 
