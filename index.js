@@ -73,36 +73,38 @@ async function vercelDeploy(ref, commit) {
     options.cwd = workingDirectory;
   }
 
-  await exec.exec(
-    'npx',
-    [
-      'vercel',
-      ...vercelArgs.split(/ +/),
-      '-t',
-      vercelToken,
-      '-m',
-      `githubCommitSha=${context.sha}`,
-      '-m',
-      `githubCommitAuthorName=${context.actor}`,
-      '-m',
-      `githubCommitAuthorLogin=${context.actor}`,
-      '-m',
-      'githubDeployment=1',
-      '-m',
-      `githubOrg=${context.repo.owner}`,
-      '-m',
-      `githubRepo=${context.repo.repo}`,
-      '-m',
-      `githubCommitOrg=${context.repo.owner}`,
-      '-m',
-      `githubCommitRepo=${context.repo.repo}`,
-      '-m',
-      `githubCommitMessage=${commit}`,
-      '-m',
-      `githubCommitRef=${ref}`,
-    ],
-    options,
-  );
+  const args = [
+    ...vercelArgs.split(/ +/),
+    '-t',
+    vercelToken,
+    '-m',
+    `githubCommitSha=${context.sha}`,
+    '-m',
+    `githubCommitAuthorName=${context.actor}`,
+    '-m',
+    `githubCommitAuthorLogin=${context.actor}`,
+    '-m',
+    'githubDeployment=1',
+    '-m',
+    `githubOrg=${context.repo.owner}`,
+    '-m',
+    `githubRepo=${context.repo.repo}`,
+    '-m',
+    `githubCommitOrg=${context.repo.owner}`,
+    '-m',
+    `githubCommitRepo=${context.repo.repo}`,
+    '-m',
+    `githubCommitMessage=${commit}`,
+    '-m',
+    `githubCommitRef=${ref}`,
+  ];
+
+  if (vercelScope) {
+    core.info('using scope');
+    args.push('--scope', vercelScope);
+  }
+
+  await exec.exec('npx', ['vercel', ...args], options);
 
   return myOutput;
 }
@@ -127,6 +129,7 @@ async function vercelInspect(deploymentUrl) {
   }
 
   const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
+
   if (vercelScope) {
     core.info('using scope');
     args.push('--scope', vercelScope);
@@ -267,12 +270,16 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   if (!deploymentUrl) {
     core.error('deployment url is null');
   }
+  const args = ['-t', vercelToken];
+  if (vercelScope) {
+    core.info('using scope');
+    args.push('--scope', vercelScope);
+  }
   const promises = aliasDomains.map(domain => {
     return exec.exec('npx', [
       'vercel',
+      ...args,
       'alias',
-      '-t',
-      vercelToken,
       deploymentUrl,
       domain,
     ]);
