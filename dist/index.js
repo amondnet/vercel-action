@@ -1359,9 +1359,15 @@ async function run() {
   }
 
   const deploymentUrl = await vercelDeploy(ref, commit);
+
   if (deploymentUrl) {
     core.info('set preview-url output');
-    core.setOutput('preview-url', deploymentUrl);
+    if (aliasDomains && aliasDomains.length) {
+      core.info('set preview-url output as first alias');
+      core.setOutput('preview-url', `https://${aliasDomains[0]}`);
+    } else {
+      core.setOutput('preview-url', deploymentUrl);
+    }
   } else {
     core.warning('get preview-url error');
   }
