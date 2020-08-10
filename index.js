@@ -19,6 +19,7 @@ const vercelArgs = core.getInput('vercel-args');
 const vercelOrgId = core.getInput('vercel-org-id');
 const vercelProjectId = core.getInput('vercel-project-id');
 const vercelScope = core.getInput('scope');
+const vercelProjectName = core.getInput('vercel-project-name');
 const aliasDomains = core
   .getInput('alias-domains')
   .split('\n')
@@ -324,7 +325,10 @@ async function run() {
     core.warning('get preview-url error');
   }
 
-  const deploymentName = await vercelInspect(deploymentUrl);
+  let deploymentName = vercelProjectName;
+  if (!deploymentName) {
+    deploymentName = await vercelInspect(deploymentUrl);
+  }
   if (deploymentName) {
     core.info('set preview-name output');
     core.setOutput('preview-name', deploymentName);
