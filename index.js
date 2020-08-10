@@ -325,10 +325,8 @@ async function run() {
     core.warning('get preview-url error');
   }
 
-  let deploymentName = vercelProjectName;
-  if (!deploymentName) {
-    deploymentName = await vercelInspect(deploymentUrl);
-  }
+  const deploymentName =
+    vercelProjectName || (await vercelInspect(deploymentUrl));
   if (deploymentName) {
     core.info('set preview-name output');
     core.setOutput('preview-name', deploymentName);
