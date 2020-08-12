@@ -1,5 +1,23 @@
 # Changelog
 
+## [v19.0.1+3](https://github.com/amondnet/vercel-action/tree/v19.0.1+3) (2020-08-12)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+2...v19.0.1+3)
+
+**Fixed bugs:**
+
+- Deployment succeeds but action log says it failed [\#27](https://github.com/amondnet/vercel-action/issues/27)
+- fix: use scope everywhere npx is used [\#24](https://github.com/amondnet/vercel-action/pull/24) ([aulneau](https://github.com/aulneau))
+
+**Closed issues:**
+
+- Alias does not incorporate scope [\#23](https://github.com/amondnet/vercel-action/issues/23)
+- Not deploying to production [\#22](https://github.com/amondnet/vercel-action/issues/22)
+
+**Merged pull requests:**
+
+- Fix latest "inspect" bug by adding manual Vercel Project Name option [\#29](https://github.com/amondnet/vercel-action/pull/29) ([EvanLovely](https://github.com/EvanLovely))
+
 ## [v19.0.1+2](https://github.com/amondnet/vercel-action/tree/v19.0.1+2) (2020-07-24)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+1...v19.0.1+2)
@@ -21,6 +39,7 @@
 - Action fails even when build succeeds [\#11](https://github.com/amondnet/vercel-action/issues/11)
 - Failed to find deployment \(url\) in \(user\) [\#10](https://github.com/amondnet/vercel-action/issues/10)
 - Error! Project not found [\#9](https://github.com/amondnet/vercel-action/issues/9)
+- New release [\#19](https://github.com/amondnet/vercel-action/issues/19)
 
 **Merged pull requests:**
 
@@ -31,13 +50,13 @@
 
 ## [v19.0.1+1](https://github.com/amondnet/vercel-action/tree/v19.0.1+1) (2020-05-18)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1...v19.0.1+1)
 
 **Fixed bugs:**
 
 - fix: vercel inspect fails in team scope [\#5](https://github.com/amondnet/vercel-action/pull/5) ([amondnet](https://github.com/amondnet))
 
-## [v19.0.1](https://github.com/amondnet/vercel-action/tree/v19.0.1) (2020-05-16)
+## [v19.0.1](https://github.com/amondnet/vercel-action/tree/v19.0.1) (2020-05-18)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v2.0.3...v19.0.1)
 
