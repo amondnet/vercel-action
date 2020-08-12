@@ -52,7 +52,7 @@ This action make a Vercel deployment with github actions.
 | working-directory |    [ ]   |         | the working directory                                                                             |
 | scope             |    [ ]   |         | If you are working in a team scope, you should set this value to your `team ID`.           
 | alias-domains     |    [ ]   |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.         
-
+| vercel-project-name |  [ ]   |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
 ## Outputs
 
 ### `preview-url`
