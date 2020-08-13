@@ -55,4 +55,26 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
           vercel-args: '--prod'
-
+  with-project-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        id: now-deployment-staging
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
+          working-directory: example/team-scope
+      - uses: ./
+        id: now-deployment-production
+        if: github.event_name == 'push'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
+          vercel-args: '--prod'
+          vercel-project-name: 'team-scope-test'
