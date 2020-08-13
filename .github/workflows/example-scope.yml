@@ -55,4 +55,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID_TEAM_SCOPE }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_TEAM_SCOPE }}
           vercel-args: '--prod'
-          scope: ${{ secrets.VERCEL_SCOPE }}
+
