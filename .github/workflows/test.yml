@@ -1,25 +1,19 @@
 name: test now-deployment action
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/now-deployment@v2.0.3
+      - uses: ./
         id: now-deployment
         with:
+          name: test
           github-token: ${{ secrets.GITHUB_TOKEN }}
           zeit-token: ${{ secrets.VERCEL_TOKEN }}
           github-comment: false
           now-org-id: ${{ secrets.VERCEL_ORG_ID }}
           now-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
-      - name: preview-url
-        run: |
-          echo ${{ steps.now-deployment.outputs.preview-url }}
+
