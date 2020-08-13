@@ -1,8 +1,8 @@
 name: example - team scope
 on:
   push:
-    branches:
-      - master
+    #branches:
+    #  - master
   pull_request:
     branches:
       - master
