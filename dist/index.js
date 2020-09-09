@@ -1048,6 +1048,20 @@ const workingDirectory = core.getInput('working-directory');
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
 const branchRegExp = /{{\s*BRANCH\s*}}/g;
 
+function slugify(str) {
+  const slug = str
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+  core.debug(`before slugify: "${str}"; after slugify: "${slug}"`);
+  return slug;
+}
+
 // Vercel
 const vercelToken = core.getInput('vercel-token', { required: true });
 const vercelArgs = core.getInput('vercel-args');
@@ -1061,9 +1075,11 @@ const aliasDomains = core
   .filter(x => x !== '')
   .map(s => {
     let url = s;
-    let branch = slugify(context.ref.replace('refs/heads/', ''))
+    let branch = slugify(context.ref.replace('refs/heads/', ''));
     if (context.eventName === 'pull_request') {
-      branch = slugify(context.payload.pull_request.head.ref.replace('refs/heads/', ''))
+      branch = slugify(
+        context.payload.pull_request.head.ref.replace('refs/heads/', ''),
+      );
       url = url.replace(prNumberRegExp, context.issue.number.toString());
     }
     url = url.replace(branchRegExp, branch);
@@ -1074,20 +1090,6 @@ const aliasDomains = core
 let octokit;
 if (githubToken) {
   octokit = new github.GitHub(githubToken);
-}
-
-function slugify(str) {
-  const slug = str
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/[_\s]+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-")
-    .replace(/^-+/, "")
-    .replace(/-+$/, "");
-  core.debug(`before slugify: "${str}"; after slugify: "${slug}"`)    
-  return slug
 }
 
 async function setEnv() {
@@ -1330,7 +1332,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
       'alias',
       deploymentUrl,
       domain,
-    ]); 
+    ]);
   });
   await Promise.all(promises);
 }
