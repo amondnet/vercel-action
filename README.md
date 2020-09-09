@@ -72,7 +72,7 @@ The name of deployment name.
 
 We would like to to use `github actions` for build and deploy instead of `Vercel`. 
 
-Set `github.enabled: false` in `vercel.json`, see example `vervel.jcon` file below:
+Set `github.enabled: false` in `vercel.json`, see example `vervel.json` file below:
 
 ```json
 {
