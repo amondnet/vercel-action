@@ -26,11 +26,9 @@ const aliasDomains = core
   .filter(x => x !== '')
   .map(s => {
     let url = s;
-    let branch = context.ref.replace('refs/heads/', '').replace(/\//g, '-');
+    let branch = slugify(context.ref.replace('refs/heads/', ''))
     if (context.eventName === 'pull_request') {
-      branch = context.payload.pull_request.head.ref
-        .replace('refs/heads/', '')
-        .replace(/\//g, '-');
+      branch = slugify(context.payload.pull_request.head.ref.replace('refs/heads/', ''))
       url = url.replace(prNumberRegExp, context.issue.number.toString());
     }
     url = url.replace(branchRegExp, branch);
@@ -41,6 +39,20 @@ const aliasDomains = core
 let octokit;
 if (githubToken) {
   octokit = new github.GitHub(githubToken);
+}
+
+function slugify(str) {
+  const slug = str
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+  core.debug(`before slugify: "${str}"; after slugify: "${slug}"`)    
+  return slug
 }
 
 async function setEnv() {
@@ -283,7 +295,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
       'alias',
       deploymentUrl,
       domain,
-    ]);
+    ]); 
   });
   await Promise.all(promises);
 }
