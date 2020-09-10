@@ -45,7 +45,7 @@ This action make a Vercel deployment with github actions.
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
 | vercel-token      |    [x]   |         | Vercel token. see https://vercel.com/account/tokens                                                                                  |
 | github-comment    |    [ ]   |  true   | if you don't want to comment on pull request.                                                     |
-| github-token      |    [ ]   |         | if you want to comment on pull request. `${{ secrets.GITHUB_TOKEN }}`                                                         |
+| github-token      |    [ ]   |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
 | vercel-project-id |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-org-id     |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-args       |    [ ]   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
@@ -72,7 +72,7 @@ The name of deployment name.
 
 We would like to to use `github actions` for build and deploy instead of `Vercel`. 
 
-Set `github.enabled: false` in vercel.json
+Set `github.enabled: false` in `vercel.json`, see example `vervel.json` file below:
 
 ```json
 {
@@ -92,24 +92,6 @@ Set `github.enabled: false` in vercel.json
 ```
 When set to false, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
 
-
-`vercel.json` Example:
-```json
-{
-  "version": 2,
-  "scope": "amond",
-  "public": false,
-  "github": {
-    "enabled": false
-  },
-  "builds": [
-    { "src": "./public/**", "use": "@now/static" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "public/$1" }
-  ]
-}
-```
 
 ### Project Linking
 
