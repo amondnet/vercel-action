@@ -28,7 +28,7 @@ jobs:
       - name: production or not
         id: prod_or_not
         run: |
-          if [$REF == 'refs/heads/master']
+          if [ "$REF" == 'refs/heads/master' ]
           then
               echo "::set-output name=vercel-args::--prod"
           else
