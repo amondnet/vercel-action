@@ -1425,12 +1425,12 @@ async function createGithubDeployment() {
   return null;
 }
 
-async function createGithubDeploymentStatus(deploymentId, state) {
-  if (githubDeployment && deploymentId && state && octokit) {
+async function createGithubDeploymentStatus(deploymentId, status) {
+  if (githubDeployment && deploymentId && status && octokit) {
     await octokit.repos.createDeploymentStatus({
       ...context.repo,
       deployment_id: deploymentId,
-      state,
+      state: status,
     });
   }
 }
