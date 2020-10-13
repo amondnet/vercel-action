@@ -23,7 +23,7 @@
     "all": "npm run format && npm run lint && npm run package && npm test"
   },
   "dependencies": {
-    "@actions/core": "^1.2.2",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.3",
     "@actions/github": "^2.1.1",
     "axios": "~0.18.1",
