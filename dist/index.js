@@ -1420,6 +1420,7 @@ async function createGithubDeployment() {
       environment: githubDeploymentEnv,
       required_contexts: [],
     });
+    core.debug(`Created deployment is ${deployment}`);
     return deployment.id;
   }
   return null;
