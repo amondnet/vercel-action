@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - feature/*
   pull_request:
     branches:
       - master
@@ -25,6 +24,8 @@ jobs:
           alias-domains: |
             staging.static.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.static.vercel-action.amond.dev
+          github-deployment: true
+          github-deployment-environment: static-staging
       - name: production or not
         id: prod_or_not
         run: |
@@ -48,3 +49,5 @@ jobs:
           working-directory: example/static
           alias-domains: |
             {{BRANCH}}.static.vercel-action.amond.dev
+          github-deployment: true
+          github-deployment-environment: static-production

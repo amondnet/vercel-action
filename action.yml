@@ -19,6 +19,10 @@ inputs:
     required: false
     default: 'false'
     description: 'if you want to create github deployment, set true, default: false'
+  github-deployment-environment:
+    required: false
+    description: 'The environment parameter allows deployments to be issued to different runtime environments. Teams often have multiple environments for verifying their applications, such as production, staging, and qa. This parameter makes it easier to track which environments have requested deployments. The default environment is production.'
+    default: 'production'
   working-directory:
     required: false
     description: the working directory
@@ -55,7 +59,6 @@ inputs:
     required: false
     description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
     default: ''
-
 outputs:
   preview-url:
     description: 'deployment preview URL'

@@ -1149,6 +1149,9 @@ const aliasDomains = core
     return url;
   });
 
+const githubDeployment = core.getInput('github-deployment') === 'true';
+const githubDeploymentEnv = core.getInput('github-deployment-environment');
+
 let octokit;
 if (githubToken) {
   octokit = new github.GitHub(githubToken);
@@ -1399,6 +1402,41 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   await Promise.all(promises);
 }
 
+function getEffectiveRef() {
+  let { ref } = context;
+  if (github.context.eventName === 'pull_request') {
+    const pullRequestPayload = github.context.payload;
+    ref = pullRequestPayload.pull_request.head.ref;
+  }
+  return ref;
+}
+
+async function createGithubDeployment() {
+  if (githubDeployment && octokit) {
+    core.debug(`Create a github deployment.`);
+    const { data: deployment } = await octokit.repos.createDeployment({
+      ...context.repo,
+      ref: getEffectiveRef(),
+      environment: githubDeploymentEnv,
+      required_contexts: [],
+    });
+    core.debug(`Created deployment is ${deployment.id}`);
+    return deployment.id;
+  }
+  return null;
+}
+
+async function createGithubDeploymentStatus(deploymentId, status, logUrl) {
+  if (githubDeployment && deploymentId && status && octokit) {
+    await octokit.repos.createDeploymentStatus({
+      ...context.repo,
+      deployment_id: deploymentId,
+      state: status,
+      log_url: logUrl,
+    });
+  }
+}
+
 async function run() {
   core.debug(`action : ${context.action}`);
   core.debug(`ref : ${context.ref}`);
@@ -1406,9 +1444,11 @@ async function run() {
   core.debug(`actor : ${context.actor}`);
   core.debug(`sha : ${context.sha}`);
   core.debug(`workflow : ${context.workflow}`);
-  let { ref } = context;
+  let ref = getEffectiveRef();
   let { sha } = context;
   await setEnv();
+
+  const githubDeploymentId = await createGithubDeployment();
 
   let commit = execSync('git log -1 --pretty=format:%B')
     .toString()
@@ -1434,9 +1474,14 @@ async function run() {
       core.debug(`The head commit is: ${commit}`);
     }
   }
-
   const deploymentUrl = await vercelDeploy(ref, commit);
-
+  if (githubDeploymentId) {
+    await createGithubDeploymentStatus(
+      githubDeploymentId,
+      'success',
+      deploymentUrl,
+    );
+  }
   if (deploymentUrl) {
     core.info('set preview-url output');
     if (aliasDomains && aliasDomains.length) {
