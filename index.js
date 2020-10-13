@@ -317,13 +317,13 @@ function getEffectiveRef() {
 async function createGithubDeployment() {
   if (githubDeployment && octokit) {
     core.debug(`Create a github deployment.`);
-    const deployment = await octokit.repos.createDeployment({
+    const { data: deployment } = await octokit.repos.createDeployment({
       ...context.repo,
       ref: getEffectiveRef(),
       environment: githubDeploymentEnv,
       required_contexts: [],
     });
-    core.debug(`Created deployment is ${deployment}`);
+    core.debug(`Created deployment is ${deployment.id}`);
     return deployment.id;
   }
   return null;
