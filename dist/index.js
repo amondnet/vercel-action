@@ -1426,12 +1426,13 @@ async function createGithubDeployment() {
   return null;
 }
 
-async function createGithubDeploymentStatus(deploymentId, status) {
+async function createGithubDeploymentStatus(deploymentId, status, logUrl) {
   if (githubDeployment && deploymentId && status && octokit) {
     await octokit.repos.createDeploymentStatus({
       ...context.repo,
       deployment_id: deploymentId,
       state: status,
+      log_url: logUrl,
     });
   }
 }
@@ -1475,7 +1476,11 @@ async function run() {
   }
   const deploymentUrl = await vercelDeploy(ref, commit);
   if (githubDeploymentId) {
-    await createGithubDeploymentStatus(githubDeploymentId, 'success');
+    await createGithubDeploymentStatus(
+      githubDeploymentId,
+      'success',
+      deploymentUrl,
+    );
   }
   if (deploymentUrl) {
     core.info('set preview-url output');
