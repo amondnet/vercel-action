@@ -1,8 +1,31 @@
 # Changelog
 
+## [v19.0.1+4](https://github.com/amondnet/vercel-action/tree/v19.0.1+4) (2020-10-13)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+3...v19.0.1+4)
+
+**Fixed bugs:**
+
+- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
+
+**Closed issues:**
+
+- `set-env` command is deprecated and will be disabled soon [\#42](https://github.com/amondnet/vercel-action/issues/42)
+- Unable to find version [\#39](https://github.com/amondnet/vercel-action/issues/39)
+- Difficulty adding multiple environment variables in vercel-args [\#38](https://github.com/amondnet/vercel-action/issues/38)
+- Deployment never finish [\#32](https://github.com/amondnet/vercel-action/issues/32)
+- Input required and not supplied: `${name}` [\#26](https://github.com/amondnet/vercel-action/issues/26)
+
+**Merged pull requests:**
+
+- fix: deprecating set-env and add-path commands [\#43](https://github.com/amondnet/vercel-action/pull/43) ([amondnet](https://github.com/amondnet))
+- Fix prod\_or\_not in example-static [\#37](https://github.com/amondnet/vercel-action/pull/37) ([olivercoad](https://github.com/olivercoad))
+- feat: improve slugify [\#34](https://github.com/amondnet/vercel-action/pull/34) ([ocavue](https://github.com/ocavue))
+- Update README.md [\#33](https://github.com/amondnet/vercel-action/pull/33) ([zdhz](https://github.com/zdhz))
+
 ## [v19.0.1+3](https://github.com/amondnet/vercel-action/tree/v19.0.1+3) (2020-08-12)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+2...v19.0.1+3)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+3)
 
 **Fixed bugs:**
 
@@ -12,10 +35,11 @@
 **Closed issues:**
 
 - Alias does not incorporate scope [\#23](https://github.com/amondnet/vercel-action/issues/23)
-- Not deploying to production [\#22](https://github.com/amondnet/vercel-action/issues/22)
 
 **Merged pull requests:**
 
+- build\(deps\): bump elliptic from 6.5.2 to 6.5.3 in /example/angular [\#25](https://github.com/amondnet/vercel-action/pull/25) ([dependabot[bot]](https://github.com/apps/dependabot))
+- build\(deps\): bump lodash from 4.17.15 to 4.17.19 in /example/angular [\#20](https://github.com/amondnet/vercel-action/pull/20) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Fix latest "inspect" bug by adding manual Vercel Project Name option [\#29](https://github.com/amondnet/vercel-action/pull/29) ([EvanLovely](https://github.com/EvanLovely))
 
 ## [v19.0.1+2](https://github.com/amondnet/vercel-action/tree/v19.0.1+2) (2020-07-24)
@@ -29,7 +53,6 @@
 
 **Fixed bugs:**
 
-- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
 - Don't send new comment for every pushed commit and just edit existed one [\#15](https://github.com/amondnet/vercel-action/issues/15)
 
 **Closed issues:**
@@ -58,7 +81,7 @@
 
 ## [v19.0.1](https://github.com/amondnet/vercel-action/tree/v19.0.1) (2020-05-18)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v2.0.3...v19.0.1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v2...v19.0.1)
 
 **Fixed bugs:**
 
