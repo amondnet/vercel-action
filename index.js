@@ -376,9 +376,6 @@ async function run() {
       core.debug(`The head commit is: ${commit}`);
     }
   }
-  if (githubDeploymentId) {
-    await createGithubDeploymentStatus(githubDeploymentId, 'in_progress');
-  }
   const deploymentUrl = await vercelDeploy(ref, commit);
   if (githubDeploymentId) {
     await createGithubDeploymentStatus(githubDeploymentId, 'success');
