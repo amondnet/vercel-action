@@ -25,6 +25,8 @@ jobs:
           alias-domains: |
             staging.static.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.static.vercel-action.amond.dev
+          github-deployment: true
+          # github-deployment-environment: staging
       - name: production or not
         id: prod_or_not
         run: |
