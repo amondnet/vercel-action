@@ -1414,11 +1414,11 @@ function getEffectiveRef() {
 async function createGithubDeployment() {
   if (githubDeployment && octokit) {
     core.debug(`Create a github deployment.`);
-    core.debug(`Current context :${github.context.action}`);
     const deployment = await octokit.repos.createDeployment({
       ...context.repo,
       ref: getEffectiveRef(),
       environment: githubDeploymentEnv,
+      required_contexts: [],
     });
     return deployment.id;
   }
