@@ -13,6 +13,10 @@ const workingDirectory = core.getInput('working-directory');
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
 const branchRegExp = /{{\s*BRANCH\s*}}/g;
 
+function isPullRequestType(event) {
+  return event.startsWith('pull_request');
+}
+
 function slugify(str) {
   const slug = str
     .toString()
@@ -41,10 +45,10 @@ const aliasDomains = core
   .map(s => {
     let url = s;
     let branch = slugify(context.ref.replace('refs/heads/', ''));
-    if (context.eventName === 'pull_request') {
-      branch = slugify(
-        context.payload.pull_request.head.ref.replace('refs/heads/', ''),
-      );
+    if (isPullRequestType(context.eventName)) {
+      const pr =
+        context.payload.pull_request || context.payload.pull_request_target;
+      branch = slugify(pr.head.ref.replace('refs/heads/', ''));
       url = url.replace(prNumberRegExp, context.issue.number.toString());
     }
     url = url.replace(branchRegExp, branch);
@@ -80,6 +84,7 @@ async function vercelDeploy(ref, commit) {
       core.info(data.toString());
     },
     stderr: data => {
+      // eslint-disable-next-line no-unused-vars
       myError += data.toString();
       core.info(data.toString());
     },
@@ -131,6 +136,7 @@ async function vercelInspect(deploymentUrl) {
   const options = {};
   options.listeners = {
     stdout: data => {
+      // eslint-disable-next-line no-unused-vars
       myOutput += data.toString();
       core.info(data.toString());
     },
@@ -164,8 +170,8 @@ async function findCommentsForEvent() {
       commit_sha: context.sha,
     });
   }
-  if (context.eventName === 'pull_request') {
-    core.debug('event is "pull_request", use "listComments"');
+  if (isPullRequestType(context.eventName)) {
+    core.debug(`event is "${context.eventName}", use "listComments"`);
     return octokit.issues.listComments({
       ...context.repo,
       issue_number: context.issue.number,
@@ -319,14 +325,16 @@ async function run() {
   if (github.context.eventName === 'push') {
     const pushPayload = github.context.payload;
     core.debug(`The head commit is: ${pushPayload.head_commit}`);
-  } else if (github.context.eventName === 'pull_request') {
+  } else if (isPullRequestType(github.context.eventName)) {
     const pullRequestPayload = github.context.payload;
-    core.debug(`head : ${pullRequestPayload.pull_request.head}`);
+    const pr =
+      pullRequestPayload.pull_request || pullRequestPayload.pull_request_target;
+    core.debug(`head : ${pr.head}`);
 
-    ref = pullRequestPayload.pull_request.head.ref;
-    sha = pullRequestPayload.pull_request.head.sha;
-    core.debug(`The head ref is: ${pullRequestPayload.pull_request.head.ref}`);
-    core.debug(`The head sha is: ${pullRequestPayload.pull_request.head.sha}`);
+    ref = pr.head.ref;
+    sha = pr.head.sha;
+    core.debug(`The head ref is: ${pr.head.ref}`);
+    core.debug(`The head sha is: ${pr.head.sha}`);
 
     if (octokit) {
       const { data: commitData } = await octokit.git.getCommit({
@@ -368,7 +376,7 @@ async function run() {
 
   if (githubComment && githubToken) {
     if (context.issue.number) {
-      core.info('this is related issue or pull_request ');
+      core.info('this is related issue or pull_request');
       await createCommentOnPullRequest(sha, deploymentUrl, deploymentName);
     } else if (context.eventName === 'push') {
       core.info('this is push event');
