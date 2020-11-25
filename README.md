@@ -123,7 +123,7 @@ You can save both values in the secrets setting in your repository. Read the [Of
 
 ### Github Actions
 
-* This is a complete `.github/workflow/deploy.yml` example.
+* This is a complete `.github/workflows/deploy.yml` example.
 
 Set the `vercel-project-id` and `vercel-org-id` you found above.
 
