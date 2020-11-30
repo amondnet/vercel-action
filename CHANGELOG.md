@@ -1,20 +1,30 @@
 # Changelog
 
+## [v20.0.0](https://github.com/amondnet/vercel-action/tree/v20.0.0) (2020-11-30)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+4...v20.0.0)
+
+**Implemented enhancements:**
+
+- add support to pull\_request\_target event [\#47](https://github.com/amondnet/vercel-action/pull/47) ([nionis](https://github.com/nionis))
+
+**Closed issues:**
+
+- Error: ENOENT [\#51](https://github.com/amondnet/vercel-action/issues/51)
+- Deployment is always done on the same branch refs/heads/develop [\#48](https://github.com/amondnet/vercel-action/issues/48)
+
+**Merged pull requests:**
+
+- chore\(README\): Update deployment script path [\#49](https://github.com/amondnet/vercel-action/pull/49) ([richardtapendium](https://github.com/richardtapendium))
+- chore\(deps\): vercel cli v20.1.1 [\#41](https://github.com/amondnet/vercel-action/pull/41) ([amondnet](https://github.com/amondnet))
+
 ## [v19.0.1+4](https://github.com/amondnet/vercel-action/tree/v19.0.1+4) (2020-10-13)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+3...v19.0.1+4)
-
-**Fixed bugs:**
-
-- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+4)
 
 **Closed issues:**
 
 - `set-env` command is deprecated and will be disabled soon [\#42](https://github.com/amondnet/vercel-action/issues/42)
-- Unable to find version [\#39](https://github.com/amondnet/vercel-action/issues/39)
-- Difficulty adding multiple environment variables in vercel-args [\#38](https://github.com/amondnet/vercel-action/issues/38)
-- Deployment never finish [\#32](https://github.com/amondnet/vercel-action/issues/32)
-- Input required and not supplied: `${name}` [\#26](https://github.com/amondnet/vercel-action/issues/26)
 
 **Merged pull requests:**
 
@@ -25,7 +35,7 @@
 
 ## [v19.0.1+3](https://github.com/amondnet/vercel-action/tree/v19.0.1+3) (2020-08-12)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+3)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+2...v19.0.1+3)
 
 **Fixed bugs:**
 
@@ -34,6 +44,8 @@
 
 **Closed issues:**
 
+- Deploy is failing [\#28](https://github.com/amondnet/vercel-action/issues/28)
+- Not deploying to production [\#22](https://github.com/amondnet/vercel-action/issues/22)
 - Alias does not incorporate scope [\#23](https://github.com/amondnet/vercel-action/issues/23)
 
 **Merged pull requests:**
