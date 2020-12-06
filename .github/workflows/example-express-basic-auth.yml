@@ -21,6 +21,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
           working-directory: example/express-basic-auth
+          vercel-project-name: express-basic-auth
       - uses: ./
         id: now-deployment-production
         if: github.event_name == 'push'
@@ -31,3 +32,4 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
           vercel-args: '--prod'
           working-directory: example/express-basic-auth
+          vercel-project-name: express-basic-auth
