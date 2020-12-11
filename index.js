@@ -4,10 +4,17 @@ const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
 
+function getGithubCommentInput() {
+  const input = core.getInput('github-comment');
+  if (input === 'true') return true;
+  if (input === 'false') return false;
+  return input;
+}
+
 const { context } = github;
 
 const githubToken = core.getInput('github-token');
-const githubComment = core.getInput('github-comment') === 'true';
+const githubComment = getGithubCommentInput();
 const workingDirectory = core.getInput('working-directory');
 
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
@@ -199,6 +206,38 @@ async function findPreviousComment(text) {
   return null;
 }
 
+function joinDeploymentUrls(deploymentUrl, aliasDomains_) {
+  if (aliasDomains_.length) {
+    const aliasUrls = aliasDomains_.map(domain => `https://${domain}`);
+    return [deploymentUrl, ...aliasUrls].join('\n');
+  }
+  return deploymentUrl;
+}
+
+function buildCommentPrefix(deploymentName) {
+  return `Deploy preview for _${deploymentName}_ ready!`;
+}
+
+function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
+  if (!githubComment) {
+    return undefined;
+  }
+  const prefix = `${buildCommentPrefix(deploymentName)}\n\n`;
+  if (typeof githubComment === 'string' || githubComment instanceof String) {
+    return prefix + githubComment;
+  }
+  return (
+    prefix +
+    stripIndents`
+      ✅ Preview
+      ${joinDeploymentUrls(deploymentUrl, aliasDomains)}
+      
+      Built with commit ${deploymentCommit}.
+      This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
+    `
+  );
+}
+
 async function createCommentOnCommit(
   deploymentCommit,
   deploymentUrl,
@@ -208,25 +247,14 @@ async function createCommentOnCommit(
     return;
   }
   const commentId = await findPreviousComment(
-    `Deploy preview for _${deploymentName}_ ready!`,
+    buildCommentPrefix(deploymentName),
   );
 
-  let previewUrl = deploymentUrl;
-  if (aliasDomains.length) {
-    aliasDomains.forEach(domain => {
-      previewUrl += `\nhttps://${domain}`;
-    });
-  }
-
-  const commentBody = stripIndents`
-    Deploy preview for _${deploymentName}_ ready!
-
-    ✅ Preview
-    ${previewUrl}
-    
-    Built with commit ${deploymentCommit}.
-    This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
-  `;
+  const commentBody = buildCommentBody(
+    deploymentCommit,
+    deploymentUrl,
+    deploymentName,
+  );
 
   if (commentId) {
     await octokit.repos.updateCommitComment({
@@ -255,22 +283,11 @@ async function createCommentOnPullRequest(
     `Deploy preview for _${deploymentName}_ ready!`,
   );
 
-  let previewUrl = deploymentUrl;
-  if (aliasDomains.length) {
-    aliasDomains.forEach(domain => {
-      previewUrl += `\nhttps://${domain}`;
-    });
-  }
-
-  const commentBody = stripIndents`
-    Deploy preview for _${deploymentName}_ ready!
-
-    ✅ Preview
-    ${previewUrl}
-    
-    Built with commit ${deploymentCommit}.
-    This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
-  `;
+  const commentBody = buildCommentBody(
+    deploymentCommit,
+    deploymentUrl,
+    deploymentName,
+  );
 
   if (commentId) {
     await octokit.issues.updateComment({

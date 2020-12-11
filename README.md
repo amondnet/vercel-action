@@ -44,7 +44,7 @@ This action make a Vercel deployment with github actions.
 | Name              | Required | Default | Description                                                                                       |
 |-------------------|:--------:|---------|---------------------------------------------------------------------------------------------------|
 | vercel-token      |    [x]   |         | Vercel token. see https://vercel.com/account/tokens                                                                                  |
-| github-comment    |    [ ]   |  true   | if you don't want to comment on pull request.                                                     |
+| github-comment    |    [ ]   |  true   | Its type can be either **string or boolean**. When string, it leaves PR a comment with the string. When boolean, it leaves PR a default comment(true) or does not leave a comment at all(false).                                                      |
 | github-token      |    [ ]   |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
 | vercel-project-id |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-org-id     |    [x]   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
