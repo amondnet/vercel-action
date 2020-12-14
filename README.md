@@ -157,6 +157,8 @@ How to add Basic Authentication to a Vercel deployment
 
 See [.github/workflows/example-express-basic-auth.yml](.github/workflows/example-express-basic-auth.yml)
 
+| `@now/node-server` is deprecated and stopped working. Use `@vercel/node` instead. #61
+
 [source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)
 
 ### Alias Domains
