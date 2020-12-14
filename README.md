@@ -159,6 +159,8 @@ See [.github/workflows/example-express-basic-auth.yml](.github/workflows/example
 
 [source code](https://github.com/amondnet/vercel-action/tree/master/example/express-basic-auth)
 
+| `@now/node-server` is deprecated and stopped working. Use `@vercel/node` instead. #61
+
 ### Alias Domains
 
 You can assign a domain to this deployment. Please note that this domain must have been [configured](https://vercel.com/docs/v2/custom-domains#adding-a-domain) in the project.
