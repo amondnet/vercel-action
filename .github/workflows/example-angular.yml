@@ -24,7 +24,7 @@ jobs:
 
       - uses: ./
         id: vercel-action-staging
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
