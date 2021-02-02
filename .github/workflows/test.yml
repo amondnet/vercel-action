@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/now-deployment@v2.0.3
+      - uses: ./
         id: now-deployment
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
