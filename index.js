@@ -45,6 +45,8 @@ const vercelOrgId = core.getInput('vercel-org-id');
 const vercelProjectId = core.getInput('vercel-project-id');
 const vercelScope = core.getInput('scope');
 const vercelProjectName = core.getInput('vercel-project-name');
+const waitForDeploy = core.getInput('wait-for-deploy') === 'true';
+
 const aliasDomains = core
   .getInput('alias-domains')
   .split('\n')
@@ -81,25 +83,6 @@ async function setEnv() {
 }
 
 async function vercelDeploy(ref, commit) {
-  let myOutput = '';
-  // eslint-disable-next-line no-unused-vars
-  let myError = '';
-  const options = {};
-  options.listeners = {
-    stdout: data => {
-      myOutput += data.toString();
-      core.info(data.toString());
-    },
-    stderr: data => {
-      // eslint-disable-next-line no-unused-vars
-      myError += data.toString();
-      core.info(data.toString());
-    },
-  };
-  if (workingDirectory) {
-    options.cwd = workingDirectory;
-  }
-
   const args = [
     ...vercelArgs.split(/ +/),
     '-t',
@@ -131,9 +114,26 @@ async function vercelDeploy(ref, commit) {
     args.push('--scope', vercelScope);
   }
 
-  await exec.exec('npx', ['vercel', ...args], options);
-
-  return myOutput;
+  return new Promise(res => {
+    exec.exec('npx', ['vercel', ...args], {
+      ...(workingDirectory ? { cwd: workingDirectory } : {}),
+      listeners: {
+        stdout: data => {
+          core.info('waitForDeploy: ' + waitForDeploy);
+          if (!waitForDeploy && data.toString().includes('https://')) {
+            core.info('Skipping deploy...');
+            res(data.toString());
+          } else {
+            core.info('Waitting for deploy...');
+            core.info(data.toString());
+          }
+        },
+        stderr: data => {
+          core.info(data.toString());
+        },
+      },
+    });
+  });
 }
 
 async function vercelInspect(deploymentUrl) {
@@ -378,7 +378,9 @@ async function run() {
   }
 
   const deploymentName =
-    vercelProjectName || (await vercelInspect(deploymentUrl));
+    vercelProjectName ||
+    (waitForDeploy && (await vercelInspect(deploymentUrl)));
+
   if (deploymentName) {
     core.info('set preview-name output');
     core.setOutput('preview-name', deploymentName);

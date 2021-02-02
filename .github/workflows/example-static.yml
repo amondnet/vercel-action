@@ -20,6 +20,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
           working-directory: example/static
+          scope: ${{ secrets.VERCEL_SCOPE }}
           alias-domains: |
             staging.static.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.static.vercel-action.amond.dev
@@ -44,5 +45,7 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
           vercel-args: ${{ steps.prod_or_not.outputs.vercel-args }}
           working-directory: example/static
+          wait-for-deploy: false
+          scope: ${{ secrets.VERCEL_SCOPE }}
           alias-domains: |
             {{BRANCH}}.static.vercel-action.amond.dev
