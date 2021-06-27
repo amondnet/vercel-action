@@ -26,14 +26,13 @@
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.3",
     "@actions/github": "^2.1.1",
+    "@octokit/webhooks": "latest",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0",
-    "vercel": "20.1.1",
-    "@octokit/webhooks": "latest"
+    "vercel": "20.1.1"
   },
   "devDependencies": {
     "@zeit/ncc": "^0.22.1",
-    "prettier": "1.19.1",
     "eslint": "^7.0.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
@@ -42,7 +41,8 @@
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^2.5.0",
-    "jest": "^26.0.1"
+    "jest": "^26.0.1",
+    "prettier": "1.19.1"
   },
   "engines": {
     "node": "v12"

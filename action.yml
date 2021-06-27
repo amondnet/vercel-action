@@ -55,6 +55,10 @@ inputs:
     required: false
     description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
     default: ''
+  wait-for-deploy:
+    required: false
+    default: 'true'
+    description: 'If you want to skip build waiting, set it to false.'
 
 outputs:
   preview-url:
