@@ -123,7 +123,7 @@ async function vercelDeploy(ref, commit) {
     '-m',
     `githubCommitMessage=${commit}`,
     '-m',
-    `githubCommitRef=${ref.replace(/^refs\/head\//, '')}`,
+    `githubCommitRef=${ref.replace(/^refs\/heads\//, '')}`,
   ];
 
   if (vercelScope) {
