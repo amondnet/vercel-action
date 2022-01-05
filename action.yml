@@ -61,6 +61,8 @@ outputs:
     description: 'deployment preview URL'
   preview-name:
     description: 'deployment preview name'
+  deployment-id:
+    description: 'deployment id'
 runs:
   using: 'node12'
   main: 'dist/index.js'

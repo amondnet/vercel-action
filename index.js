@@ -374,6 +374,8 @@ async function run() {
   if (deployment) {
     core.info('set preview-name output');
     core.setOutput('preview-name', deployment.name);
+    core.info('set deployment-id output');
+    core.setOutput('deployment-id', deployment.id);
   } else {
     core.warning('get preview-name error');
   }
