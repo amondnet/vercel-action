@@ -140,6 +140,7 @@ async function vercelDeploy(ref, commit) {
 const createApiClient = (vercelToken, teamId = null) => {
   return {
     getDeployment,
+    assignAlias,
   };
 
   function request (path, options = {}) {
@@ -153,6 +154,14 @@ const createApiClient = (vercelToken, teamId = null) => {
 
   async function getDeployment(deploymentUrl) {
     return request(`/v13/deployments/${deploymentUrl}`)
+      .then((response) => response.data)
+  }
+
+  async function assignAlias(deploymentId, alias) {
+    return request(`/v3/deployments/${deploymentId}/aliases`, {
+      method: 'post',
+      data: {alias}
+    })
       .then((response) => response.data)
   }
 }
@@ -293,27 +302,6 @@ async function createCommentOnPullRequest(
   }
 }
 
-async function aliasDomainsToDeployment(deploymentUrl) {
-  if (!deploymentUrl) {
-    core.error('deployment url is null');
-  }
-  const args = ['-t', vercelToken];
-  if (vercelScope) {
-    core.info('using scope');
-    args.push('--scope', vercelScope);
-  }
-  const promises = aliasDomains.map(domain => {
-    return exec.exec('npx', [
-      'vercel',
-      ...args,
-      'alias',
-      deploymentUrl,
-      domain,
-    ]);
-  });
-  await Promise.all(promises);
-}
-
 async function run() {
   core.debug(`action : ${context.action}`);
   core.debug(`ref : ${context.ref}`);
@@ -382,7 +370,7 @@ async function run() {
 
   if (aliasDomains.length) {
     core.info('alias domains to this deployment');
-    await aliasDomainsToDeployment(deploymentUrl);
+    await Promise.all(aliasDomains.map(alias => api.assignAlias(deployment.id, alias)));
   }
 
   if (githubComment && githubToken) {
