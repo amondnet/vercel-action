@@ -3,6 +3,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
+const axios = require('axios');
 
 function getGithubCommentInput() {
   const input = core.getInput('github-comment');
@@ -136,36 +137,24 @@ async function vercelDeploy(ref, commit) {
   return myOutput;
 }
 
-async function vercelInspect(deploymentUrl) {
-  // eslint-disable-next-line no-unused-vars
-  let myOutput = '';
-  let myError = '';
-  const options = {};
-  options.listeners = {
-    stdout: data => {
-      // eslint-disable-next-line no-unused-vars
-      myOutput += data.toString();
-      core.info(data.toString());
-    },
-    stderr: data => {
-      myError += data.toString();
-      core.info(data.toString());
-    },
+const createApiClient = (vercelToken, teamId = null) => {
+  return {
+    getDeployment,
   };
-  if (workingDirectory) {
-    options.cwd = workingDirectory;
+
+  function request (path, options = {}) {
+    const url = `https://api.vercel.com${path}` + (teamId ? `?teamId=${teamId}` : '');
+    return axios({
+      url,
+      headers: { 'Authorization': `Bearer ${vercelToken}` },
+      ...options
+    })
   }
 
-  const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
-
-  if (vercelScope) {
-    core.info('using scope');
-    args.push('--scope', vercelScope);
+  async function getDeployment(deploymentUrl) {
+    return request(`/v13/deployments/${deploymentUrl}`)
+      .then((response) => response.data)
   }
-  await exec.exec('npx', args, options);
-
-  const match = myError.match(/^\s+name\s+(.+)$/m);
-  return match && match.length ? match[1] : null;
 }
 
 async function findCommentsForEvent() {
@@ -336,6 +325,8 @@ async function run() {
   let { sha } = context;
   await setEnv();
 
+  const api = createApiClient(vercelToken, vercelOrgId);
+
   let commit = execSync('git log -1 --pretty=format:%B')
     .toString()
     .trim();
@@ -377,11 +368,12 @@ async function run() {
     core.warning('get preview-url error');
   }
 
-  const deploymentName =
-    vercelProjectName || (await vercelInspect(deploymentUrl));
-  if (deploymentName) {
+  const deployment = await api.getDeployment(deploymentUrl);
+  core.debug(JSON.stringify(deployment));
+
+  if (deployment) {
     core.info('set preview-name output');
-    core.setOutput('preview-name', deploymentName);
+    core.setOutput('preview-name', deployment.name);
   } else {
     core.warning('get preview-name error');
   }
