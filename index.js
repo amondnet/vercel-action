@@ -145,6 +145,7 @@ const createApiClient = (vercelToken, teamId = null) => {
 
   function request (path, options = {}) {
     const url = `https://api.vercel.com${path}` + (teamId ? `?teamId=${teamId}` : '');
+    core.info(`making api request: ${url}`)
     return axios({
       url,
       headers: { 'Authorization': `Bearer ${vercelToken}` },
@@ -345,6 +346,7 @@ async function run() {
   const deploymentUrl = await vercelDeploy(ref, commit);
 
   if (deploymentUrl) {
+    core.info(`deployment-url: ${deploymentUrl}`)
     core.info('set preview-url output');
     if (aliasDomains && aliasDomains.length) {
       core.info('set preview-url output as first alias');
