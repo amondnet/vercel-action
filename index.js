@@ -134,7 +134,7 @@ async function vercelDeploy(ref, commit) {
 
   await exec.exec('npx', ['vercel', ...args], options);
 
-  return myOutput;
+  return myOutput.replace('https://', '');
 }
 
 const createApiClient = (vercelToken, teamId = null) => {
@@ -208,9 +208,9 @@ async function findPreviousComment(text) {
 function joinDeploymentUrls(deploymentUrl, aliasDomains_) {
   if (aliasDomains_.length) {
     const aliasUrls = aliasDomains_.map(domain => `https://${domain}`);
-    return [deploymentUrl, ...aliasUrls].join('\n');
+    return [`https://${deploymentUrl}`, ...aliasUrls].join('\n');
   }
-  return deploymentUrl;
+  return `https://${deploymentUrl}`;
 }
 
 function buildCommentPrefix(deploymentName) {
@@ -352,7 +352,7 @@ async function run() {
       core.info('set preview-url output as first alias');
       core.setOutput('preview-url', `https://${aliasDomains[0]}`);
     } else {
-      core.setOutput('preview-url', deploymentUrl);
+      core.setOutput('preview-url', `https://${deploymentUrl}`);
     }
   } else {
     core.warning('get preview-url error');
