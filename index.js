@@ -223,19 +223,26 @@ function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
     return undefined;
   }
   const prefix = `${buildCommentPrefix(deploymentName)}\n\n`;
-  if (typeof githubComment === 'string' || githubComment instanceof String) {
-    return prefix + githubComment;
-  }
-  return (
+
+  const rawGithubComment =
     prefix +
-    stripIndents`
+    (typeof githubComment === 'string' || githubComment instanceof String
+      ? githubComment
+      : stripIndents`
       ✅ Preview
-      ${joinDeploymentUrls(deploymentUrl, aliasDomains)}
+      {{deploymentUrl}}
       
-      Built with commit ${deploymentCommit}.
+      Built with commit {{deploymentCommit}}.
       This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
-    `
-  );
+    `);
+
+  return rawGithubComment
+    .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
+    .replace(/\{\{deploymentName\}\}/g, deploymentName)
+    .replace(
+      /\{\{deploymentUrl\}\}/g,
+      joinDeploymentUrls(deploymentUrl, aliasDomains)
+    );
 }
 
 async function createCommentOnCommit(
