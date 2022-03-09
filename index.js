@@ -255,7 +255,7 @@ function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
     .replace(/\{\{deploymentName\}\}/g, deploymentName)
     .replace(
       /\{\{deploymentUrl\}\}/g,
-      joinDeploymentUrls(deploymentUrl, aliasDomains)
+      joinDeploymentUrls(deploymentUrl, aliasDomains),
     );
 }
 
