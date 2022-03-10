@@ -82,15 +82,14 @@ Set `github.enabled: false` in `vercel.json`, see example `vercel.json` file bel
     "enabled": false
   },
   "builds": [
-    { "src": "./public/**", "use": "@now/static" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "public/$1" }
+    { "src": "./dist/**", "use": "@vercel/static-build" }
   ]
 }
 
 ```
 When set to false, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
+
+Set `builds` to `@vercel/static-build` to use the static build instead of vercel's build commands. `src` is the path to the directory containing the files to be deployed.
 
 
 ### Project Linking
@@ -135,7 +134,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v20
+      #  your build commands
+      # - run: |
+      #    ng build --prod
+      - uses: amondnet/vercel-action@v20 #deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
