@@ -80,7 +80,13 @@ Set `github.enabled: false` in `vercel.json`, see example `vercel.json` file bel
   "public": false,
   "github": {
     "enabled": false
-  }
+  },
+  "builds": [
+    { "src": "./public/**", "use": "@now/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "public/$1" }
+  ]
 }
 
 ```
