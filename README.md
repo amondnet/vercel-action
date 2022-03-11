@@ -82,14 +82,40 @@ Set `github.enabled: false` in `vercel.json`, see example `vercel.json` file bel
     "enabled": false
   },
   "builds": [
-    { "src": "./dist/**", "use": "@vercel/static-build" }
+    { "src": "./dist/**", "use": "@vercel/static" } 
   ]
 }
 
 ```
-When set to false, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
+When `github.enabled` set to `false`, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
 
-Set `builds` to `@vercel/static-build` to use the static build instead of vercel's build commands. `src` is the path to the directory containing the files to be deployed.
+### Skip vercel's build step
+
+Since we do the `build` in `github actions`, we don't need to build in `vercel`.
+
+#### Method 1 - via vercel interface
+
+- Specify "Other" as the framework preset, and
+- Enable the Override option for the Build Command, and
+- Leave the Build Command **empty**.
+- This will prevent the build from being attempted and serve your content as-is.
+
+See [docs](https://vercel.com/docs/concepts/deployments/build-step#build-command) for more details
+
+#### Method 2 - via `vercel.json`
+
+If a Deployment defines the builds configuration property, the vercel's `Build & Development Settings` are ignored.
+
+```json
+{
+  "builds": [
+    { "src": "{{Source for distribution}}", "use": "@vercel/static" }
+  ]
+}
+```
+Set `builds` to `@vercel/static` to skip vercel's build step. `src` is the path to the directory containing the files to be deployed.
+
+See [docs](https://vercel.com/docs/cli#legacy/builds) for more details
 
 
 ### Project Linking
