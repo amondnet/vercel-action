@@ -106,7 +106,7 @@ If a Deployment defines the builds configuration property, the vercel's `Build &
 ```json
 {
   "builds": [
-    { "src": "{{Source for distribution}}", "use": "@now/static" }
+    { "src": "{{Source for distribution}}", "use": "@vercel/static" }
   ]
 }
 ```
