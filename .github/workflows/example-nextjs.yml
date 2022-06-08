@@ -12,13 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          vercel pull --yes
+          npm ci
+          npx vercel pull --yes
         working-directory: example/nextjs
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       - run: |
-          vercel build
+          npx vercel build
         if: github.event_name == 'pull_request_target'
         working-directory: example/nextjs
         env:
@@ -49,7 +50,7 @@ jobs:
         env:
           REF: ${{ github.ref }}
       - run: |
-          vercel build --prod
+          npx vercel build --prod
         if: github.event_name == 'push'
         working-directory: example/nextjs
         env:
