@@ -1,5 +1,9 @@
 # Changelog
 
+## [v25.0.0](https://github.com/amondnet/vercel-action/tree/v25.0.0) (2022-06-08)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.2...v25.0.0)
+
 ## [v20.0.2](https://github.com/amondnet/vercel-action/tree/v20.0.2) (2022-06-08)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.1...v20.0.2)
@@ -11,9 +15,17 @@
 - How to re-authenticate [\#138](https://github.com/amondnet/vercel-action/issues/138)
 - Unclear how the build command and the build directory are inferred [\#122](https://github.com/amondnet/vercel-action/issues/122)
 
+**Merged pull requests:**
+
+- fix: add quotes around commit message [\#141](https://github.com/amondnet/vercel-action/pull/141) ([Regaddi](https://github.com/Regaddi))
+- docs: how to skip build step [\#136](https://github.com/amondnet/vercel-action/pull/136) ([amondnet](https://github.com/amondnet))
+- docs: use `@vercel/static-build` instead of `@now/static` [\#135](https://github.com/amondnet/vercel-action/pull/135) ([amondnet](https://github.com/amondnet))
+- Revert "docs: remove builds from vercel.json" [\#134](https://github.com/amondnet/vercel-action/pull/134) ([amondnet](https://github.com/amondnet))
+- docs: remove builds from vercel.json [\#133](https://github.com/amondnet/vercel-action/pull/133) ([amondnet](https://github.com/amondnet))
+
 ## [v20.0.1](https://github.com/amondnet/vercel-action/tree/v20.0.1) (2022-03-09)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20...v20.0.1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.0...v20.0.1)
 
 **Implemented enhancements:**
 
@@ -34,21 +46,17 @@
 
 **Merged pull requests:**
 
-- Parse deployment details in Github comments [\#124](https://github.com/amondnet/vercel-action/pull/124) ([abstractalgo](https://github.com/abstractalgo))
-- feat: Vercel Metadata Override [\#118](https://github.com/amondnet/vercel-action/pull/118) ([cgosiak](https://github.com/cgosiak))
 - Use vercel-compatible ref naming [\#108](https://github.com/amondnet/vercel-action/pull/108) ([andyrichardson](https://github.com/andyrichardson))
 - reformated checkbox [\#92](https://github.com/amondnet/vercel-action/pull/92) ([claranceliberi](https://github.com/claranceliberi))
 - chore: Fix typo in README.md [\#73](https://github.com/amondnet/vercel-action/pull/73) ([caoer](https://github.com/caoer))
+- ci: pull\_request\_target [\#59](https://github.com/amondnet/vercel-action/pull/59) ([amondnet](https://github.com/amondnet))
+- Parse deployment details in Github comments [\#124](https://github.com/amondnet/vercel-action/pull/124) ([abstractalgo](https://github.com/abstractalgo))
+- feat: Vercel Metadata Override [\#118](https://github.com/amondnet/vercel-action/pull/118) ([cgosiak](https://github.com/cgosiak))
 - ci: use pull request target [\#63](https://github.com/amondnet/vercel-action/pull/63) ([amondnet](https://github.com/amondnet))
 - docs: remove deprecated package now/node-server [\#62](https://github.com/amondnet/vercel-action/pull/62) ([amondnet](https://github.com/amondnet))
-- ci: pull\_request\_target [\#59](https://github.com/amondnet/vercel-action/pull/59) ([amondnet](https://github.com/amondnet))
 - build\(deps\): bump node-fetch from 2.6.0 to 2.6.1 [\#44](https://github.com/amondnet/vercel-action/pull/44) ([dependabot[bot]](https://github.com/apps/dependabot))
 - build\(deps\): bump lodash from 4.17.15 to 4.17.20 [\#36](https://github.com/amondnet/vercel-action/pull/36) ([dependabot[bot]](https://github.com/apps/dependabot))
 - build\(deps\): bump http-proxy from 1.18.0 to 1.18.1 in /example/angular [\#35](https://github.com/amondnet/vercel-action/pull/35) ([dependabot[bot]](https://github.com/apps/dependabot))
-
-## [v20](https://github.com/amondnet/vercel-action/tree/v20) (2020-11-30)
-
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.0...v20)
 
 ## [v20.0.0](https://github.com/amondnet/vercel-action/tree/v20.0.0) (2020-11-30)
 

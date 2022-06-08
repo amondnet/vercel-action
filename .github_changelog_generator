@@ -1,9 +1,9 @@
 user=amondnet
 project=vercel-action
-future-release=v20.0.2
+future-release=v25.0.0
 since-tag=v2.0.3
 enhancement-labels=Type: Enhancement,Type: Feature,Type: Improvement
 bug-labels=Type: Bug
 breaking-labels=Type: Breaking Change
-exclude-tags=v2,v1,v19
+exclude-tags=v2,v1,v19,v20,v25
 base=changelog_archived.md
