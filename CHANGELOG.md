@@ -1,5 +1,55 @@
 # Changelog
 
+## [v20.0.2](https://github.com/amondnet/vercel-action/tree/v20.0.2) (2022-06-08)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.1...v20.0.2)
+
+**Closed issues:**
+
+- Create previews for branches, not per commit [\#150](https://github.com/amondnet/vercel-action/issues/150)
+- Error: Resource not accessible by integration [\#148](https://github.com/amondnet/vercel-action/issues/148)
+- How to re-authenticate [\#138](https://github.com/amondnet/vercel-action/issues/138)
+- Unclear how the build command and the build directory are inferred [\#122](https://github.com/amondnet/vercel-action/issues/122)
+
+## [v20.0.1](https://github.com/amondnet/vercel-action/tree/v20.0.1) (2022-03-09)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20...v20.0.1)
+
+**Implemented enhancements:**
+
+- Enable users to use "preview-url" in the "github-comment" [\#75](https://github.com/amondnet/vercel-action/issues/75)
+- Feature request: enable users to customize github comment [\#52](https://github.com/amondnet/vercel-action/issues/52)
+- feat: enable users to customize github comment [\#56](https://github.com/amondnet/vercel-action/pull/56) ([sundoufu](https://github.com/sundoufu))
+
+**Closed issues:**
+
+- Vercel Deployment fails due to "missing input" [\#105](https://github.com/amondnet/vercel-action/issues/105)
+- Action doesn't set vercel-org-id [\#96](https://github.com/amondnet/vercel-action/issues/96)
+- promote deployment to production if commited branch equals master or main [\#81](https://github.com/amondnet/vercel-action/issues/81)
+- Action Failing at vercel inspect [\#80](https://github.com/amondnet/vercel-action/issues/80)
+- Use branch name from ref? [\#78](https://github.com/amondnet/vercel-action/issues/78)
+- Error when trying to fetch deployment [\#67](https://github.com/amondnet/vercel-action/issues/67)
+- Deployment is on the correct branch, but it always use source code on main branch [\#65](https://github.com/amondnet/vercel-action/issues/65)
+- Remove depracated package @now/node-server [\#61](https://github.com/amondnet/vercel-action/issues/61)
+
+**Merged pull requests:**
+
+- Parse deployment details in Github comments [\#124](https://github.com/amondnet/vercel-action/pull/124) ([abstractalgo](https://github.com/abstractalgo))
+- feat: Vercel Metadata Override [\#118](https://github.com/amondnet/vercel-action/pull/118) ([cgosiak](https://github.com/cgosiak))
+- Use vercel-compatible ref naming [\#108](https://github.com/amondnet/vercel-action/pull/108) ([andyrichardson](https://github.com/andyrichardson))
+- reformated checkbox [\#92](https://github.com/amondnet/vercel-action/pull/92) ([claranceliberi](https://github.com/claranceliberi))
+- chore: Fix typo in README.md [\#73](https://github.com/amondnet/vercel-action/pull/73) ([caoer](https://github.com/caoer))
+- ci: use pull request target [\#63](https://github.com/amondnet/vercel-action/pull/63) ([amondnet](https://github.com/amondnet))
+- docs: remove deprecated package now/node-server [\#62](https://github.com/amondnet/vercel-action/pull/62) ([amondnet](https://github.com/amondnet))
+- ci: pull\_request\_target [\#59](https://github.com/amondnet/vercel-action/pull/59) ([amondnet](https://github.com/amondnet))
+- build\(deps\): bump node-fetch from 2.6.0 to 2.6.1 [\#44](https://github.com/amondnet/vercel-action/pull/44) ([dependabot[bot]](https://github.com/apps/dependabot))
+- build\(deps\): bump lodash from 4.17.15 to 4.17.20 [\#36](https://github.com/amondnet/vercel-action/pull/36) ([dependabot[bot]](https://github.com/apps/dependabot))
+- build\(deps\): bump http-proxy from 1.18.0 to 1.18.1 in /example/angular [\#35](https://github.com/amondnet/vercel-action/pull/35) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v20](https://github.com/amondnet/vercel-action/tree/v20) (2020-11-30)
+
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.0...v20)
+
 ## [v20.0.0](https://github.com/amondnet/vercel-action/tree/v20.0.0) (2020-11-30)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+4...v20.0.0)
@@ -20,11 +70,19 @@
 
 ## [v19.0.1+4](https://github.com/amondnet/vercel-action/tree/v19.0.1+4) (2020-10-13)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19...v19.0.1+4)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v19.0.1+3...v19.0.1+4)
+
+**Fixed bugs:**
+
+- Getting errors after upgrading to vercel-action [\#4](https://github.com/amondnet/vercel-action/issues/4)
 
 **Closed issues:**
 
 - `set-env` command is deprecated and will be disabled soon [\#42](https://github.com/amondnet/vercel-action/issues/42)
+- Unable to find version [\#39](https://github.com/amondnet/vercel-action/issues/39)
+- Difficulty adding multiple environment variables in vercel-args [\#38](https://github.com/amondnet/vercel-action/issues/38)
+- Deployment never finish [\#32](https://github.com/amondnet/vercel-action/issues/32)
+- Input required and not supplied: `${name}` [\#26](https://github.com/amondnet/vercel-action/issues/26)
 
 **Merged pull requests:**
 
@@ -93,7 +151,7 @@
 
 ## [v19.0.1](https://github.com/amondnet/vercel-action/tree/v19.0.1) (2020-05-18)
 
-[Full Changelog](https://github.com/amondnet/vercel-action/compare/v2...v19.0.1)
+[Full Changelog](https://github.com/amondnet/vercel-action/compare/v2.0.3...v19.0.1)
 
 **Fixed bugs:**
 
@@ -224,9 +282,6 @@
 
 - release: v1 [\#1](https://github.com/amondnet/now-deployment/pull/1) ([amondnet](https://github.com/amondnet))
 
-
-
-\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
 
 
 \* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
