@@ -9,7 +9,8 @@
   "dependencies": {
     "next": "12.1.4",
     "react": "18.0.0",
-    "react-dom": "18.0.0"
+    "react-dom": "18.0.0",
+    "vercel": "^25.0.1"
   },
   "devDependencies": {
     "eslint": "8.12.0",
