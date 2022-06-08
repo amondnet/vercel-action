@@ -1,0 +1,52 @@
+name: example - next.js
+on:
+  push:
+    branches:
+      - master
+      - feature/*
+  pull_request_target:
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          vercel build
+
+      - uses: ./
+        id: now-deployment-staging
+        if: github.event_name == 'pull_request_target'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
+          vercel-args: --prebuilt
+          working-directory: example/nextjs
+          alias-domains: |
+            staging.nextjs.vercel-action.amond.dev
+            pr-{{PR_NUMBER}}.nextjs.vercel-action.amond.dev
+      - name: production or not
+        id: prod_or_not
+        run: |
+          if [ "$REF" == 'refs/heads/master' ]
+          then
+              echo "::set-output name=vercel-args::--prod --prebuilt"
+          else
+              echo "::set-output name=vercel-args::--prebuilt"
+          fi
+        env:
+          REF: ${{ github.ref }}
+      - uses: ./
+        id: now-deployment-production
+        if: github.event_name == 'push'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
+          vercel-args: ${{ steps.prod_or_not.outputs.vercel-args }}
+          working-directory: example/nextjs
+          alias-domains: |
+            {{BRANCH}}.nextjs.vercel-action.amond.dev
