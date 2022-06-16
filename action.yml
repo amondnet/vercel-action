@@ -55,6 +55,9 @@ inputs:
     required: false
     description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
     default: ''
+  git-directory:
+    required: false
+    description: the git directory
 
 outputs:
   preview-url:
