@@ -3,9 +3,54 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
+const yargs = require('yargs');
+
+// eslint-disable-next-line prefer-destructuring
+const argv = yargs
+  .command(
+    'vercel-token',
+    'vercel-token uses for accessing to Vercel Organization',
+    {
+      year: {
+        type: 'string',
+      },
+    },
+  )
+  .option('working-directory', {
+    type: 'string',
+  })
+  .option('github-token', {
+    type: 'string',
+  })
+  .option('vercel-args', {
+    type: 'string',
+  })
+  .option('vercel-org-id', {
+    type: 'string',
+  })
+  .option('vercel-project-id', {
+    type: 'string',
+  })
+  .option('scope', {
+    type: 'string',
+  })
+  .option('vercel-project-name', {
+    type: 'string',
+  })
+  .option('alias-domains', {
+    type: 'string',
+  })
+  .option('github-comment', {
+    type: 'boolean',
+  })
+  .option('production', {
+    type: 'boolean',
+  })
+  .help()
+  .alias('help', 'h').argv;
 
 function getGithubCommentInput() {
-  const input = core.getInput('github-comment');
+  const input = argv['github-comment'];
   if (input === 'true') return true;
   if (input === 'false') return false;
   return input;
@@ -13,9 +58,9 @@ function getGithubCommentInput() {
 
 const { context } = github;
 
-const githubToken = core.getInput('github-token');
+const githubToken = argv['github-token'] || '';
 const githubComment = getGithubCommentInput();
-const workingDirectory = core.getInput('working-directory');
+const workingDirectory = argv['working-directory'] || '';
 
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
 const branchRegExp = /{{\s*BRANCH\s*}}/g;
@@ -39,14 +84,17 @@ function slugify(str) {
 }
 
 // Vercel
-const vercelToken = core.getInput('vercel-token', { required: true });
-const vercelArgs = core.getInput('vercel-args');
-const vercelOrgId = core.getInput('vercel-org-id');
-const vercelProjectId = core.getInput('vercel-project-id');
-const vercelScope = core.getInput('scope');
-const vercelProjectName = core.getInput('vercel-project-name');
-const aliasDomains = core
-  .getInput('alias-domains')
+const vercelToken = argv['vercel-token'] || '';
+
+if (!vercelToken) throw new Error('vercel-token is required');
+
+const vercelArgs = argv['vercel-args'] || '';
+const vercelOrgId = argv['vercel-org-id'] || '';
+const vercelProjectId = argv['vercel-project-id'] || '';
+const vercelScope = argv.scope || '';
+const vercelProjectName = argv['vercel-project-name'] || '';
+const isProduction = argv.production;
+const aliasDomains = (core.getInput('alias-domains') || '')
   .split('\n')
   .filter((x) => x !== '')
   .map((s) => {
@@ -143,6 +191,11 @@ async function vercelDeploy(ref, commit) {
   if (vercelScope) {
     core.info('using scope');
     args.push('--scope', vercelScope);
+  }
+
+  if (isProduction) {
+    core.info('deployment for production environment');
+    args.push('--prod');
   }
 
   await exec.exec('npx', ['vercel', ...args], options);
