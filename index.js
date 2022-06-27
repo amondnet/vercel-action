@@ -132,7 +132,12 @@ async function vercelDeploy(ref, commit) {
     ...addVercelMetadata('githubRepo', context.repo.repo, providedArgs),
     ...addVercelMetadata('githubCommitOrg', context.repo.owner, providedArgs),
     ...addVercelMetadata('githubCommitRepo', context.repo.repo, providedArgs),
-    ...addVercelMetadata('githubCommitMessage', `"${commit}"`, providedArgs),
+    ...addVercelMetadata(
+      'githubCommitMessage',
+      // eslint-disable-next-line prefer-template
+      '"' + commit + '"',
+      providedArgs,
+    ),
     ...addVercelMetadata(
       'githubCommitRef',
       ref.replace('refs/heads/', ''),
