@@ -117,6 +117,8 @@ async function vercelDeploy(ref, commit) {
 
   const providedArgs = vercelArgs.split(/ +/);
 
+  const commitMessage = commit.replace("'", "'\\''");
+
   const args = [
     ...vercelArgs.split(/ +/),
     ...['-t', vercelToken],
@@ -134,8 +136,7 @@ async function vercelDeploy(ref, commit) {
     ...addVercelMetadata('githubCommitRepo', context.repo.repo, providedArgs),
     ...addVercelMetadata(
       'githubCommitMessage',
-      // eslint-disable-next-line prefer-template
-      '"' + commit + '"',
+      `'${commitMessage}'`,
       providedArgs,
     ),
     ...addVercelMetadata(
