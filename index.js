@@ -117,7 +117,7 @@ async function vercelDeploy(ref, commit) {
 
   const providedArgs = vercelArgs.split(/ +/);
 
-  const commitMessage = commit.replace("'", "'\\''").replace("`", "'\\'`");
+  const commitMessage = commit.replace("'", "\\'").replace('`', '\\`');
 
   const args = [
     ...vercelArgs.split(/ +/),
