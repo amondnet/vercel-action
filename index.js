@@ -4,7 +4,7 @@ const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
 
-const VERCEL_BIN = 'vercel';
+const VERCEL_BIN = 'vercel@25.1.0';
 
 function getGithubCommentInput() {
   const input = core.getInput('github-comment');
