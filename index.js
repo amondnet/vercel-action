@@ -4,6 +4,8 @@ const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
 
+const VERCEL_BIN = 'vercel';
+
 function getGithubCommentInput() {
   const input = core.getInput('github-comment');
   if (input === 'true') return true;
@@ -145,7 +147,7 @@ async function vercelDeploy(ref, commit) {
     args.push('--scope', vercelScope);
   }
 
-  await exec.exec('npx', ['vercel', ...args], options);
+  await exec.exec('npx', [VERCEL_BIN, ...args], options);
 
   return myOutput;
 }
@@ -170,7 +172,7 @@ async function vercelInspect(deploymentUrl) {
     options.cwd = workingDirectory;
   }
 
-  const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
+  const args = [VERCEL_BIN, 'inspect', deploymentUrl, '-t', vercelToken];
 
   if (vercelScope) {
     core.info('using scope');
@@ -336,7 +338,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   }
   const promises = aliasDomains.map(domain => {
     return exec.exec('npx', [
-      'vercel',
+      VERCEL_BIN,
       ...args,
       'alias',
       deploymentUrl,
