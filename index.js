@@ -117,6 +117,8 @@ async function vercelDeploy(ref, commit) {
 
   const providedArgs = vercelArgs.split(/ +/);
 
+  const commitMessage = commit.replace("'", "\\'").replace('`', '`````');
+
   const args = [
     ...vercelArgs.split(/ +/),
     ...['-t', vercelToken],
@@ -132,7 +134,11 @@ async function vercelDeploy(ref, commit) {
     ...addVercelMetadata('githubRepo', context.repo.repo, providedArgs),
     ...addVercelMetadata('githubCommitOrg', context.repo.owner, providedArgs),
     ...addVercelMetadata('githubCommitRepo', context.repo.repo, providedArgs),
-    ...addVercelMetadata('githubCommitMessage', `"${commit}"`, providedArgs),
+    ...addVercelMetadata(
+      'githubCommitMessage',
+      `'${commitMessage}'`,
+      providedArgs,
+    ),
     ...addVercelMetadata(
       'githubCommitRef',
       ref.replace('refs/heads/', ''),
