@@ -145,7 +145,13 @@ async function vercelDeploy(ref, commit) {
     args.push('--scope', vercelScope);
   }
 
-  await exec.exec('npx', ['vercel', ...args], options);
+  // set prefix directory for npx, this will allow it to find the vercel cli
+  // inside the package.json and not the global
+  const npxPrefixDirectory = workingDirectory
+    ? ['--prefix', workingDirectory]
+    : [];
+
+  await exec.exec('npx', [...npxPrefixDirectory, 'vercel', ...args], options);
 
   return myOutput;
 }
@@ -170,12 +176,26 @@ async function vercelInspect(deploymentUrl) {
     options.cwd = workingDirectory;
   }
 
-  const args = ['vercel', 'inspect', deploymentUrl, '-t', vercelToken];
+  // set prefix directory for npx, this will allow it to find the vercel cli
+  // inside the package.json and not the global
+  const npxPrefixDirectory = workingDirectory
+    ? ['--prefix', workingDirectory]
+    : [];
+
+  const args = [
+    ...npxPrefixDirectory,
+    'vercel',
+    'inspect',
+    deploymentUrl,
+    '-t',
+    vercelToken,
+  ];
 
   if (vercelScope) {
     core.info('using scope');
     args.push('--scope', vercelScope);
   }
+
   await exec.exec('npx', args, options);
 
   const match = myError.match(/^\s+name\s+(.+)$/m);
@@ -334,8 +354,16 @@ async function aliasDomainsToDeployment(deploymentUrl) {
     core.info('using scope');
     args.push('--scope', vercelScope);
   }
+
+  // set prefix directory for npx, this will allow it to find the vercel cli
+  // inside the package.json and not the global
+  const npxPrefixDirectory = workingDirectory
+    ? ['--prefix', workingDirectory]
+    : [];
+
   const promises = aliasDomains.map(domain => {
     return exec.exec('npx', [
+      ...npxPrefixDirectory,
       'vercel',
       ...args,
       'alias',
