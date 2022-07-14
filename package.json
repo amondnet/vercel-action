@@ -11,7 +11,7 @@
     "email": "amond@amond.net",
     "url": "https://amond.dev"
   },
-  "version": "25.0.0",
+  "version": "25.1.0",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js",
@@ -28,7 +28,7 @@
     "@actions/github": "^2.1.1",
     "axios": "~0.18.1",
     "common-tags": "^1.8.0",
-    "vercel": "25.0.1",
+    "vercel": "25.1.0",
     "@octokit/webhooks": "latest"
   },
   "devDependencies": {
