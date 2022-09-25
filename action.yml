@@ -33,8 +33,7 @@ inputs:
     description: "The name of the project; if absent we'll use the `vercel inspect` command to determine."
   vercel-version:
     required: false
-    description: "vercel-cli package version
-    "
+    description: "vercel-cli package version"
   scope:
     required: false
     description: 'If you are work in team scope, you should set this value to your team id.'
