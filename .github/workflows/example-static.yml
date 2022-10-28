@@ -28,9 +28,9 @@ jobs:
         run: |
           if [ "$REF" == 'refs/heads/master' ]
           then
-              echo "vercel-args=--prod"
+              echo "vercel-args=--prod" >> $GITHUB_OUTPUT
           else
-              echo "vercel-args="
+              echo "vercel-args=" >> $GITHUB_OUTPUT
           fi
         env:
           REF: ${{ github.ref }}
