@@ -41,18 +41,19 @@ This action make a Vercel deployment with github actions.
 [commit](https://github.com/amondnet/now-deployment/commit/3d926623510294463c589327f5420663b1b0b35f)
 ## Inputs
 
-| Name              | Required                      | Default | Description                                                                                       |
-|-------------------|:-----------------------------:|---------|---------------------------------------------------------------------------------------------------|
-| vercel-token      |    <ul><li>- [x] </li></ol>   |         | Vercel token. see https://vercel.com/account/tokens                                                                                   |
-| github-comment    |    <ul><li>- [ ] </li></ol>   |  true   | Its type can be either **string or boolean**. When string, it leaves PR a comment with the string. When boolean, it leaves PR a default comment(true) or does not leave a comment at all(false).                                                      |
-| github-token      |    <ul><li>- [ ] </li></ol>   |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
-| vercel-project-id |    <ul><li>- [x] </li></ol>   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-org-id     |    <ul><li>- [x] </li></ol>   |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-args       |    <ul><li>- [ ] </li></ol>   |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
-| working-directory |    <ul><li>- [ ] </li></ol>   |         | the working directory                                                                             |
-| scope             |    <ul><li>- [ ] </li></ol>   |         | If you are working in a team scope, you should set this value to your `team ID`.           
-| alias-domains     |    <ul><li>- [ ] </li></ol>   |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.         
-| vercel-project-name |  <ul><li>- [ ] </li></ol>   |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
+| Name                |         Required         | Default | Description                                                                                       |
+|---------------------|:------------------------:|---------|---------------------------------------------------------------------------------------------------|
+| vercel-token        | <ul><li>- [x] </li></ol> |         | Vercel token. see https://vercel.com/account/tokens                                                                                   |
+| github-comment      | <ul><li>- [ ] </li></ol> |  true   | Its type can be either **string or boolean**. When string, it leaves PR a comment with the string. When boolean, it leaves PR a default comment(true) or does not leave a comment at all(false).                                                      |
+| github-token        | <ul><li>- [ ] </li></ol> |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
+| vercel-project-id   | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-org-id       | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-args         | <ul><li>- [ ] </li></ol> |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
+| working-directory   | <ul><li>- [ ] </li></ol> |         | the working directory                                                                             |
+| scope               | <ul><li>- [ ] </li></ol> |         | If you are working in a team scope, you should set this value to your `team ID`.           
+| alias-domains       | <ul><li>- [ ] </li></ol> |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.         
+| vercel-project-name | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
+| vercel-version      | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
 ## Outputs
 
 ### `preview-url`

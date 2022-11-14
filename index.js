@@ -3,8 +3,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 const exec = require('@actions/exec');
-
-const VERCEL_BIN = 'vercel@25.1.0';
+const packageJSON = require('./package.json');
 
 function getGithubCommentInput() {
   const input = core.getInput('github-comment');
@@ -18,7 +17,6 @@ const { context } = github;
 const githubToken = core.getInput('github-token');
 const githubComment = getGithubCommentInput();
 const workingDirectory = core.getInput('working-directory');
-
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
 const branchRegExp = /{{\s*BRANCH\s*}}/g;
 
@@ -41,12 +39,19 @@ function slugify(str) {
 }
 
 // Vercel
+function getVercelBin() {
+  const input = core.getInput('vercel-version');
+  const fallback = packageJSON.dependencies.vercel;
+  return `vercel@${input || fallback}`;
+}
+
 const vercelToken = core.getInput('vercel-token', { required: true });
 const vercelArgs = core.getInput('vercel-args');
 const vercelOrgId = core.getInput('vercel-org-id');
 const vercelProjectId = core.getInput('vercel-project-id');
 const vercelScope = core.getInput('scope');
 const vercelProjectName = core.getInput('vercel-project-name');
+const vercelBin = getVercelBin();
 const aliasDomains = core
   .getInput('alias-domains')
   .split('\n')
@@ -147,7 +152,7 @@ async function vercelDeploy(ref, commit) {
     args.push('--scope', vercelScope);
   }
 
-  await exec.exec('npx', [VERCEL_BIN, ...args], options);
+  await exec.exec('npx', [vercelBin, ...args], options);
 
   return myOutput;
 }
@@ -172,7 +177,7 @@ async function vercelInspect(deploymentUrl) {
     options.cwd = workingDirectory;
   }
 
-  const args = [VERCEL_BIN, 'inspect', deploymentUrl, '-t', vercelToken];
+  const args = [vercelBin, 'inspect', deploymentUrl, '-t', vercelToken];
 
   if (vercelScope) {
     core.info('using scope');
@@ -338,7 +343,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   }
   const promises = aliasDomains.map(domain => {
     return exec.exec('npx', [
-      VERCEL_BIN,
+      vercelBin,
       ...args,
       'alias',
       deploymentUrl,
