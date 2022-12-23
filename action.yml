@@ -39,7 +39,7 @@ inputs:
     description: 'If you are work in team scope, you should set this value to your team id.'
   zeit-token:
     description: 'zeit.co token'
-    required: true
+    required: false
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-token" instead'
   now-args:
     description: ''
