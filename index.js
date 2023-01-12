@@ -47,6 +47,7 @@ function retry(fn, retries) {
         throw error;
       } else {
         core.info(`retrying: attempt ${retry + 1} / ${retries + 1}`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
         return attempt(retry + 1);
       }
     }
