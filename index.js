@@ -38,6 +38,23 @@ function slugify(str) {
   return slug;
 }
 
+function retry(fn, retries) {
+  async function attempt(retry) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (retry > retries) {
+        throw error;
+      } else {
+        core.info(`retrying: attempt ${retry + 1} / ${retries + 1}`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        return attempt(retry + 1);
+      }
+    }
+  }
+  return attempt(1);
+}
+
 // Vercel
 function getVercelBin() {
   const input = core.getInput('vercel-version');
@@ -341,15 +358,14 @@ async function aliasDomainsToDeployment(deploymentUrl) {
     core.info('using scope');
     args.push('--scope', vercelScope);
   }
-  const promises = aliasDomains.map(domain => {
-    return exec.exec('npx', [
-      vercelBin,
-      ...args,
-      'alias',
-      deploymentUrl,
-      domain,
-    ]);
-  });
+  const promises = aliasDomains.map(domain =>
+    retry(
+      () =>
+        exec.exec('npx', [vercelBin, ...args, 'alias', deploymentUrl, domain]),
+      2,
+    ),
+  );
+
   await Promise.all(promises);
 }
 
