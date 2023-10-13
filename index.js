@@ -139,10 +139,10 @@ async function vercelDeploy(ref, commit) {
     options.cwd = workingDirectory;
   }
 
-  const providedArgs = vercelArgs.split(/ +/);
+  const providedArgs = vercelArgs.split(/[^\s"']+|"([^"]*)"|'([^']*)'/);
 
   const args = [
-    ...vercelArgs.split(/ +/),
+    ...vercelArgs.split(/[^\s"']+|"([^"]*)"|'([^']*)'/),
     ...['-t', vercelToken],
     ...addVercelMetadata('githubCommitSha', context.sha, providedArgs),
     ...addVercelMetadata('githubCommitAuthorName', context.actor, providedArgs),
