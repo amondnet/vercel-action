@@ -32640,17 +32640,17 @@ function addVercelMetadata(key, value, providedArgs) {
 /**
  * 
  * The following regex is used to split the vercelArgs string into an array of arguments.
- * It conserves strings wrapped in double quotes, with nested escaped double quotes, as a single argument.
+ * It conserves strings wrapped in simple / double quotes, with nested different quotes, as a single argument.
  * 
  * Example:
  * 
- * parseArgs('--env foo="bar baz" "foo=\"bar\" baz"') => ['--env', 'foo="bar baz"', 'foo=\\"bar\\" baz']
+ * parseArgs(`--env foo=bar "foo=bar baz" 'foo="bar baz"'`) => ['--env', 'foo=bar', 'foo=bar baz', 'foo="bar baz"']
  */
-function parseArgs() {
+function parseArgs(s) {
   const args = [];
 
-  for (const match of vercelArgs.matchAll(/[^\s"]*"[^\\"]*(\\.[^\\"]*)*"|[^\s]+/gm)) {
-    args.push(match[0]);
+  for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|[^\s]+/gm)) {
+    args.push(match[1] ?? match[2] ?? match[0]);
   }
   return args;
 }
