@@ -389,7 +389,6 @@ async function aliasDomainsToDeployment(deploymentUrl) {
 }
 
 async function run() {
-  core.info('Does it really run ????????????????????????');
   core.debug(`action : ${context.action}`);
   core.debug(`ref : ${context.ref}`);
   core.debug(`eventName : ${context.eventName}`);
