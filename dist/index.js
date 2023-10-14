@@ -32636,6 +32636,25 @@ function addVercelMetadata(key, value, providedArgs) {
   return ['-m', `${key}=${value}`];
 }
 
+
+/**
+ * 
+ * The following regex is used to split the vercelArgs string into an array of arguments.
+ * It conserves strings wrapped in simple / double quotes, with nested different quotes, as a single argument.
+ * 
+ * Example:
+ * 
+ * parseArgs(`--env foo=bar "foo=bar baz" 'foo="bar baz"'`) => ['--env', 'foo=bar', 'foo=bar baz', 'foo="bar baz"']
+ */
+function parseArgs(s) {
+  const args = [];
+
+  for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|[^\s]+/gm)) {
+    args.push(match[1] ?? match[2] ?? match[0]);
+  }
+  return args;
+}
+
 async function vercelDeploy(ref, commit) {
   let myOutput = '';
   // eslint-disable-next-line no-unused-vars
@@ -32656,10 +32675,10 @@ async function vercelDeploy(ref, commit) {
     options.cwd = workingDirectory;
   }
 
-  const providedArgs = vercelArgs.split(/ +/);
+  const providedArgs = parseArgs(vercelArgs);
 
   const args = [
-    ...vercelArgs.split(/ +/),
+    ...providedArgs,
     ...['-t', vercelToken],
     ...addVercelMetadata('githubCommitSha', context.sha, providedArgs),
     ...addVercelMetadata('githubCommitAuthorName', context.actor, providedArgs),
@@ -32887,6 +32906,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
 }
 
 async function run() {
+  core.info('Does it really run ????????????????????????');
   core.debug(`action : ${context.action}`);
   core.debug(`ref : ${context.ref}`);
   core.debug(`eventName : ${context.eventName}`);
