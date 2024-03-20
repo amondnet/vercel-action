@@ -161,7 +161,7 @@ jobs:
       #  your build commands
       # - run: |
       #    ng build --prod
-      - uses: amondnet/vercel-action@v20 #deploy
+      - uses: amondnet/vercel-action@v25 #deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
@@ -226,7 +226,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v19
+      - uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
@@ -246,7 +246,7 @@ jobs:
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
    ```yaml
     - name: Vercel Action
-      uses: amondnet/vercel-action@v19
+      uses: amondnet/vercel-action@v25
    ```
 2. Change input values.
     - `zeit-token` -> `vercel-token`
