@@ -28,7 +28,7 @@
     "@actions/github": "^2.1.1",
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",
-    "vercel": "25.1.0",
+    "vercel": "41.1.4",
     "@octokit/webhooks": "latest"
   },
   "devDependencies": {
