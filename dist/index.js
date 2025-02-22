@@ -32470,7 +32470,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","private":true,"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"version":"25.2.1","main":"index.js","scripts":{"lint":"eslint index.js","start":"node ./index.js","package":"ncc build index.js -o dist","test":"jest","format":"prettier --write index.js","format-check":"prettier --check index.js","all":"npm run format && npm run lint && npm run package && npm test"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^2.1.1","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"25.1.0","@octokit/webhooks":"latest"},"devDependencies":{"@vercel/ncc":"^0.36.0","prettier":"^2.8.3","eslint":"^8.2.0","eslint-config-airbnb":"^19.0.4","eslint-config-prettier":"^8.6.0","eslint-plugin-import":"^2.27.5","eslint-plugin-jsx-a11y":"^6.7.1","eslint-plugin-prettier":"^4.2.1","eslint-plugin-react":"^7.32.1","eslint-plugin-react-hooks":"^4.6.0","jest":"^29.4.0"},"engines":{"node":"v20"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"]}');
+module.exports = JSON.parse('{"name":"vercel-action","private":true,"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"version":"25.2.0","main":"index.js","scripts":{"lint":"eslint index.js","start":"node ./index.js","package":"ncc build index.js -o dist","test":"jest","format":"prettier --write index.js","format-check":"prettier --check index.js","all":"npm run format && npm run lint && npm run package && npm test"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^2.1.1","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"25.1.0","@octokit/webhooks":"latest"},"devDependencies":{"@vercel/ncc":"^0.36.0","prettier":"^2.8.3","eslint":"^8.2.0","eslint-config-airbnb":"^19.0.4","eslint-config-prettier":"^8.6.0","eslint-plugin-import":"^2.27.5","eslint-plugin-jsx-a11y":"^6.7.1","eslint-plugin-prettier":"^4.2.1","eslint-plugin-react":"^7.32.1","eslint-plugin-react-hooks":"^4.6.0","jest":"^29.4.0"},"engines":{"node":"v20"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"]}');
 
 /***/ })
 
@@ -32575,7 +32575,7 @@ function retry(fn, retries) {
 // Vercel
 function getVercelBin() {
   const input = core.getInput('vercel-version');
-  const fallback = packageJSON.dependencies.vercel;
+  const fallback = packageJSON.dependencies.vercel || packageJSON.devDependencies.vercel;
   return `vercel@${input || fallback}`;
 }
 
