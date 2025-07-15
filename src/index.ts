@@ -1,11 +1,11 @@
-const { stripIndents } = require('common-tags');
-const core = require('@actions/core');
-const github = require('@actions/github');
-const { execSync } = require('child_process');
-const exec = require('@actions/exec');
-const packageJSON = require('./package.json');
+import { stripIndents } from 'common-tags';
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { execSync } from 'child_process';
+import * as exec from '@actions/exec';
+import * as packageJSON from '../package.json';
 
-function getGithubCommentInput() {
+function getGithubCommentInput(): boolean | string {
   const input = core.getInput('github-comment');
   if (input === 'true') return true;
   if (input === 'false') return false;
@@ -20,11 +20,11 @@ const workingDirectory = core.getInput('working-directory');
 const prNumberRegExp = /{{\s*PR_NUMBER\s*}}/g;
 const branchRegExp = /{{\s*BRANCH\s*}}/g;
 
-function isPullRequestType(event) {
+function isPullRequestType(event: string): boolean {
   return event.startsWith('pull_request');
 }
 
-function slugify(str) {
+function slugify(str: string): string {
   const slug = str
     .toString()
     .trim()
@@ -38,17 +38,19 @@ function slugify(str) {
   return slug;
 }
 
-function retry(fn, retries) {
-  async function attempt(retry) {
+function retry<T>(fn: () => Promise<T>, retries: number): Promise<T> {
+  async function attempt(currentRetry: number): Promise<T> {
     try {
       return await fn();
     } catch (error) {
-      if (retry > retries) {
+      if (currentRetry > retries) {
         throw error;
       } else {
-        core.info(`retrying: attempt ${retry + 1} / ${retries + 1}`);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        return attempt(retry + 1);
+        core.info(`retrying: attempt ${currentRetry + 1} / ${retries + 1}`);
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+        return attempt(currentRetry + 1);
       }
     }
   }
@@ -56,9 +58,10 @@ function retry(fn, retries) {
 }
 
 // Vercel
-function getVercelBin() {
+function getVercelBin(): string {
   const input = core.getInput('vercel-version');
-  const fallback = packageJSON.dependencies.vercel;
+  const fallback = (packageJSON as { dependencies: { vercel: string } })
+    .dependencies.vercel;
   return `vercel@${input || fallback}`;
 }
 
@@ -72,8 +75,8 @@ const vercelBin = getVercelBin();
 const aliasDomains = core
   .getInput('alias-domains')
   .split('\n')
-  .filter(x => x !== '')
-  .map(s => {
+  .filter((x) => x !== '')
+  .map((s) => {
     let url = s;
     let branch = slugify(context.ref.replace('refs/heads/', ''));
     if (isPullRequestType(context.eventName)) {
@@ -87,12 +90,12 @@ const aliasDomains = core
     return url;
   });
 
-let octokit;
+let octokit: github.GitHub;
 if (githubToken) {
   octokit = new github.GitHub(githubToken);
 }
 
-async function setEnv() {
+async function setEnv(): Promise<void> {
   core.info('set environment for vercel cli');
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID');
@@ -104,7 +107,11 @@ async function setEnv() {
   }
 }
 
-function addVercelMetadata(key, value, providedArgs) {
+function addVercelMetadata(
+  key: string,
+  value: string | number,
+  providedArgs: string[],
+): string[] {
   // returns a list for the metadata commands if key was not supplied by user in action parameters
   // returns an empty list if key was provided by user
   const pattern = `^${key}=.+`;
@@ -119,37 +126,36 @@ function addVercelMetadata(key, value, providedArgs) {
   return ['-m', `${key}=${value}`];
 }
 
-
 /**
- * 
+ *
  * The following regex is used to split the vercelArgs string into an array of arguments.
  * It conserves strings wrapped in simple / double quotes, with nested different quotes, as a single argument.
- * 
+ *
  * Example:
- * 
+ *
  * parseArgs(`--env foo=bar "foo=bar baz" 'foo="bar baz"'`) => ['--env', 'foo=bar', 'foo=bar baz', 'foo="bar baz"']
  */
-function parseArgs(s) {
-  const args = [];
+function parseArgs(s: string): string[] {
+  const args: string[] = [];
 
-  for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|[^\s]+/gm)) {
+  const matches = Array.from(s.matchAll(/'([^']*)'|"([^"]*)"|[^\s]+/gm));
+  for (let i = 0; i < matches.length; i += 1) {
+    const match = matches[i];
     args.push(match[1] ?? match[2] ?? match[0]);
   }
   return args;
 }
 
-async function vercelDeploy(ref, commit) {
+async function vercelDeploy(ref: string, commit: string): Promise<string> {
   let myOutput = '';
-  // eslint-disable-next-line no-unused-vars
-  let myError = '';
-  const options = {};
+  let myError = ''; // eslint-disable-line @typescript-eslint/no-unused-vars
+  const options: exec.ExecOptions = {};
   options.listeners = {
-    stdout: data => {
+    stdout: (data: Buffer) => {
       myOutput += data.toString();
       core.info(data.toString());
     },
-    stderr: data => {
-      // eslint-disable-next-line no-unused-vars
+    stderr: (data: Buffer) => {
       myError += data.toString();
       core.info(data.toString());
     },
@@ -193,20 +199,18 @@ async function vercelDeploy(ref, commit) {
   return myOutput;
 }
 
-async function vercelInspect(deploymentUrl) {
-  // eslint-disable-next-line no-unused-vars
-  let myOutput = '';
+async function vercelInspect(deploymentUrl: string): Promise<string | null> {
+  let myOutput = ''; // eslint-disable-line @typescript-eslint/no-unused-vars
   let myError = '';
-  const options = {};
+  const options: exec.ExecOptions = {};
   options.listeners = {
-    stdout: data => {
-      // eslint-disable-next-line no-unused-vars
+    stdout: (data: Buffer) => {
       myOutput += data.toString();
       core.info(data.toString());
     },
-    stderr: data => {
+    stderr: (data: Buffer) => {
       myError += data.toString();
-      core.info(data.toString());
+      core.error(data.toString());
     },
   };
   if (workingDirectory) {
@@ -225,8 +229,13 @@ async function vercelInspect(deploymentUrl) {
   return match && match.length ? match[1] : null;
 }
 
-async function findCommentsForEvent() {
+async function findCommentsForEvent(): Promise<{
+  data: Array<{ body: string; id: number }>;
+}> {
   core.debug('find comments for event');
+  if (!octokit) {
+    return { data: [] };
+  }
   if (context.eventName === 'push') {
     core.debug('event is "commit", use "listCommentsForCommit"');
     return octokit.repos.listCommentsForCommit({
@@ -242,18 +251,18 @@ async function findCommentsForEvent() {
     });
   }
   core.error('not supported event_type');
-  return [];
+  return { data: [] };
 }
 
-async function findPreviousComment(text) {
+async function findPreviousComment(text: string): Promise<number | null> {
   if (!octokit) {
     return null;
   }
   core.info('find comment');
   const { data: comments } = await findCommentsForEvent();
 
-  const vercelPreviewURLComment = comments.find(comment =>
-    comment.body.startsWith(text),
+  const vercelPreviewURLComment = comments.find(
+    (comment: { body: string; id: number }) => comment.body.startsWith(text),
   );
   if (vercelPreviewURLComment) {
     core.info('previous comment found');
@@ -263,19 +272,26 @@ async function findPreviousComment(text) {
   return null;
 }
 
-function joinDeploymentUrls(deploymentUrl, aliasDomains_) {
+function joinDeploymentUrls(
+  deploymentUrl: string,
+  aliasDomains_: string[],
+): string {
   if (aliasDomains_.length) {
-    const aliasUrls = aliasDomains_.map(domain => `https://${domain}`);
+    const aliasUrls = aliasDomains_.map((domain) => `https://${domain}`);
     return [deploymentUrl, ...aliasUrls].join('\n');
   }
   return deploymentUrl;
 }
 
-function buildCommentPrefix(deploymentName) {
+function buildCommentPrefix(deploymentName: string): string {
   return `Deploy preview for _${deploymentName}_ ready!`;
 }
 
-function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
+function buildCommentBody(
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+): string | undefined {
   if (!githubComment) {
     return undefined;
   }
@@ -283,7 +299,7 @@ function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
 
   const rawGithubComment =
     prefix +
-    (typeof githubComment === 'string' || githubComment instanceof String
+    (typeof githubComment === 'string'
       ? githubComment
       : stripIndents`
       ✅ Preview
@@ -303,10 +319,10 @@ function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
 }
 
 async function createCommentOnCommit(
-  deploymentCommit,
-  deploymentUrl,
-  deploymentName,
-) {
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+): Promise<void> {
   if (!octokit) {
     return;
   }
@@ -320,26 +336,28 @@ async function createCommentOnCommit(
     deploymentName,
   );
 
-  if (commentId) {
-    await octokit.repos.updateCommitComment({
-      ...context.repo,
-      comment_id: commentId,
-      body: commentBody,
-    });
-  } else {
-    await octokit.repos.createCommitComment({
-      ...context.repo,
-      commit_sha: context.sha,
-      body: commentBody,
-    });
+  if (commentBody) {
+    if (commentId) {
+      await octokit.repos.updateCommitComment({
+        ...context.repo,
+        comment_id: commentId,
+        body: commentBody,
+      });
+    } else {
+      await octokit.repos.createCommitComment({
+        ...context.repo,
+        commit_sha: context.sha,
+        body: commentBody,
+      });
+    }
   }
 }
 
 async function createCommentOnPullRequest(
-  deploymentCommit,
-  deploymentUrl,
-  deploymentName,
-) {
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+): Promise<void> {
   if (!octokit) {
     return;
   }
@@ -353,22 +371,24 @@ async function createCommentOnPullRequest(
     deploymentName,
   );
 
-  if (commentId) {
-    await octokit.issues.updateComment({
-      ...context.repo,
-      comment_id: commentId,
-      body: commentBody,
-    });
-  } else {
-    await octokit.issues.createComment({
-      ...context.repo,
-      issue_number: context.issue.number,
-      body: commentBody,
-    });
+  if (commentBody) {
+    if (commentId) {
+      await octokit.issues.updateComment({
+        ...context.repo,
+        comment_id: commentId,
+        body: commentBody,
+      });
+    } else {
+      await octokit.issues.createComment({
+        ...context.repo,
+        issue_number: context.issue.number,
+        body: commentBody,
+      });
+    }
   }
 }
 
-async function aliasDomainsToDeployment(deploymentUrl) {
+async function aliasDomainsToDeployment(deploymentUrl: string): Promise<void> {
   if (!deploymentUrl) {
     core.error('deployment url is null');
   }
@@ -377,7 +397,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
     core.info('using scope');
     args.push('--scope', vercelScope);
   }
-  const promises = aliasDomains.map(domain =>
+  const promises = aliasDomains.map((domain) =>
     retry(
       () =>
         exec.exec('npx', [vercelBin, ...args, 'alias', deploymentUrl, domain]),
@@ -388,7 +408,7 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   await Promise.all(promises);
 }
 
-async function run() {
+async function run(): Promise<void> {
   core.debug(`action : ${context.action}`);
   core.debug(`ref : ${context.ref}`);
   core.debug(`eventName : ${context.eventName}`);
@@ -399,9 +419,7 @@ async function run() {
   let { sha } = context;
   await setEnv();
 
-  let commit = execSync('git log -1 --pretty=format:%B')
-    .toString()
-    .trim();
+  let commit = execSync('git log -1 --pretty=format:%B').toString().trim();
   if (github.context.eventName === 'push') {
     const pushPayload = github.context.payload;
     core.debug(`The head commit is: ${pushPayload.head_commit}`);
@@ -441,7 +459,9 @@ async function run() {
   }
 
   const deploymentName =
-    vercelProjectName || (await vercelInspect(deploymentUrl));
+    vercelProjectName ||
+    (deploymentUrl && (await vercelInspect(deploymentUrl))) ||
+    null;
   if (deploymentName) {
     core.info('set preview-name output');
     core.setOutput('preview-name', deploymentName);
@@ -449,12 +469,12 @@ async function run() {
     core.warning('get preview-name error');
   }
 
-  if (aliasDomains.length) {
+  if (aliasDomains.length && deploymentUrl) {
     core.info('alias domains to this deployment');
     await aliasDomainsToDeployment(deploymentUrl);
   }
 
-  if (githubComment && githubToken) {
+  if (githubComment && githubToken && deploymentUrl && deploymentName) {
     if (context.issue.number) {
       core.info('this is related issue or pull_request');
       await createCommentOnPullRequest(sha, deploymentUrl, deploymentName);
@@ -467,6 +487,6 @@ async function run() {
   }
 }
 
-run().catch(error => {
+run().catch((error: Error) => {
   core.setFailed(error.message);
 });
