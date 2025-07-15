@@ -1,15 +1,30 @@
 {
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "airbnb",
+    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
+  "plugins": ["@typescript-eslint"],
   "env": {
     "commonjs": true,
     "es6": true,
     "node": true
   },
   "parserOptions": {
-    "ecmaVersion": 2018
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
-  "ignorePatterns": ["example/*"]
+  "ignorePatterns": ["example/*", "dist/*", "test/*"],
+  "rules": {
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/no-unresolved": "off"
+  }
 }
