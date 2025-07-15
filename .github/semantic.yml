@@ -1,0 +1,15 @@
+types:
+  - feat
+  - fix
+  - docs
+  - style
+  - refactor
+  - perf
+  - test
+  - build
+  - ci
+  - chore
+  - revert
+allowMergeCommits: true
+titleAndCommits: true
+anyCommit: true
