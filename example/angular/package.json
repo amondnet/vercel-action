@@ -46,5 +46,6 @@
   },
   "engines": {
     "node": "v22"
-  }
+  },
+  "packageManager": "pnpm@10.12.2"
 }
