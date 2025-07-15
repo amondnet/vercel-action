@@ -23,7 +23,7 @@ jobs:
         run: |
           cd example/angular
           pnpm install --frozen-lockfile
-          pnpx ng build --prod
+          pnpm run build
 
       - uses: ./
         id: vercel-action-staging
