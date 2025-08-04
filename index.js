@@ -425,8 +425,8 @@ async function run() {
       core.debug(`The head commit is: ${commit}`);
     }
   } else if (context.eventName === 'release') {
-    const tagName = context.payload.release.tag_name;
-    ref = `refs/tags/${tagName}`;
+    const tagName = context.payload.release?.tag_name;
+    ref = !tagName ? ref : `refs/tags/${tagName}`;
     core.debug(`The release ref is: ${ref}`);
   }
 
