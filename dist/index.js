@@ -32655,7 +32655,7 @@ function parseArgs(s) {
   return args;
 }
 
-async function vercelDeploy(ref, commit) {
+async function vercelDeploy(ref, commit, sha) {
   let myOutput = '';
   // eslint-disable-next-line no-unused-vars
   let myError = '';
@@ -32680,7 +32680,7 @@ async function vercelDeploy(ref, commit) {
   const args = [
     ...providedArgs,
     ...['-t', vercelToken],
-    ...addVercelMetadata('githubCommitSha', context.sha, providedArgs),
+    ...addVercelMetadata('githubCommitSha', sha, providedArgs),
     ...addVercelMetadata('githubCommitAuthorName', context.actor, providedArgs),
     ...addVercelMetadata(
       'githubCommitAuthorLogin',
@@ -32943,7 +32943,7 @@ async function run() {
     }
   }
 
-  const deploymentUrl = await vercelDeploy(ref, commit);
+  const deploymentUrl = await vercelDeploy(ref, commit, sha);
 
   if (deploymentUrl) {
     core.info('set preview-url output');
