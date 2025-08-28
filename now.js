@@ -1,8 +1,6 @@
-const { spawn } = require('child_process')
+const { spawn } = require('node:child_process')
 
-function nowDeploy( context ) {
-
-
+function _nowDeploy(_context) {
   const now = spawn('npx', [
     'now',
     '-m',
@@ -22,7 +20,8 @@ function nowDeploy( context ) {
     '-m',
     'githubCommitSha=48615ece0acfbe87682bbb64d7b87b75db32b60e',
     '-m',
-    'githubCommitMessage=test'])
+    'githubCommitMessage=test',
+  ])
 
   now.stdout.on('data', (data) => {
     console.log(`stdout': ${data}`)
@@ -38,5 +37,3 @@ function nowDeploy( context ) {
     }
   })
 }
-
-
