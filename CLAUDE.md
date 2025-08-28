@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+@AGENTS.md
+
 ## Project Overview
 
 This is a GitHub Action that deploys projects to Vercel. It's an npm package that integrates with GitHub workflows to automate deployments, providing more control than Vercel's native GitHub integration.
