@@ -30,7 +30,7 @@
     "start": "node ./index.js",
     "package": "ncc build index.js -o dist",
     "test": "jest",
-    "all": "pnpm run lint && pnpm run package && pnpm test",
+    "all": "pnpm lint && pnpm package && pnpm test",
     "prepare": "husky"
   },
   "dependencies": {
