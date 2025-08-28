@@ -81,4 +81,4 @@ Problem definition → small, safe change → change review → refactor — rep
   - ✅ `fix: resolve memory leak in user service`
   - ✅ `feat(auth): add OAuth2 integration`
   - ❌ `Fix: Some Message.` (wrong case, ends with period)
-  - ❌ `random: some change` (invalid type)  
+  - ❌ `random: some change` (invalid type)
