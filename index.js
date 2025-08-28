@@ -138,7 +138,7 @@ function parseArgs(s) {
   return args;
 }
 
-async function vercelDeploy(ref, commit) {
+async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
   let myOutput = '';
   // eslint-disable-next-line no-unused-vars
   let myError = '';
@@ -163,7 +163,7 @@ async function vercelDeploy(ref, commit) {
   const args = [
     ...providedArgs,
     ...['-t', vercelToken],
-    ...addVercelMetadata('githubCommitSha', context.sha, providedArgs),
+    ...addVercelMetadata('githubCommitSha', sha, providedArgs),
     ...addVercelMetadata('githubCommitAuthorName', context.actor, providedArgs),
     ...addVercelMetadata(
       'githubCommitAuthorLogin',
@@ -173,8 +173,8 @@ async function vercelDeploy(ref, commit) {
     ...addVercelMetadata('githubDeployment', 1, providedArgs),
     ...addVercelMetadata('githubOrg', context.repo.owner, providedArgs),
     ...addVercelMetadata('githubRepo', context.repo.repo, providedArgs),
-    ...addVercelMetadata('githubCommitOrg', context.repo.owner, providedArgs),
-    ...addVercelMetadata('githubCommitRepo', context.repo.repo, providedArgs),
+    ...addVercelMetadata('githubCommitOrg', commitOrg, providedArgs),
+    ...addVercelMetadata('githubCommitRepo', commitRepo, providedArgs),
     ...addVercelMetadata('githubCommitMessage', `"${commit}"`, providedArgs),
     ...addVercelMetadata(
       'githubCommitRef',
@@ -397,6 +397,8 @@ async function run() {
   core.debug(`workflow : ${context.workflow}`);
   let { ref } = context;
   let { sha } = context;
+  let commitOrg = context.repo.owner;
+  let commitRepo = context.repo.repo;
   await setEnv();
 
   let commit = execSync('git log -1 --pretty=format:%B')
@@ -413,12 +415,17 @@ async function run() {
 
     ref = pr.head.ref;
     sha = pr.head.sha;
+    commitOrg = pr.head.repo.owner.login;
+    commitRepo = pr.head.repo.name;
     core.debug(`The head ref is: ${pr.head.ref}`);
     core.debug(`The head sha is: ${pr.head.sha}`);
+    core.debug(`The commit org is: ${commitOrg}`);
+    core.debug(`The commit repo is: ${commitRepo}`);
 
     if (octokit) {
       const { data: commitData } = await octokit.git.getCommit({
-        ...context.repo,
+        owner: commitOrg,
+        repo: commitRepo,
         commit_sha: sha,
       });
       commit = commitData.message;
@@ -430,7 +437,7 @@ async function run() {
     core.debug(`The release ref is: ${ref}`);
   }
 
-  const deploymentUrl = await vercelDeploy(ref, commit);
+  const deploymentUrl = await vercelDeploy(ref, commit, sha, commitOrg, commitRepo);
 
   if (deploymentUrl) {
     core.info('set preview-url output');
