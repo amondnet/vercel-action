@@ -6,7 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a GitHub Action that deploys projects to Vercel. It's an npm package that integrates with GitHub workflows to automate deployments, providing more control than Vercel's native GitHub integration.
+This is a GitHub Action that deploys projects to Vercel. It's a pnpm-based package that integrates with GitHub workflows to automate deployments, providing more control than Vercel's native GitHub integration.
+
+## Package Manager
+
+This project uses **pnpm** as its package manager. The project is configured as a monorepo with workspaces for the example projects. Make sure to use pnpm commands instead of npm.
 
 ## Essential Commands
 
@@ -14,11 +18,10 @@ This is a GitHub Action that deploys projects to Vercel. It's an npm package tha
 ```bash
 pnpm install            # Install dependencies
 pnpm start              # Run the action locally (node ./index.js)
-pnpm run lint           # Run ESLint on index.js
-pnpm run format         # Format code with Prettier
-pnpm run format-check   # Check code formatting
+pnpm run lint           # Run ESLint
+pnpm run lint:fix       # Run ESLint and fix issues
 pnpm test               # Run Jest tests
-pnpm run all            # Run format, lint, package, and test in sequence
+pnpm run all            # Run lint, package, and test in sequence
 ```
 
 ### Building for Distribution
