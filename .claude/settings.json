@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__get_pull_request_files",
+      "mcp__github__get_pull_request_comments",
+      "mcp__github__get_pull_request"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

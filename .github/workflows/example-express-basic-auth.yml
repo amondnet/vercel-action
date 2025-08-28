@@ -5,7 +5,6 @@ on:
       - master
   pull_request_target:
 
-
 jobs:
   basic-auth:
     runs-on: ubuntu-latest
@@ -28,5 +27,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
-          vercel-args: '--prod'
+          vercel-args: --prod
           working-directory: example/express-basic-auth
