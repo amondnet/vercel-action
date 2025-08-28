@@ -11,16 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
       - run: |
-          npm ci
-          npx vercel pull --yes --token=${VERCEL_TOKEN}
+          pnpm install --frozen-lockfile
+          pnpm exec vercel pull --yes --token=${VERCEL_TOKEN}
         working-directory: example/nextjs
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - run: |
-          npx vercel build
+          pnpm exec vercel build
         if: github.event_name == 'pull_request_target'
         working-directory: example/nextjs
         env:
@@ -51,7 +63,7 @@ jobs:
         env:
           REF: ${{ github.ref }}
       - run: |
-          npx vercel build --prod
+          pnpm exec vercel build --prod
         if: github.event_name == 'push'
         working-directory: example/nextjs
         env:
