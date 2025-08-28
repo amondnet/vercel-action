@@ -424,6 +424,10 @@ async function run() {
       commit = commitData.message;
       core.debug(`The head commit is: ${commit}`);
     }
+  } else if (context.eventName === 'release') {
+    const tagName = context.payload.release?.tag_name;
+    ref = !tagName ? ref : `refs/tags/${tagName}`;
+    core.debug(`The release ref is: ${ref}`);
   }
 
   const deploymentUrl = await vercelDeploy(ref, commit);
