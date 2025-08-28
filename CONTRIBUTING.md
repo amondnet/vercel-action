@@ -5,7 +5,7 @@ We welcome contributions to the Vercel Action project! This document provides gu
 ## Development Setup
 
 1. Fork and clone the repository
-2. Install dependencies: `npm install`
+2. Install dependencies: `pnpm install`
 3. Run tests: `npm test`
 4. Run linter: `npm run lint`
 
