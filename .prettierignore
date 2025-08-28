@@ -1,7 +1,0 @@
-dist/
-node_modules/
-example/
-*.d.ts
-*.d.ts.map
-*.js.map
-coverage/

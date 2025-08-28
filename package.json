@@ -1,28 +1,38 @@
 {
   "name": "vercel-action",
+  "version": "41.1.4",
   "private": true,
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/amondnet/vercel-action"
-  },
   "author": {
     "name": "Minsu Lee",
     "email": "amond@amond.net",
     "url": "https://amond.dev"
   },
-  "version": "41.1.4",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amondnet/vercel-action"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "Vercel",
+    "Zeit",
+    "Now"
+  ],
   "main": "dist/index.js",
+  "engines": {
+    "node": "v20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "start": "node ./dist/src/index.js",
     "package": "npm run build && ncc build dist/src/index.js -o dist --minify --no-cache --no-source-map-register",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'",
-    "format-check": "prettier --check 'src/**/*.ts' 'test/**/*.ts'",
+    "format": "eslint --fix .",
     "all": "npm run format && npm run lint && npm run build && npm run package && npm test"
   },
   "dependencies": {
@@ -35,30 +45,13 @@
     "vercel": "41.1.4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^5.2.1",
     "@types/common-tags": "^1.8.4",
     "@types/node": "^24.0.13",
-    "@typescript-eslint/eslint-plugin": "^8.37.0",
-    "@typescript-eslint/parser": "^8.37.0",
     "@vercel/ncc": "^0.36.0",
     "@vitest/ui": "^3.2.4",
-    "eslint": "^8.2.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.3",
+    "eslint": "^9.0.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": "v20"
-  },
-  "keywords": [
-    "GitHub",
-    "Actions",
-    "Vercel",
-    "Zeit",
-    "Now"
-  ]
+  }
 }
