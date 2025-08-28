@@ -7,6 +7,31 @@ on:
     branches: [master, main]
 
 jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install commitlint
+        run: |
+          npm install --save-dev @commitlint/config-conventional @commitlint/cli
+
+      - name: Validate PR title
+        run: |
+          echo "${{ github.event.pull_request.title }}" | npx commitlint
+
+      - name: Validate commits
+        if: github.event.pull_request.commits > 1
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
