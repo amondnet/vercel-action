@@ -415,8 +415,15 @@ async function run() {
 
     ref = pr.head.ref;
     sha = pr.head.sha;
-    commitOrg = pr.head.repo.owner.login;
-    commitRepo = pr.head.repo.name;
+    if (pr.head.repo) {
+      commitOrg = pr.head.repo.owner.login;
+      commitRepo = pr.head.repo.name;
+    } else {
+      // 포크가 삭제된 경우 기본값 사용
+      core.warning('PR head repository not accessible, using base repository info');
+      commitOrg = context.repo.owner;
+      commitRepo = context.repo.repo;
+    }
     core.debug(`The head ref is: ${pr.head.ref}`);
     core.debug(`The head sha is: ${pr.head.sha}`);
     core.debug(`The commit org is: ${commitOrg}`);
