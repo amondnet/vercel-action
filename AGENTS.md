@@ -66,3 +66,19 @@ Problem definition → small, safe change → change review → refactor — rep
 - Don’t ignore failures or warnings.
 - Don’t introduce unjustified optimization or abstraction.
 - Don’t overuse broad exceptions.
+
+## Commit Convention Rules
+
+- Follow `@commitlint/config-conventional` specification (https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
+- Format: `<type>[optional scope]: <description>`.
+- Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
+- Type must be lowercase and non-empty.
+- Subject must not be empty, not end with period (.), and avoid sentence-case/start-case/pascal-case/upper-case.
+- Header max length: 100 characters.
+- Body and footer require leading blank line, max line length: 100 characters.
+- Breaking changes: use `BREAKING CHANGE:` in footer with blank line before it.
+- Examples:
+  - ✅ `fix: resolve memory leak in user service`
+  - ✅ `feat(auth): add OAuth2 integration`
+  - ❌ `Fix: Some Message.` (wrong case, ends with period)
+  - ❌ `random: some change` (invalid type)  
