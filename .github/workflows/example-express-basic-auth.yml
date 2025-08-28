@@ -5,12 +5,11 @@ on:
       - master
   pull_request_target:
 
-
 jobs:
   basic-auth:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: ./
         id: now-deployment-staging
         if: github.event_name == 'pull_request_target'
@@ -28,5 +27,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
-          vercel-args: '--prod'
+          vercel-args: --prod
           working-directory: example/express-basic-auth

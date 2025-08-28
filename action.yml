@@ -1,8 +1,8 @@
-name: 'Vercel Action'
-description: 'This action make a deployment with github actions instead of Vercel builder.'
+name: Vercel Action
+description: This action make a deployment with github actions instead of Vercel builder.
 inputs:
   vercel-token:
-    description: 'Vercel token'
+    description: Vercel token
     required: true
   vercel-args:
     description: ''
@@ -33,12 +33,12 @@ inputs:
     description: "The name of the project; if absent we'll use the `vercel inspect` command to determine."
   vercel-version:
     required: false
-    description: "vercel-cli package version"
+    description: vercel-cli package version
   scope:
     required: false
     description: 'If you are work in team scope, you should set this value to your team id.'
   zeit-token:
-    description: 'zeit.co token'
+    description: zeit.co token
     required: false
     deprecationMessage: 'Zeit is now Vercel. Use "vercel-token" instead'
   now-args:
@@ -61,13 +61,13 @@ inputs:
 
 outputs:
   preview-url:
-    description: 'deployment preview URL'
+    description: deployment preview URL
   preview-name:
-    description: 'deployment preview name'
+    description: deployment preview name
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: node20
+  main: dist/index.js
 
 branding:
-  icon: 'triangle'
-  color: 'white'
+  icon: triangle
+  color: white
