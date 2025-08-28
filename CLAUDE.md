@@ -12,18 +12,18 @@ This is a GitHub Action that deploys projects to Vercel. It's an npm package tha
 
 ### Development
 ```bash
-npm install              # Install dependencies
-npm start               # Run the action locally (node ./index.js)
-npm run lint            # Run ESLint on index.js
-npm run format          # Format code with Prettier
-npm run format-check    # Check code formatting
-npm test                # Run Jest tests
-npm run all             # Run format, lint, package, and test in sequence
+pnpm install            # Install dependencies
+pnpm start              # Run the action locally (node ./index.js)
+pnpm run lint           # Run ESLint on index.js
+pnpm run format         # Format code with Prettier
+pnpm run format-check   # Check code formatting
+pnpm test               # Run Jest tests
+pnpm run all            # Run format, lint, package, and test in sequence
 ```
 
 ### Building for Distribution
 ```bash
-npm run package         # Build the action with ncc (outputs to dist/)
+pnpm run package        # Build the action with ncc (outputs to dist/)
 ```
 
 **Important**: The `dist/` folder must be committed when creating releases. This contains the bundled action code that GitHub Actions will execute.
