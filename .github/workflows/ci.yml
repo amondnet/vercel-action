@@ -104,7 +104,7 @@ jobs:
         run: pnpm install
 
       - name: Build distribution
-        run: pnpm run package
+        run: pnpm run build
 
       - name: Verify dist folder exists
         run: |

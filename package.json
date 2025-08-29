@@ -28,9 +28,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "start": "node ./index.js",
-    "package": "ncc build index.js -o dist",
+    "build": "ncc build index.js -o dist",
     "test": "jest",
-    "all": "pnpm lint && pnpm package && pnpm test",
+    "all": "pnpm lint && pnpm build && pnpm test",
     "prepare": "husky"
   },
   "dependencies": {

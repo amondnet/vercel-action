@@ -1,7 +1,7 @@
 # Package
 
 ```bash
-pnpm run package
+pnpm run build
 ```
 
 # Release

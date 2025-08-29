@@ -26,7 +26,7 @@ pnpm run all            # Run lint, package, and test in sequence
 
 ### Building for Distribution
 ```bash
-pnpm run package        # Build the action with ncc (outputs to dist/)
+pnpm run build        # Build the action with ncc (outputs to dist/)
 ```
 
 **Important**: The `dist/` folder must be committed when creating releases. This contains the bundled action code that GitHub Actions will execute.

@@ -1,6 +1,6 @@
-# comment this out distribution branches
 node_modules
 .idea
+.vscode/
 
 .now
 .vercel
