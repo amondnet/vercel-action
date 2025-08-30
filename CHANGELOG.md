@@ -1,5 +1,14 @@
 # Changelog
 
+## [41.1.5](https://github.com/amondnet/vercel-action/compare/v41.1.4...v41.1.5) (2025-08-30)
+
+
+### Bug Fixes
+
+* github ref randomly empty for release triggers ([#277](https://github.com/amondnet/vercel-action/issues/277)) ([9ef1deb](https://github.com/amondnet/vercel-action/commit/9ef1deba160a11eaa7bb9a256eadde16513c7d46))
+* handle inaccessible PR head repository gracefully ([f9aadd3](https://github.com/amondnet/vercel-action/commit/f9aadd3303aeb96f7003366b164cb06a2b54d69e))
+* use correct commit SHA ([#278](https://github.com/amondnet/vercel-action/issues/278)) ([9f07672](https://github.com/amondnet/vercel-action/commit/9f07672661f866626bf48680190c656d3dd1cded))
+
 ## [v25.0.0](https://github.com/amondnet/vercel-action/tree/v25.0.0) (2022-06-08)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.2...v25.0.0)
