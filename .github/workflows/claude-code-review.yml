@@ -1,53 +1,44 @@
-name: Claude Code Review
+name: Basic PR Review with Claude
 
 on:
   pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    types: [opened, synchronize, reopened, ready_for_review]
+  
+  # Manual trigger for testing
+  workflow_dispatch:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-
+    name: Claude Code Review
     runs-on: ubuntu-latest
+    
+    # Skip draft PRs unless manually triggered
+    if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch'
+    
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
       id-token: write
-
+    
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-
+          fetch-depth: 0
+      
       - name: Run Claude Code Review
-        id: claude-review
-        uses: anthropics/claude-code-action@v1
+        uses: amondnet/claude-code-review@main
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
-
-            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
-
-            Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
-
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://docs.anthropic.com/en/docs/claude-code/sdk#command-line for available options
-          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+          review_type: 'comprehensive'
+          progress_tracking: true
+          severity_labels: true
+          max_review_comments: 30
+          exclude_paths: 'node_modules,dist,build,.git,*.lock'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Review Complete Notification
+        if: always()
+        run: |
+          echo "🎉 Claude code review completed!"
+          echo "Check the PR for detailed feedback and suggestions."
