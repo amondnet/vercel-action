@@ -1,0 +1,245 @@
+import { describe, expect, it, vi } from 'vitest'
+import {
+  addVercelMetadata,
+  buildCommentBody,
+  buildCommentPrefix,
+  getGithubCommentInput,
+  isPullRequestType,
+  joinDeploymentUrls,
+  parseArgs,
+  retry,
+  slugify,
+} from '../utils'
+
+// Mock @actions/core
+vi.mock('@actions/core', () => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+}))
+
+describe('isPullRequestType', () => {
+  it('returns true for pull_request', () => {
+    expect(isPullRequestType('pull_request')).toBe(true)
+  })
+
+  it('returns true for pull_request_target', () => {
+    expect(isPullRequestType('pull_request_target')).toBe(true)
+  })
+
+  it('returns false for push', () => {
+    expect(isPullRequestType('push')).toBe(false)
+  })
+
+  it('returns false for release', () => {
+    expect(isPullRequestType('release')).toBe(false)
+  })
+})
+
+describe('slugify', () => {
+  it('converts spaces to hyphens', () => {
+    expect(slugify('hello world')).toBe('hello-world')
+  })
+
+  it('converts underscores to hyphens', () => {
+    expect(slugify('hello_world')).toBe('hello-world')
+  })
+
+  it('removes special characters', () => {
+    expect(slugify('hello@world!')).toBe('helloworld')
+  })
+
+  it('converts to lowercase', () => {
+    expect(slugify('Hello World')).toBe('hello-world')
+  })
+
+  it('removes leading and trailing hyphens', () => {
+    expect(slugify('-hello-world-')).toBe('hello-world')
+  })
+
+  it('collapses multiple hyphens', () => {
+    expect(slugify('hello---world')).toBe('hello-world')
+  })
+
+  it('handles empty strings', () => {
+    expect(slugify('')).toBe('')
+  })
+
+  it('handles already slugified strings', () => {
+    expect(slugify('hello-world')).toBe('hello-world')
+  })
+
+  it('handles feature branch names', () => {
+    expect(slugify('feature/add-login')).toBe('featureadd-login')
+  })
+
+  it('trims whitespace', () => {
+    expect(slugify('  hello world  ')).toBe('hello-world')
+  })
+})
+
+describe('parseArgs', () => {
+  it('splits simple arguments', () => {
+    expect(parseArgs('--env foo')).toEqual(['--env', 'foo'])
+  })
+
+  it('preserves single-quoted strings', () => {
+    expect(parseArgs('\'hello world\'')).toEqual(['hello world'])
+  })
+
+  it('preserves double-quoted strings', () => {
+    expect(parseArgs('"hello world"')).toEqual(['hello world'])
+  })
+
+  it('handles nested quotes in single quotes', () => {
+    expect(parseArgs(`'foo="bar baz"'`)).toEqual(['foo="bar baz"'])
+  })
+
+  it('handles nested quotes in double quotes', () => {
+    expect(parseArgs(`"foo='bar baz'"`)).toEqual([`foo='bar baz'`])
+  })
+
+  it('handles mixed arguments', () => {
+    expect(parseArgs(`--env foo=bar "foo=bar baz" 'foo="bar baz"'`))
+      .toEqual(['--env', 'foo=bar', 'foo=bar baz', 'foo="bar baz"'])
+  })
+
+  it('handles empty input', () => {
+    expect(parseArgs('')).toEqual([])
+  })
+
+  it('handles multiple spaces between arguments', () => {
+    expect(parseArgs('arg1    arg2')).toEqual(['arg1', 'arg2'])
+  })
+})
+
+describe('retry', () => {
+  it('returns result on first success', async () => {
+    const fn = vi.fn().mockResolvedValue('success')
+    const result = await retry(fn, 3)
+    expect(result).toBe('success')
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries on failure', async () => {
+    const fn = vi.fn()
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockResolvedValue('success')
+
+    const result = await retry(fn, 3)
+    expect(result).toBe('success')
+    expect(fn).toHaveBeenCalledTimes(2)
+  }, 10000)
+
+  it('throws after max retries', async () => {
+    const error = new Error('persistent failure')
+    const fn = vi.fn().mockRejectedValue(error)
+
+    await expect(retry(fn, 2)).rejects.toThrow('persistent failure')
+    expect(fn).toHaveBeenCalledTimes(3) // initial + 2 retries
+  }, 15000)
+})
+
+describe('addVercelMetadata', () => {
+  it('returns metadata args when key not provided', () => {
+    expect(addVercelMetadata('githubCommitSha', 'abc123', ['--prod']))
+      .toEqual(['-m', 'githubCommitSha=abc123'])
+  })
+
+  it('returns empty array when key already exists', () => {
+    expect(addVercelMetadata('githubCommitSha', 'abc123', ['githubCommitSha=existing']))
+      .toEqual([])
+  })
+
+  it('handles numeric values', () => {
+    expect(addVercelMetadata('githubDeployment', 1, []))
+      .toEqual(['-m', 'githubDeployment=1'])
+  })
+
+  it('is case-sensitive for key matching', () => {
+    expect(addVercelMetadata('githubCommitSha', 'abc123', ['GITHUBCOMMITSHA=existing']))
+      .toEqual(['-m', 'githubCommitSha=abc123'])
+  })
+})
+
+describe('joinDeploymentUrls', () => {
+  it('returns deployment URL when no aliases', () => {
+    expect(joinDeploymentUrls('https://example.vercel.app', []))
+      .toBe('https://example.vercel.app')
+  })
+
+  it('joins deployment URL with aliases', () => {
+    const result = joinDeploymentUrls('https://example.vercel.app', ['custom.com', 'alias.com'])
+    expect(result).toBe('https://example.vercel.app\nhttps://custom.com\nhttps://alias.com')
+  })
+
+  it('adds https protocol to alias domains', () => {
+    const result = joinDeploymentUrls('https://example.vercel.app', ['custom.com'])
+    expect(result).toContain('https://custom.com')
+  })
+})
+
+describe('buildCommentPrefix', () => {
+  it('builds correct prefix with deployment name', () => {
+    expect(buildCommentPrefix('my-app'))
+      .toBe('Deploy preview for _my-app_ ready!')
+  })
+})
+
+describe('buildCommentBody', () => {
+  const defaultTemplate = `✅ Preview
+{{deploymentUrl}}
+
+Built with commit {{deploymentCommit}}.`
+
+  it('returns undefined when githubComment is false', () => {
+    expect(buildCommentBody('abc123', 'https://example.com', 'app', false, [], defaultTemplate))
+      .toBeUndefined()
+  })
+
+  it('uses custom template when string provided', () => {
+    const customTemplate = 'Custom: {{deploymentUrl}}'
+    const result = buildCommentBody('abc123', 'https://example.com', 'app', customTemplate, [], defaultTemplate)
+    expect(result).toContain('Custom: https://example.com')
+  })
+
+  it('uses default template when githubComment is true', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'app', true, [], defaultTemplate)
+    expect(result).toContain('✅ Preview')
+    expect(result).toContain('https://example.com')
+  })
+
+  it('replaces all placeholders', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate)
+    expect(result).toContain('abc123')
+    expect(result).toContain('https://example.com')
+    expect(result).toContain('my-app')
+  })
+
+  it('includes alias domains in output', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'app', true, ['custom.com'], defaultTemplate)
+    expect(result).toContain('https://custom.com')
+  })
+
+  it('includes prefix with deployment name', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate)
+    expect(result).toContain('Deploy preview for _my-app_ ready!')
+  })
+})
+
+describe('getGithubCommentInput', () => {
+  it('returns true for "true" string', () => {
+    expect(getGithubCommentInput('true')).toBe(true)
+  })
+
+  it('returns false for "false" string', () => {
+    expect(getGithubCommentInput('false')).toBe(false)
+  })
+
+  it('returns custom string for other values', () => {
+    expect(getGithubCommentInput('custom template')).toBe('custom template')
+  })
+
+  it('returns empty string as-is', () => {
+    expect(getGithubCommentInput('')).toBe('')
+  })
+})

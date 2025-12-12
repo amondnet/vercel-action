@@ -2,6 +2,7 @@ import antfu from '@antfu/eslint-config'
 
 export default antfu({
   type: 'lib',
+  typescript: true,
   stylistic: {
     indent: 2,
     quotes: 'single',
@@ -9,6 +10,7 @@ export default antfu({
   },
   ignores: [
     'dist/**',
+    'lib/**',
     'example/**',
     'node_modules/**',
     '*.min.js',
@@ -16,6 +18,7 @@ export default antfu({
   ],
   languageOptions: {
     globals: {
+      // Vitest globals
       describe: 'readonly',
       test: 'readonly',
       expect: 'readonly',
@@ -24,7 +27,7 @@ export default antfu({
       afterEach: 'readonly',
       beforeAll: 'readonly',
       afterAll: 'readonly',
-      jest: 'readonly',
+      vi: 'readonly',
     },
   },
   rules: {
@@ -41,6 +44,7 @@ export default antfu({
     }],
     'unicorn/no-process-exit': 'off',
     'regexp/no-super-linear-backtracking': 'off',
-    'prefer-const': 'off',
+    'ts/explicit-function-return-type': 'off',
+    'ts/no-explicit-any': 'warn',
   },
 })

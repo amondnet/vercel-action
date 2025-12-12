@@ -1,0 +1,43 @@
+{
+  "session_id": "20251212-typescript-vitest-migration",
+  "feature_name": "TypeScript and Vitest Migration",
+  "created_at": "2025-12-12T00:00:00Z",
+  "updated_at": "2025-12-12T00:00:00Z",
+  "status": "in_progress",
+  "current_phase": 6,
+  "issue_number": 291,
+  "branch": "291-refactor-migrate-to-typescript-with-vitest-and-modern-tooling",
+  "phases": [
+    { "number": 1, "name": "Discovery", "status": "completed", "started_at": "2025-12-12T00:00:00Z", "completed_at": "2025-12-12T00:01:00Z" },
+    { "number": 2, "name": "Codebase Exploration", "status": "completed", "started_at": "2025-12-12T00:01:00Z", "completed_at": "2025-12-12T00:02:00Z" },
+    { "number": 3, "name": "Clarifying Questions", "status": "completed", "completed_at": "2025-12-12T00:03:00Z" },
+    { "number": 4, "name": "Architecture Design", "status": "completed", "completed_at": "2025-12-12T00:04:00Z" },
+    { "number": 5, "name": "GitHub Issue & PR", "status": "completed", "completed_at": "2025-12-12T00:05:00Z" },
+    { "number": 6, "name": "Implementation", "status": "completed", "completed_at": "2025-12-12T00:22:00Z" },
+    { "number": 7, "name": "Quality Review", "status": "in_progress", "started_at": "2025-12-12T00:22:00Z" },
+    { "number": 8, "name": "PR Finalization", "status": "pending" }
+  ],
+  "tasks": [
+    { "id": "T001", "title": "Create tsconfig.json with strict settings", "phase": 6, "status": "pending", "parallel": true, "dependencies": [] },
+    { "id": "T002", "title": "Update package.json (add TypeScript, Vitest; remove Jest)", "phase": 6, "status": "pending", "parallel": true, "dependencies": [] },
+    { "id": "T003", "title": "Update eslint.config.mjs for TypeScript + Vitest globals", "phase": 6, "status": "pending", "parallel": true, "dependencies": [] },
+    { "id": "T004", "title": "Create vitest.config.ts", "phase": 6, "status": "pending", "parallel": true, "dependencies": [] },
+    { "id": "T005", "title": "Create src/utils.ts with pure utility functions", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T001", "T002", "T003", "T004"] },
+    { "id": "T006", "title": "Create src/__tests__/utils.test.ts with unit tests", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T005"] },
+    { "id": "T007", "title": "Create src/index.ts with main action logic", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T005"] },
+    { "id": "T008", "title": "Upgrade @actions/github to v6 and update API calls", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T007"] },
+    { "id": "T009", "title": "Create src/__tests__/index.test.ts", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T007", "T008"] },
+    { "id": "T010", "title": "Delete old files (index.js, index.test.js, jest.config.js, now.js)", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T007", "T009"] },
+    { "id": "T011", "title": "Build and verify dist/index.js", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T010"] },
+    { "id": "T012", "title": "Run all quality checks (lint, typecheck, test)", "phase": 6, "status": "pending", "parallel": false, "dependencies": ["T011"] }
+  ],
+  "decisions": {
+    "source_directory": "src/",
+    "keep_now_js": false,
+    "typescript_strict": true,
+    "modularize": false,
+    "add_comprehensive_tests": true,
+    "upgrade_github_api": true,
+    "split_utils": true
+  }
+}
