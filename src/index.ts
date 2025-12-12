@@ -1,66 +1,31 @@
-const { execSync } = require('node:child_process')
-const core = require('@actions/core')
-const exec = require('@actions/exec')
-const github = require('@actions/github')
-const { stripIndents } = require('common-tags')
-const packageJSON = require('./package.json')
+import { execSync } from 'node:child_process'
+import * as core from '@actions/core'
+import * as exec from '@actions/exec'
+import * as github from '@actions/github'
+import { stripIndents } from 'common-tags'
+import packageJSON from '../package.json'
+import {
+  addVercelMetadata,
+  buildCommentBody,
+  buildCommentPrefix,
+  getGithubCommentInput,
+  isPullRequestType,
+  parseArgs,
+  retry,
+  slugify,
+} from './utils'
 
-function getGithubCommentInput() {
-  const input = core.getInput('github-comment')
-  if (input === 'true')
-    return true
-  if (input === 'false')
-    return false
-  return input
-}
+type OctokitClient = ReturnType<typeof github.getOctokit>
 
 const { context } = github
 
 const githubToken = core.getInput('github-token')
-const githubComment = getGithubCommentInput()
+const githubComment = getGithubCommentInput(core.getInput('github-comment'))
 const workingDirectory = core.getInput('working-directory')
 const prNumberRegExp = /\{\{\s*PR_NUMBER\s*\}\}/g
 const branchRegExp = /\{\{\s*BRANCH\s*\}\}/g
 
-function isPullRequestType(event) {
-  return event.startsWith('pull_request')
-}
-
-function slugify(str) {
-  const slug = str
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/[_\s]+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '')
-  core.debug(`before slugify: "${str}"; after slugify: "${slug}"`)
-  return slug
-}
-
-function retry(fn, retries) {
-  async function attempt(retry) {
-    try {
-      return await fn()
-    }
-    catch (error) {
-      if (retry > retries) {
-        throw error
-      }
-      else {
-        core.info(`retrying: attempt ${retry + 1} / ${retries + 1}`)
-        await new Promise(resolve => setTimeout(resolve, 3000))
-        return attempt(retry + 1)
-      }
-    }
-  }
-  return attempt(1)
-}
-
-// Vercel
-function getVercelBin() {
+function getVercelBin(): string {
   const input = core.getInput('vercel-version')
   const fallback = packageJSON.dependencies.vercel
   return `vercel@${input || fallback}`
@@ -81,22 +46,25 @@ const aliasDomains = core
     let url = s
     let branch = slugify(context.ref.replace('refs/heads/', ''))
     if (isPullRequestType(context.eventName)) {
-      const pr
-        = context.payload.pull_request || context.payload.pull_request_target
-      branch = slugify(pr.head.ref.replace('refs/heads/', ''))
-      url = url.replace(prNumberRegExp, context.issue.number.toString())
+      const pr = (context.payload.pull_request || context.payload.pull_request_target) as {
+        head: { ref: string }
+      } | undefined
+      if (pr) {
+        branch = slugify(pr.head.ref.replace('refs/heads/', ''))
+        url = url.replace(prNumberRegExp, context.issue.number.toString())
+      }
     }
     url = url.replace(branchRegExp, branch)
 
     return url
   })
 
-let octokit
+let octokit: OctokitClient | undefined
 if (githubToken) {
-  octokit = new github.GitHub(githubToken)
+  octokit = github.getOctokit(githubToken)
 }
 
-async function setEnv() {
+async function setEnv(): Promise<void> {
   core.info('set environment for vercel cli')
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
@@ -108,49 +76,22 @@ async function setEnv() {
   }
 }
 
-function addVercelMetadata(key, value, providedArgs) {
-  // returns a list for the metadata commands if key was not supplied by user in action parameters
-  // returns an empty list if key was provided by user
-  const pattern = `^${key}=.+`
-  const metadataRegex = new RegExp(pattern, 'g')
-
-  for (const arg of providedArgs) {
-    if (arg.match(metadataRegex)) {
-      return []
-    }
-  }
-
-  return ['-m', `${key}=${value}`]
-}
-
-/**
- *
- * The following regex is used to split the vercelArgs string into an array of arguments.
- * It conserves strings wrapped in simple / double quotes, with nested different quotes, as a single argument.
- *
- * Example:
- *
- * parseArgs(`--env foo=bar "foo=bar baz" 'foo="bar baz"'`) => ['--env', 'foo=bar', 'foo=bar baz', 'foo="bar baz"']
- */
-function parseArgs(s) {
-  const args = []
-
-  for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|\S+/g)) {
-    args.push(match[1] ?? match[2] ?? match[0])
-  }
-  return args
-}
-
-async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
+async function vercelDeploy(
+  ref: string,
+  commit: string,
+  sha: string,
+  commitOrg: string,
+  commitRepo: string,
+): Promise<string> {
   let myOutput = ''
   let _myError = ''
-  const options = {}
+  const options: exec.ExecOptions = {}
   options.listeners = {
-    stdout: (data) => {
+    stdout: (data: Buffer) => {
       myOutput += data.toString()
       core.info(data.toString())
     },
-    stderr: (data) => {
+    stderr: (data: Buffer) => {
       _myError += data.toString()
       core.info(data.toString())
     },
@@ -194,16 +135,16 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
   return myOutput
 }
 
-async function vercelInspect(deploymentUrl) {
+async function vercelInspect(deploymentUrl: string): Promise<string | null> {
   let _myOutput = ''
   let myError = ''
-  const options = {}
+  const options: exec.ExecOptions = {}
   options.listeners = {
-    stdout: (data) => {
+    stdout: (data: Buffer) => {
       _myOutput += data.toString()
       core.info(data.toString())
     },
-    stderr: (data) => {
+    stderr: (data: Buffer) => {
       myError += data.toString()
       core.info(data.toString())
     },
@@ -221,30 +162,38 @@ async function vercelInspect(deploymentUrl) {
   await exec.exec('npx', args, options)
 
   const match = myError.match(/^\s+name\s+(.+)$/m)
-  return match && match.length ? match[1] : null
+  return match && match.length ? match[1] ?? null : null
 }
 
-async function findCommentsForEvent() {
+interface CommentData {
+  id: number
+  body?: string
+}
+
+async function findCommentsForEvent(): Promise<{ data: CommentData[] }> {
+  if (!octokit) {
+    return { data: [] }
+  }
   core.debug('find comments for event')
   if (context.eventName === 'push') {
     core.debug('event is "commit", use "listCommentsForCommit"')
-    return octokit.repos.listCommentsForCommit({
+    return octokit.rest.repos.listCommentsForCommit({
       ...context.repo,
       commit_sha: context.sha,
     })
   }
   if (isPullRequestType(context.eventName)) {
     core.debug(`event is "${context.eventName}", use "listComments"`)
-    return octokit.issues.listComments({
+    return octokit.rest.issues.listComments({
       ...context.repo,
       issue_number: context.issue.number,
     })
   }
   core.error('not supported event_type')
-  return []
+  return { data: [] }
 }
 
-async function findPreviousComment(text) {
+async function findPreviousComment(text: string): Promise<number | null> {
   if (!octokit) {
     return null
   }
@@ -252,7 +201,7 @@ async function findPreviousComment(text) {
   const { data: comments } = await findCommentsForEvent()
 
   const vercelPreviewURLComment = comments.find(comment =>
-    comment.body.startsWith(text),
+    comment.body?.startsWith(text),
   )
   if (vercelPreviewURLComment) {
     core.info('previous comment found')
@@ -262,50 +211,19 @@ async function findPreviousComment(text) {
   return null
 }
 
-function joinDeploymentUrls(deploymentUrl, aliasDomains_) {
-  if (aliasDomains_.length) {
-    const aliasUrls = aliasDomains_.map(domain => `https://${domain}`)
-    return [deploymentUrl, ...aliasUrls].join('\n')
-  }
-  return deploymentUrl
-}
+const defaultCommentTemplate = stripIndents`
+  ✅ Preview
+  {{deploymentUrl}}
 
-function buildCommentPrefix(deploymentName) {
-  return `Deploy preview for _${deploymentName}_ ready!`
-}
-
-function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName) {
-  if (!githubComment) {
-    return undefined
-  }
-  const prefix = `${buildCommentPrefix(deploymentName)}\n\n`
-
-  const rawGithubComment
-    = prefix
-      + (typeof githubComment === 'string' || githubComment instanceof String
-        ? githubComment
-        : stripIndents`
-      ✅ Preview
-      {{deploymentUrl}}
-      
-      Built with commit {{deploymentCommit}}.
-      This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
-    `)
-
-  return rawGithubComment
-    .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
-    .replace(/\{\{deploymentName\}\}/g, deploymentName)
-    .replace(
-      /\{\{deploymentUrl\}\}/g,
-      joinDeploymentUrls(deploymentUrl, aliasDomains),
-    )
-}
+  Built with commit {{deploymentCommit}}.
+  This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
+`
 
 async function createCommentOnCommit(
-  deploymentCommit,
-  deploymentUrl,
-  deploymentName,
-) {
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+): Promise<void> {
   if (!octokit) {
     return
   }
@@ -317,17 +235,24 @@ async function createCommentOnCommit(
     deploymentCommit,
     deploymentUrl,
     deploymentName,
+    githubComment,
+    aliasDomains,
+    defaultCommentTemplate,
   )
 
+  if (!commentBody) {
+    return
+  }
+
   if (commentId) {
-    await octokit.repos.updateCommitComment({
+    await octokit.rest.repos.updateCommitComment({
       ...context.repo,
       comment_id: commentId,
       body: commentBody,
     })
   }
   else {
-    await octokit.repos.createCommitComment({
+    await octokit.rest.repos.createCommitComment({
       ...context.repo,
       commit_sha: context.sha,
       body: commentBody,
@@ -336,10 +261,10 @@ async function createCommentOnCommit(
 }
 
 async function createCommentOnPullRequest(
-  deploymentCommit,
-  deploymentUrl,
-  deploymentName,
-) {
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+): Promise<void> {
   if (!octokit) {
     return
   }
@@ -351,17 +276,24 @@ async function createCommentOnPullRequest(
     deploymentCommit,
     deploymentUrl,
     deploymentName,
+    githubComment,
+    aliasDomains,
+    defaultCommentTemplate,
   )
 
+  if (!commentBody) {
+    return
+  }
+
   if (commentId) {
-    await octokit.issues.updateComment({
+    await octokit.rest.issues.updateComment({
       ...context.repo,
       comment_id: commentId,
       body: commentBody,
     })
   }
   else {
-    await octokit.issues.createComment({
+    await octokit.rest.issues.createComment({
       ...context.repo,
       issue_number: context.issue.number,
       body: commentBody,
@@ -369,9 +301,10 @@ async function createCommentOnPullRequest(
   }
 }
 
-async function aliasDomainsToDeployment(deploymentUrl) {
+async function aliasDomainsToDeployment(deploymentUrl: string): Promise<void> {
   if (!deploymentUrl) {
     core.error('deployment url is null')
+    return
   }
   const args = ['-t', vercelToken]
   if (vercelScope) {
@@ -389,7 +322,36 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   await Promise.all(promises)
 }
 
-async function run() {
+interface PullRequestPayload {
+  pull_request?: {
+    head: {
+      ref: string
+      sha: string
+      repo?: {
+        owner: { login: string }
+        name: string
+      }
+    }
+  }
+  pull_request_target?: {
+    head: {
+      ref: string
+      sha: string
+      repo?: {
+        owner: { login: string }
+        name: string
+      }
+    }
+  }
+}
+
+interface ReleasePayload {
+  release?: {
+    tag_name: string
+  }
+}
+
+async function run(): Promise<void> {
   core.debug(`action : ${context.action}`)
   core.debug(`ref : ${context.ref}`)
   core.debug(`eventName : ${context.eventName}`)
@@ -410,40 +372,42 @@ async function run() {
     core.debug(`The head commit is: ${pushPayload.head_commit}`)
   }
   else if (isPullRequestType(github.context.eventName)) {
-    const pullRequestPayload = github.context.payload
+    const pullRequestPayload = github.context.payload as PullRequestPayload
     const pr
       = pullRequestPayload.pull_request || pullRequestPayload.pull_request_target
-    core.debug(`head : ${pr.head}`)
+    if (pr) {
+      core.debug(`head : ${pr.head}`)
 
-    ref = pr.head.ref
-    sha = pr.head.sha
-    if (pr.head.repo) {
-      commitOrg = pr.head.repo.owner.login
-      commitRepo = pr.head.repo.name
-    }
-    else {
-      // 포크가 삭제된 경우 기본값 사용
-      core.warning('PR head repository not accessible, using base repository info')
-      commitOrg = context.repo.owner
-      commitRepo = context.repo.repo
-    }
-    core.debug(`The head ref is: ${pr.head.ref}`)
-    core.debug(`The head sha is: ${pr.head.sha}`)
-    core.debug(`The commit org is: ${commitOrg}`)
-    core.debug(`The commit repo is: ${commitRepo}`)
+      ref = pr.head.ref
+      sha = pr.head.sha
+      if (pr.head.repo) {
+        commitOrg = pr.head.repo.owner.login
+        commitRepo = pr.head.repo.name
+      }
+      else {
+        core.warning('PR head repository not accessible, using base repository info')
+        commitOrg = context.repo.owner
+        commitRepo = context.repo.repo
+      }
+      core.debug(`The head ref is: ${pr.head.ref}`)
+      core.debug(`The head sha is: ${pr.head.sha}`)
+      core.debug(`The commit org is: ${commitOrg}`)
+      core.debug(`The commit repo is: ${commitRepo}`)
 
-    if (octokit) {
-      const { data: commitData } = await octokit.git.getCommit({
-        owner: commitOrg,
-        repo: commitRepo,
-        commit_sha: sha,
-      })
-      commit = commitData.message
-      core.debug(`The head commit is: ${commit}`)
+      if (octokit) {
+        const { data: commitData } = await octokit.rest.git.getCommit({
+          owner: commitOrg,
+          repo: commitRepo,
+          commit_sha: sha,
+        })
+        commit = commitData.message
+        core.debug(`The head commit is: ${commit}`)
+      }
     }
   }
   else if (context.eventName === 'release') {
-    const tagName = context.payload.release?.tag_name
+    const releasePayload = context.payload as ReleasePayload
+    const tagName = releasePayload.release?.tag_name
     ref = !tagName ? ref : `refs/tags/${tagName}`
     core.debug(`The release ref is: ${ref}`)
   }
@@ -482,11 +446,11 @@ async function run() {
   if (githubComment && githubToken) {
     if (context.issue.number) {
       core.info('this is related issue or pull_request')
-      await createCommentOnPullRequest(sha, deploymentUrl, deploymentName)
+      await createCommentOnPullRequest(sha, deploymentUrl, deploymentName ?? '')
     }
     else if (context.eventName === 'push') {
       core.info('this is push event')
-      await createCommentOnCommit(sha, deploymentUrl, deploymentName)
+      await createCommentOnCommit(sha, deploymentUrl, deploymentName ?? '')
     }
   }
   else {
@@ -494,6 +458,11 @@ async function run() {
   }
 }
 
-run().catch((error) => {
-  core.setFailed(error.message)
+run().catch((error: unknown) => {
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+  }
+  else {
+    core.setFailed('An unexpected error occurred')
+  }
 })
