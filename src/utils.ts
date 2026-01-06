@@ -1,5 +1,7 @@
 import * as core from '@actions/core'
 
+const RETRY_DELAY_MS = 3000
+
 /**
  * Checks if the event name is a pull request type
  */
@@ -54,7 +56,7 @@ export async function retry<T>(fn: () => Promise<T>, retries: number): Promise<T
       }
       else {
         core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1}`)
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
         return attempt(retryCount + 1)
       }
     }
