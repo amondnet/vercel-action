@@ -43,7 +43,7 @@
     "@octokit/webhooks": "latest",
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",
-    "vercel": "41.1.4"
+    "vercel": "^50.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.0.0",
