@@ -31632,7 +31632,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 474:
+/***/ 7296:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -31674,132 +31674,132 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const node_child_process_1 = __nccwpck_require__(7718);
+exports.getActionConfig = getActionConfig;
+exports.createOctokitClient = createOctokitClient;
+exports.setVercelEnv = setVercelEnv;
 const core = __importStar(__nccwpck_require__(1078));
-const exec = __importStar(__nccwpck_require__(1757));
 const github = __importStar(__nccwpck_require__(9848));
-const common_tags_1 = __nccwpck_require__(5752);
 const package_json_1 = __importDefault(__nccwpck_require__(4147));
 const utils_1 = __nccwpck_require__(3924);
-const { context } = github;
-const githubToken = core.getInput('github-token');
-const githubComment = (0, utils_1.getGithubCommentInput)(core.getInput('github-comment'));
-const workingDirectory = core.getInput('working-directory');
-const prNumberRegExp = /\{\{\s*PR_NUMBER\s*\}\}/g;
-const branchRegExp = /\{\{\s*BRANCH\s*\}\}/g;
+const PR_NUMBER_REGEXP = /\{\{\s*PR_NUMBER\s*\}\}/g;
+const BRANCH_REGEXP = /\{\{\s*BRANCH\s*\}\}/g;
 function getVercelBin() {
     const input = core.getInput('vercel-version');
     const fallback = package_json_1.default.dependencies.vercel;
     return `vercel@${input || fallback}`;
 }
-const vercelToken = core.getInput('vercel-token', { required: true });
-const vercelArgs = core.getInput('vercel-args');
-const vercelOrgId = core.getInput('vercel-org-id');
-const vercelProjectId = core.getInput('vercel-project-id');
-const vercelScope = core.getInput('scope');
-const vercelProjectName = core.getInput('vercel-project-name');
-const vercelBin = getVercelBin();
-const aliasDomains = core
-    .getInput('alias-domains')
-    .split('\n')
-    .filter(x => x !== '')
-    .map((s) => {
-    let url = s;
-    let branch = (0, utils_1.slugify)(context.ref.replace('refs/heads/', ''));
-    if ((0, utils_1.isPullRequestType)(context.eventName)) {
-        const pr = (context.payload.pull_request || context.payload.pull_request_target);
-        if (pr) {
-            branch = (0, utils_1.slugify)(pr.head.ref.replace('refs/heads/', ''));
-            url = url.replace(prNumberRegExp, context.issue.number.toString());
+function parseAliasDomains() {
+    const { context } = github;
+    return core
+        .getInput('alias-domains')
+        .split('\n')
+        .filter(x => x !== '')
+        .map((s) => {
+        let url = s;
+        let branch = (0, utils_1.slugify)(context.ref.replace('refs/heads/', ''));
+        if ((0, utils_1.isPullRequestType)(context.eventName)) {
+            const payload = context.payload;
+            const pr = payload.pull_request || payload.pull_request_target;
+            if (pr) {
+                branch = (0, utils_1.slugify)(pr.head.ref.replace('refs/heads/', ''));
+                url = url.replace(PR_NUMBER_REGEXP, context.issue.number.toString());
+            }
         }
-    }
-    url = url.replace(branchRegExp, branch);
-    return url;
-});
-let octokit;
-if (githubToken) {
-    octokit = github.getOctokit(githubToken);
+        url = url.replace(BRANCH_REGEXP, branch);
+        return url;
+    });
 }
-async function setEnv() {
+function getActionConfig() {
+    return {
+        githubToken: core.getInput('github-token'),
+        githubComment: (0, utils_1.getGithubCommentInput)(core.getInput('github-comment')),
+        workingDirectory: core.getInput('working-directory'),
+        vercelToken: core.getInput('vercel-token', { required: true }),
+        vercelArgs: core.getInput('vercel-args'),
+        vercelOrgId: core.getInput('vercel-org-id'),
+        vercelProjectId: core.getInput('vercel-project-id'),
+        vercelScope: core.getInput('scope'),
+        vercelProjectName: core.getInput('vercel-project-name'),
+        vercelBin: getVercelBin(),
+        aliasDomains: parseAliasDomains(),
+    };
+}
+function createOctokitClient(githubToken) {
+    if (!githubToken) {
+        core.debug('GitHub token not provided - GitHub API features disabled');
+        return undefined;
+    }
+    return github.getOctokit(githubToken);
+}
+function setVercelEnv(config) {
     core.info('set environment for vercel cli');
-    if (vercelOrgId) {
+    if (config.vercelOrgId) {
         core.info('set env variable : VERCEL_ORG_ID');
-        core.exportVariable('VERCEL_ORG_ID', vercelOrgId);
+        core.exportVariable('VERCEL_ORG_ID', config.vercelOrgId);
     }
-    if (vercelProjectId) {
+    if (config.vercelProjectId) {
         core.info('set env variable : VERCEL_PROJECT_ID');
-        core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId);
+        core.exportVariable('VERCEL_PROJECT_ID', config.vercelProjectId);
     }
 }
-async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
-    let myOutput = '';
-    let _myError = '';
-    const options = {};
-    options.listeners = {
-        stdout: (data) => {
-            myOutput += data.toString();
-            core.info(data.toString());
-        },
-        stderr: (data) => {
-            _myError += data.toString();
-            core.info(data.toString());
-        },
+
+
+/***/ }),
+
+/***/ 4019:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    if (workingDirectory) {
-        options.cwd = workingDirectory;
-    }
-    const providedArgs = (0, utils_1.parseArgs)(vercelArgs);
-    const args = [
-        ...providedArgs,
-        ...['-t', vercelToken],
-        ...(0, utils_1.addVercelMetadata)('githubCommitSha', sha, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorName', context.actor, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorLogin', context.actor, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubDeployment', 1, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubOrg', context.repo.owner, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubRepo', context.repo.repo, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitOrg', commitOrg, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitRepo', commitRepo, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit}"`, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
-    ];
-    if (vercelScope) {
-        core.info('using scope');
-        args.push('--scope', vercelScope);
-    }
-    await exec.exec('npx', [vercelBin, ...args], options);
-    return myOutput;
-}
-async function vercelInspect(deploymentUrl) {
-    let _myOutput = '';
-    let myError = '';
-    const options = {};
-    options.listeners = {
-        stdout: (data) => {
-            _myOutput += data.toString();
-            core.info(data.toString());
-        },
-        stderr: (data) => {
-            myError += data.toString();
-            core.info(data.toString());
-        },
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
     };
-    if (workingDirectory) {
-        options.cwd = workingDirectory;
-    }
-    const args = [vercelBin, 'inspect', deploymentUrl, '-t', vercelToken];
-    if (vercelScope) {
-        core.info('using scope');
-        args.push('--scope', vercelScope);
-    }
-    await exec.exec('npx', args, options);
-    const match = myError.match(/^\s+name\s+(.+)$/m);
-    return match && match.length ? match[1] ?? null : null;
-}
-async function findCommentsForEvent() {
-    if (!octokit) {
-        return { data: [] };
-    }
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createCommentOnCommit = createCommentOnCommit;
+exports.createCommentOnPullRequest = createCommentOnPullRequest;
+const core = __importStar(__nccwpck_require__(1078));
+const github = __importStar(__nccwpck_require__(9848));
+const common_tags_1 = __nccwpck_require__(5752);
+const utils_1 = __nccwpck_require__(3924);
+const { context } = github;
+const DEFAULT_COMMENT_TEMPLATE = (0, common_tags_1.stripIndents) `
+  ✅ Preview
+  {{deploymentUrl}}
+
+  Built with commit {{deploymentCommit}}.
+  This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
+`;
+async function findCommentsForEvent(octokit) {
     core.debug('find comments for event');
     if (context.eventName === 'push') {
         core.debug('event is "commit", use "listCommentsForCommit"');
@@ -31815,15 +31815,13 @@ async function findCommentsForEvent() {
             issue_number: context.issue.number,
         });
     }
-    core.error('not supported event_type');
+    core.warning(`Event type "${context.eventName}" is not supported for GitHub comments. `
+        + 'Supported events: push, pull_request, pull_request_target');
     return { data: [] };
 }
-async function findPreviousComment(text) {
-    if (!octokit) {
-        return null;
-    }
+async function findPreviousComment(octokit, text) {
     core.info('find comment');
-    const { data: comments } = await findCommentsForEvent();
+    const { data: comments } = await findCommentsForEvent(octokit);
     const vercelPreviewURLComment = comments.find(comment => comment.body?.startsWith(text));
     if (vercelPreviewURLComment) {
         core.info('previous comment found');
@@ -31832,165 +31830,270 @@ async function findPreviousComment(text) {
     core.info('previous comment not found');
     return null;
 }
-const defaultCommentTemplate = (0, common_tags_1.stripIndents) `
-  ✅ Preview
-  {{deploymentUrl}}
+async function createCommentOnCommit(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
+    const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+    if (!commentBody) {
+        return;
+    }
+    try {
+        if (commentId) {
+            await octokit.rest.repos.updateCommitComment({
+                ...context.repo,
+                comment_id: commentId,
+                body: commentBody,
+            });
+        }
+        else {
+            await octokit.rest.repos.createCommitComment({
+                ...context.repo,
+                commit_sha: context.sha,
+                body: commentBody,
+            });
+        }
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        core.warning(`Failed to ${commentId ? 'update' : 'create'} commit comment: ${message}. `
+            + 'Ensure the github-token has write permissions to the repository.');
+    }
+}
+async function createCommentOnPullRequest(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
+    const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+    if (!commentBody) {
+        return;
+    }
+    try {
+        if (commentId) {
+            await octokit.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: commentId,
+                body: commentBody,
+            });
+        }
+        else {
+            await octokit.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+            });
+        }
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        core.warning(`Failed to ${commentId ? 'update' : 'create'} PR comment: ${message}. `
+            + 'Ensure the github-token has write permissions to the repository.');
+    }
+}
 
-  Built with commit {{deploymentCommit}}.
-  This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
-`;
-async function createCommentOnCommit(deploymentCommit, deploymentUrl, deploymentName) {
-    if (!octokit) {
-        return;
+
+/***/ }),
+
+/***/ 474:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-    const commentId = await findPreviousComment((0, utils_1.buildCommentPrefix)(deploymentName));
-    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, githubComment, aliasDomains, defaultCommentTemplate);
-    if (!commentBody) {
-        return;
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const node_child_process_1 = __nccwpck_require__(7718);
+const core = __importStar(__nccwpck_require__(1078));
+const github = __importStar(__nccwpck_require__(9848));
+const config_1 = __nccwpck_require__(7296);
+const github_comments_1 = __nccwpck_require__(4019);
+const utils_1 = __nccwpck_require__(3924);
+const vercel_1 = __nccwpck_require__(3597);
+const { context } = github;
+function getGitCommitMessage() {
+    try {
+        return (0, node_child_process_1.execSync)('git log -1 --pretty=format:%B').toString().trim();
     }
-    if (commentId) {
-        await octokit.rest.repos.updateCommitComment({
-            ...context.repo,
-            comment_id: commentId,
-            body: commentBody,
-        });
-    }
-    else {
-        await octokit.rest.repos.createCommitComment({
-            ...context.repo,
-            commit_sha: context.sha,
-            body: commentBody,
-        });
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to retrieve git commit message: ${message}. `
+            + 'Ensure this action runs in a git repository with at least one commit.');
     }
 }
-async function createCommentOnPullRequest(deploymentCommit, deploymentUrl, deploymentName) {
-    if (!octokit) {
-        return;
-    }
-    const commentId = await findPreviousComment(`Deploy preview for _${deploymentName}_ ready!`);
-    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, githubComment, aliasDomains, defaultCommentTemplate);
-    if (!commentBody) {
-        return;
-    }
-    if (commentId) {
-        await octokit.rest.issues.updateComment({
-            ...context.repo,
-            comment_id: commentId,
-            body: commentBody,
-        });
-    }
-    else {
-        await octokit.rest.issues.createComment({
-            ...context.repo,
-            issue_number: context.issue.number,
-            body: commentBody,
-        });
-    }
-}
-async function aliasDomainsToDeployment(deploymentUrl) {
-    if (!deploymentUrl) {
-        core.error('deployment url is null');
-        return;
-    }
-    const args = ['-t', vercelToken];
-    if (vercelScope) {
-        core.info('using scope');
-        args.push('--scope', vercelScope);
-    }
-    const promises = aliasDomains.map(domain => (0, utils_1.retry)(() => exec.exec('npx', [vercelBin, ...args, 'alias', deploymentUrl, domain]), 2));
-    await Promise.all(promises);
-}
-async function run() {
+function logContextDebug() {
     core.debug(`action : ${context.action}`);
     core.debug(`ref : ${context.ref}`);
     core.debug(`eventName : ${context.eventName}`);
     core.debug(`actor : ${context.actor}`);
     core.debug(`sha : ${context.sha}`);
     core.debug(`workflow : ${context.workflow}`);
-    let { ref } = context;
-    let { sha } = context;
+}
+async function getDeploymentContextForPullRequest(octokit, commit) {
+    const payload = context.payload;
+    const pr = payload.pull_request || payload.pull_request_target;
+    if (!pr) {
+        return null;
+    }
+    core.debug(`head : ${pr.head}`);
     let commitOrg = context.repo.owner;
     let commitRepo = context.repo.repo;
-    await setEnv();
-    let commit = (0, node_child_process_1.execSync)('git log -1 --pretty=format:%B')
-        .toString()
-        .trim();
-    if (github.context.eventName === 'push') {
-        const pushPayload = github.context.payload;
-        core.debug(`The head commit is: ${pushPayload.head_commit}`);
+    if (pr.head.repo) {
+        commitOrg = pr.head.repo.owner.login;
+        commitRepo = pr.head.repo.name;
     }
-    else if ((0, utils_1.isPullRequestType)(github.context.eventName)) {
-        const pullRequestPayload = github.context.payload;
-        const pr = pullRequestPayload.pull_request || pullRequestPayload.pull_request_target;
-        if (pr) {
-            core.debug(`head : ${pr.head}`);
-            ref = pr.head.ref;
-            sha = pr.head.sha;
-            if (pr.head.repo) {
-                commitOrg = pr.head.repo.owner.login;
-                commitRepo = pr.head.repo.name;
-            }
-            else {
-                core.warning('PR head repository not accessible, using base repository info');
-                commitOrg = context.repo.owner;
-                commitRepo = context.repo.repo;
-            }
-            core.debug(`The head ref is: ${pr.head.ref}`);
-            core.debug(`The head sha is: ${pr.head.sha}`);
-            core.debug(`The commit org is: ${commitOrg}`);
-            core.debug(`The commit repo is: ${commitRepo}`);
-            if (octokit) {
-                const { data: commitData } = await octokit.rest.git.getCommit({
-                    owner: commitOrg,
-                    repo: commitRepo,
-                    commit_sha: sha,
-                });
-                commit = commitData.message;
-                core.debug(`The head commit is: ${commit}`);
-            }
+    else {
+        core.warning('PR head repository not accessible, using base repository info');
+    }
+    core.debug(`The head ref is: ${pr.head.ref}`);
+    core.debug(`The head sha is: ${pr.head.sha}`);
+    core.debug(`The commit org is: ${commitOrg}`);
+    core.debug(`The commit repo is: ${commitRepo}`);
+    let finalCommit = commit;
+    if (octokit) {
+        try {
+            const { data: commitData } = await octokit.rest.git.getCommit({
+                owner: commitOrg,
+                repo: commitRepo,
+                commit_sha: pr.head.sha,
+            });
+            finalCommit = commitData.message;
+            core.debug(`The head commit is: ${finalCommit}`);
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            core.warning(`Failed to fetch commit message from GitHub API: ${message}`);
         }
     }
-    else if (context.eventName === 'release') {
-        const releasePayload = context.payload;
-        const tagName = releasePayload.release?.tag_name;
-        ref = !tagName ? ref : `refs/tags/${tagName}`;
-        core.debug(`The release ref is: ${ref}`);
+    return {
+        ref: pr.head.ref,
+        sha: pr.head.sha,
+        commit: finalCommit,
+        commitOrg,
+        commitRepo,
+    };
+}
+function getDeploymentContextForRelease() {
+    const payload = context.payload;
+    const tagName = payload.release?.tag_name;
+    if (tagName) {
+        core.debug(`The release ref is: refs/tags/${tagName}`);
+        return { ref: `refs/tags/${tagName}` };
     }
-    const deploymentUrl = await vercelDeploy(ref, commit, sha, commitOrg, commitRepo);
+    return {};
+}
+async function getDeploymentContext(octokit) {
+    const baseContext = {
+        ref: context.ref,
+        sha: context.sha,
+        commit: getGitCommitMessage(),
+        commitOrg: context.repo.owner,
+        commitRepo: context.repo.repo,
+    };
+    if (context.eventName === 'push') {
+        const pushPayload = context.payload;
+        core.debug(`The head commit is: ${pushPayload.head_commit}`);
+        return baseContext;
+    }
+    if ((0, utils_1.isPullRequestType)(context.eventName)) {
+        const prContext = await getDeploymentContextForPullRequest(octokit, baseContext.commit);
+        if (prContext) {
+            return prContext;
+        }
+        return baseContext;
+    }
+    if (context.eventName === 'release') {
+        const releaseContext = getDeploymentContextForRelease();
+        return { ...baseContext, ...releaseContext };
+    }
+    return baseContext;
+}
+async function handleDeploymentOutputs(config, deploymentUrl) {
     if (deploymentUrl) {
         core.info('set preview-url output');
-        if (aliasDomains && aliasDomains.length) {
+        if (config.aliasDomains.length > 0) {
             core.info('set preview-url output as first alias');
-            core.setOutput('preview-url', `https://${aliasDomains[0]}`);
+            core.setOutput('preview-url', `https://${config.aliasDomains[0]}`);
         }
         else {
             core.setOutput('preview-url', deploymentUrl);
         }
     }
     else {
-        core.warning('get preview-url error');
+        core.warning('Deployment completed but no preview URL was returned');
     }
-    const deploymentName = vercelProjectName || (await vercelInspect(deploymentUrl));
+    const deploymentName = config.vercelProjectName || await (0, vercel_1.vercelInspect)(config, deploymentUrl);
     if (deploymentName) {
         core.info('set preview-name output');
         core.setOutput('preview-name', deploymentName);
     }
     else {
-        core.warning('get preview-name error');
+        core.warning('Could not determine deployment name');
     }
-    if (aliasDomains.length) {
-        core.info('alias domains to this deployment');
-        await aliasDomainsToDeployment(deploymentUrl);
+    return deploymentName;
+}
+async function handleAliasing(config, deploymentUrl) {
+    if (config.aliasDomains.length === 0) {
+        return;
     }
-    if (githubComment && githubToken) {
-        if (context.issue.number) {
-            core.info('this is related issue or pull_request');
-            await createCommentOnPullRequest(sha, deploymentUrl, deploymentName ?? '');
-        }
-        else if (context.eventName === 'push') {
-            core.info('this is push event');
-            await createCommentOnCommit(sha, deploymentUrl, deploymentName ?? '');
-        }
+    core.info('alias domains to this deployment');
+    try {
+        await (0, vercel_1.aliasDomainsToDeployment)(config, deploymentUrl);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        core.warning(`Failed to configure alias domains: ${message}. `
+            + 'The deployment succeeded but alias configuration failed.');
+    }
+}
+async function handleComments(octokit, config, sha, deploymentUrl, deploymentName) {
+    if (context.issue.number) {
+        core.info('this is related issue or pull_request');
+        await (0, github_comments_1.createCommentOnPullRequest)(octokit, config, sha, deploymentUrl, deploymentName);
+    }
+    else if (context.eventName === 'push') {
+        core.info('this is push event');
+        await (0, github_comments_1.createCommentOnCommit)(octokit, config, sha, deploymentUrl, deploymentName);
+    }
+}
+async function run() {
+    logContextDebug();
+    const config = (0, config_1.getActionConfig)();
+    const octokit = (0, config_1.createOctokitClient)(config.githubToken);
+    (0, config_1.setVercelEnv)(config);
+    const deploymentContext = await getDeploymentContext(octokit);
+    const { ref, sha, commit, commitOrg, commitRepo } = deploymentContext;
+    const deploymentUrl = await (0, vercel_1.vercelDeploy)(config, ref, commit, sha, commitOrg, commitRepo);
+    const deploymentName = await handleDeploymentOutputs(config, deploymentUrl);
+    await handleAliasing(config, deploymentUrl);
+    if (config.githubComment && octokit) {
+        await handleComments(octokit, config, sha, deploymentUrl, deploymentName ?? '');
     }
     else {
         core.info('comment : disabled');
@@ -32057,6 +32160,7 @@ exports.buildCommentPrefix = buildCommentPrefix;
 exports.buildCommentBody = buildCommentBody;
 exports.getGithubCommentInput = getGithubCommentInput;
 const core = __importStar(__nccwpck_require__(1078));
+const RETRY_DELAY_MS = 3000;
 /**
  * Checks if the event name is a pull request type
  */
@@ -32089,7 +32193,7 @@ function slugify(str) {
 function parseArgs(s) {
     const args = [];
     for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|(\S+)/g)) {
-        args.push(match[1] ?? match[2] ?? match[3] ?? match[0]);
+        args.push((match[1] ?? match[2] ?? match[3]));
     }
     return args;
 }
@@ -32107,7 +32211,7 @@ async function retry(fn, retries) {
             }
             else {
                 core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1}`);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
                 return attempt(retryCount + 1);
             }
         }
@@ -32169,6 +32273,143 @@ function getGithubCommentInput(input) {
     if (input === 'false')
         return false;
     return input;
+}
+
+
+/***/ }),
+
+/***/ 3597:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.vercelDeploy = vercelDeploy;
+exports.vercelInspect = vercelInspect;
+exports.aliasDomainsToDeployment = aliasDomainsToDeployment;
+const core = __importStar(__nccwpck_require__(1078));
+const exec = __importStar(__nccwpck_require__(1757));
+const github = __importStar(__nccwpck_require__(9848));
+const utils_1 = __nccwpck_require__(3924);
+const ALIAS_RETRY_COUNT = 2;
+async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
+    let output = '';
+    const options = {
+        listeners: {
+            stdout: (data) => {
+                output += data.toString();
+                core.info(data.toString());
+            },
+            stderr: (data) => {
+                core.info(data.toString());
+            },
+        },
+    };
+    if (config.workingDirectory) {
+        options.cwd = config.workingDirectory;
+    }
+    const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
+    await exec.exec('npx', [config.vercelBin, ...args], options);
+    return output;
+}
+function buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo) {
+    const { context } = github;
+    const providedArgs = (0, utils_1.parseArgs)(config.vercelArgs);
+    const args = [
+        ...providedArgs,
+        '-t',
+        config.vercelToken,
+        ...(0, utils_1.addVercelMetadata)('githubCommitSha', sha, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorName', context.actor, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorLogin', context.actor, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubDeployment', 1, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubOrg', context.repo.owner, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubRepo', context.repo.repo, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitOrg', commitOrg, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitRepo', commitRepo, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit}"`, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
+    ];
+    if (config.vercelScope) {
+        core.info('using scope');
+        args.push('--scope', config.vercelScope);
+    }
+    return args;
+}
+async function vercelInspect(config, deploymentUrl) {
+    let errorOutput = '';
+    const options = {
+        listeners: {
+            stdout: (data) => {
+                core.info(data.toString());
+            },
+            stderr: (data) => {
+                errorOutput += data.toString();
+                core.info(data.toString());
+            },
+        },
+    };
+    if (config.workingDirectory) {
+        options.cwd = config.workingDirectory;
+    }
+    const args = [config.vercelBin, 'inspect', deploymentUrl, '-t', config.vercelToken];
+    if (config.vercelScope) {
+        core.info('using scope');
+        args.push('--scope', config.vercelScope);
+    }
+    await exec.exec('npx', args, options);
+    const match = errorOutput.match(/^\s+name\s+(.+)$/m);
+    if (!match?.[1]) {
+        core.debug(`Failed to extract project name from inspect output`);
+        return null;
+    }
+    return match[1];
+}
+async function aliasDomainsToDeployment(config, deploymentUrl) {
+    if (!deploymentUrl) {
+        throw new Error('Deployment URL is required for aliasing domains');
+    }
+    const args = ['-t', config.vercelToken];
+    if (config.vercelScope) {
+        core.info('using scope');
+        args.push('--scope', config.vercelScope);
+    }
+    const promises = config.aliasDomains.map(domain => (0, utils_1.retry)(() => exec.exec('npx', [config.vercelBin, ...args, 'alias', deploymentUrl, domain]), ALIAS_RETRY_COUNT));
+    await Promise.all(promises);
+    core.info('All alias domains configured successfully');
 }
 
 
