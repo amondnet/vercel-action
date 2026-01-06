@@ -35,7 +35,7 @@ export function parseArgs(s: string): string[] {
   const args: string[] = []
 
   for (const match of s.matchAll(/'([^']*)'|"([^"]*)"|(\S+)/g)) {
-    args.push(match[1] ?? match[2] ?? match[3] ?? match[0])
+    args.push((match[1] ?? match[2] ?? match[3])!)
   }
   return args
 }

@@ -17,6 +17,35 @@ import {
 
 type OctokitClient = ReturnType<typeof github.getOctokit>
 
+interface PullRequestPayload {
+  pull_request?: {
+    head: {
+      ref: string
+      sha: string
+      repo?: {
+        owner: { login: string }
+        name: string
+      }
+    }
+  }
+  pull_request_target?: {
+    head: {
+      ref: string
+      sha: string
+      repo?: {
+        owner: { login: string }
+        name: string
+      }
+    }
+  }
+}
+
+interface ReleasePayload {
+  release?: {
+    tag_name: string
+  }
+}
+
 const { context } = github
 
 const githubToken = core.getInput('github-token')
@@ -46,9 +75,8 @@ const aliasDomains = core
     let url = s
     let branch = slugify(context.ref.replace('refs/heads/', ''))
     if (isPullRequestType(context.eventName)) {
-      const pr = (context.payload.pull_request || context.payload.pull_request_target) as {
-        head: { ref: string }
-      } | undefined
+      const payload = context.payload as PullRequestPayload
+      const pr = payload.pull_request || payload.pull_request_target
       if (pr) {
         branch = slugify(pr.head.ref.replace('refs/heads/', ''))
         url = url.replace(prNumberRegExp, context.issue.number.toString())
@@ -320,35 +348,6 @@ async function aliasDomainsToDeployment(deploymentUrl: string): Promise<void> {
   )
 
   await Promise.all(promises)
-}
-
-interface PullRequestPayload {
-  pull_request?: {
-    head: {
-      ref: string
-      sha: string
-      repo?: {
-        owner: { login: string }
-        name: string
-      }
-    }
-  }
-  pull_request_target?: {
-    head: {
-      ref: string
-      sha: string
-      repo?: {
-        owner: { login: string }
-        name: string
-      }
-    }
-  }
-}
-
-interface ReleasePayload {
-  release?: {
-    tag_name: string
-  }
 }
 
 async function run(): Promise<void> {
