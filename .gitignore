@@ -70,3 +70,6 @@ typings/
 
 # next.js build output
 .next
+
+# please plugin runtime state
+.please/state/
