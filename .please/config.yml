@@ -1,0 +1,11 @@
+language: en   # Output language (ko | en)
+
+# Document path overrides (optional — defaults shown)
+docs:
+  tracks: .please/docs/tracks
+  product-specs: .please/docs/product-specs
+  decisions: .please/docs/decisions
+  investigations: .please/docs/investigations
+  research: .please/docs/research
+  references: .please/docs/references
+  knowledge: .please/docs/knowledge
