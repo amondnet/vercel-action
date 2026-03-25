@@ -28,6 +28,7 @@ jobs:
           pnpm exec vercel pull --yes --token=${VERCEL_TOKEN}
         working-directory: example/nextjs
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - run: |
@@ -35,6 +36,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
         working-directory: example/nextjs
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
       - uses: ./
         id: now-deployment-staging
@@ -42,6 +44,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
           vercel-args: --prebuilt
           working-directory: example/nextjs
@@ -64,6 +67,7 @@ jobs:
         if: github.event_name == 'push'
         working-directory: example/nextjs
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
       - uses: ./
         id: now-deployment-production
@@ -71,6 +75,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_NEXTJS }}
           vercel-args: ${{ steps.prod_or_not.outputs.vercel-args }}
           working-directory: example/nextjs
