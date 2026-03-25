@@ -1,0 +1,271 @@
+import * as core from '@actions/core'
+import * as github from '@actions/github'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createCommentOnCommit, createCommentOnPullRequest } from '../github-comments'
+
+vi.mock('@actions/core', () => ({
+  info: vi.fn(),
+  debug: vi.fn(),
+  warning: vi.fn(),
+}))
+
+const mockListCommentsForCommit = vi.fn()
+const mockCreateCommitComment = vi.fn()
+const mockUpdateCommitComment = vi.fn()
+const mockListComments = vi.fn()
+const mockCreateComment = vi.fn()
+const mockUpdateComment = vi.fn()
+
+vi.mock('@actions/github', () => ({
+  context: {
+    eventName: 'push',
+    sha: 'abc123',
+    repo: { owner: 'test-owner', repo: 'test-repo' },
+    issue: { number: 42 },
+  },
+}))
+
+function createMockOctokit() {
+  return {
+    rest: {
+      repos: {
+        listCommentsForCommit: mockListCommentsForCommit,
+        createCommitComment: mockCreateCommitComment,
+        updateCommitComment: mockUpdateCommitComment,
+      },
+      issues: {
+        listComments: mockListComments,
+        createComment: mockCreateComment,
+        updateComment: mockUpdateComment,
+      },
+    },
+  } as any
+}
+
+function createConfig(overrides: Record<string, unknown> = {}) {
+  return {
+    githubToken: 'test-token',
+    githubComment: true as boolean | string,
+    workingDirectory: '',
+    vercelToken: 'v-token',
+    vercelArgs: '',
+    vercelOrgId: '',
+    vercelProjectId: '',
+    vercelScope: '',
+    vercelProjectName: '',
+    vercelBin: 'vercel@latest',
+    aliasDomains: [] as string[],
+    ...overrides,
+  }
+}
+
+describe('createCommentOnCommit', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    const ctx = github.context as { eventName: string }
+    ctx.eventName = 'push'
+  })
+
+  it('creates a new comment when no previous comment exists', async () => {
+    mockListCommentsForCommit.mockResolvedValue({ data: [] })
+    mockCreateCommitComment.mockResolvedValue({})
+
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(mockCreateCommitComment).toHaveBeenCalledTimes(1)
+    expect(mockUpdateCommitComment).not.toHaveBeenCalled()
+    const body = mockCreateCommitComment.mock.calls[0][0].body
+    expect(body).toContain('Deploy preview for _my-app_ ready!')
+    expect(body).toContain('https://deploy.vercel.app')
+  })
+
+  it('updates existing comment when previous comment found', async () => {
+    mockListCommentsForCommit.mockResolvedValue({
+      data: [
+        { id: 99, body: 'Deploy preview for _my-app_ ready!\n\nold content' },
+      ],
+    })
+    mockUpdateCommitComment.mockResolvedValue({})
+
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(mockUpdateCommitComment).toHaveBeenCalledTimes(1)
+    expect(mockUpdateCommitComment.mock.calls[0][0].comment_id).toBe(99)
+    expect(mockCreateCommitComment).not.toHaveBeenCalled()
+  })
+
+  it('skips comment when githubComment is false', async () => {
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig({ githubComment: false }),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(mockListCommentsForCommit).toHaveBeenCalled()
+    expect(mockCreateCommitComment).not.toHaveBeenCalled()
+    expect(mockUpdateCommitComment).not.toHaveBeenCalled()
+  })
+
+  it('catches and warns on API errors from findPreviousComment', async () => {
+    mockListCommentsForCommit.mockRejectedValue(new Error('API rate limit'))
+
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('API rate limit'),
+    )
+  })
+
+  it('catches and warns on create comment errors', async () => {
+    mockListCommentsForCommit.mockResolvedValue({ data: [] })
+    mockCreateCommitComment.mockRejectedValue(new Error('403 Forbidden'))
+
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('403 Forbidden'),
+    )
+  })
+
+  it('uses custom template when string provided', async () => {
+    mockListCommentsForCommit.mockResolvedValue({ data: [] })
+    mockCreateCommitComment.mockResolvedValue({})
+
+    await createCommentOnCommit(
+      createMockOctokit(),
+      createConfig({ githubComment: 'Custom: {{deploymentUrl}}' }),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    const body = mockCreateCommitComment.mock.calls[0][0].body
+    expect(body).toContain('Custom: https://deploy.vercel.app')
+  })
+})
+
+describe('createCommentOnPullRequest', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    const ctx = github.context as { eventName: string }
+    ctx.eventName = 'pull_request'
+  })
+
+  it('creates a new PR comment when no previous comment exists', async () => {
+    mockListComments.mockResolvedValue({ data: [] })
+    mockCreateComment.mockResolvedValue({})
+
+    await createCommentOnPullRequest(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(mockCreateComment).toHaveBeenCalledTimes(1)
+    expect(mockUpdateComment).not.toHaveBeenCalled()
+    expect(mockCreateComment.mock.calls[0][0].issue_number).toBe(42)
+  })
+
+  it('updates existing PR comment when previous comment found', async () => {
+    mockListComments.mockResolvedValue({
+      data: [
+        { id: 77, body: 'Deploy preview for _my-app_ ready!\n\nold' },
+      ],
+    })
+    mockUpdateComment.mockResolvedValue({})
+
+    await createCommentOnPullRequest(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(mockUpdateComment).toHaveBeenCalledTimes(1)
+    expect(mockUpdateComment.mock.calls[0][0].comment_id).toBe(77)
+    expect(mockCreateComment).not.toHaveBeenCalled()
+  })
+
+  it('catches and warns on findPreviousComment API errors', async () => {
+    mockListComments.mockRejectedValue(new Error('network error'))
+
+    await createCommentOnPullRequest(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('network error'),
+    )
+  })
+
+  it('catches and warns on update comment errors', async () => {
+    mockListComments.mockResolvedValue({
+      data: [{ id: 77, body: 'Deploy preview for _my-app_ ready!' }],
+    })
+    mockUpdateComment.mockRejectedValue(new Error('422 Unprocessable'))
+
+    await createCommentOnPullRequest(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('422 Unprocessable'),
+    )
+  })
+
+  it('warns for unsupported event types', async () => {
+    const ctx = github.context as { eventName: string }
+    ctx.eventName = 'workflow_dispatch'
+
+    mockCreateComment.mockResolvedValue({})
+
+    await createCommentOnPullRequest(
+      createMockOctokit(),
+      createConfig(),
+      'abc123',
+      'https://deploy.vercel.app',
+      'my-app',
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('not supported'),
+    )
+  })
+})
