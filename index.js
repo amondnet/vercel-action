@@ -186,8 +186,17 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
   ]
 
   if (vercelProjectId && !vercelOrgId) {
-    core.info('using --project flag (no org id provided)')
-    args.push('--project', vercelProjectId)
+    const hasProjectArg = providedArgs.some(
+      arg => arg === '--project' || arg.startsWith('--project='),
+    )
+
+    if (!hasProjectArg) {
+      core.info('using --project flag (no org id provided)')
+      args.push('--project', vercelProjectId)
+    }
+    else {
+      core.info('skipping automatic --project flag because it was provided in vercel-args')
+    }
   }
 
   if (vercelScope) {
