@@ -17,7 +17,8 @@
     "vitest@pleaseai": true,
     "gatekeeper@pleaseai": true,
     "claude-code-setup@claude-plugins-official": true,
-    "cloudflare@cloudflare": true
+    "cloudflare@cloudflare": true,
+    "pnpm@pleaseai": true
   },
   "extraKnownMarketplaces": {
     "passionfactory": {

@@ -1,4 +1,4 @@
-language: en   # Output language (ko | en)
+language: en # Output language (ko | en)
 
 # Document path overrides (optional — defaults shown)
 docs:
