@@ -22,7 +22,7 @@ export async function vercelDeploy(
         core.info(data.toString())
       },
       stderr: (data: Buffer) => {
-        core.info(data.toString())
+        core.warning(data.toString())
       },
     },
   }
@@ -35,7 +35,17 @@ export async function vercelDeploy(
 
   await exec.exec('npx', [config.vercelBin, ...args], options)
 
-  return output
+  const deploymentUrl = output
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .pop()
+
+  if (!deploymentUrl || !deploymentUrl.startsWith('https://')) {
+    throw new Error(`Failed to extract deployment URL from vercel output: ${output}`)
+  }
+
+  return deploymentUrl
 }
 
 function buildDeployArgs(
@@ -85,7 +95,7 @@ export async function vercelInspect(
       },
       stderr: (data: Buffer) => {
         errorOutput += data.toString()
-        core.info(data.toString())
+        core.warning(data.toString())
       },
     },
   }
@@ -101,7 +111,14 @@ export async function vercelInspect(
     args.push('--scope', config.vercelScope)
   }
 
-  await exec.exec('npx', args, options)
+  try {
+    await exec.exec('npx', args, options)
+  }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    core.warning(`vercel inspect failed: ${message}`)
+    return null
+  }
 
   const match = errorOutput.match(/^\s+name\s+(.+)$/m)
   if (!match?.[1]) {

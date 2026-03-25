@@ -69,25 +69,25 @@ export async function createCommentOnCommit(
   deploymentUrl: string,
   deploymentName: string,
 ): Promise<void> {
-  const commentId = await findPreviousComment(
-    octokit,
-    buildCommentPrefix(deploymentName),
-  )
-
-  const commentBody = buildCommentBody(
-    deploymentCommit,
-    deploymentUrl,
-    deploymentName,
-    config.githubComment,
-    config.aliasDomains,
-    DEFAULT_COMMENT_TEMPLATE,
-  )
-
-  if (!commentBody) {
-    return
-  }
-
   try {
+    const commentId = await findPreviousComment(
+      octokit,
+      buildCommentPrefix(deploymentName),
+    )
+
+    const commentBody = buildCommentBody(
+      deploymentCommit,
+      deploymentUrl,
+      deploymentName,
+      config.githubComment,
+      config.aliasDomains,
+      DEFAULT_COMMENT_TEMPLATE,
+    )
+
+    if (!commentBody) {
+      return
+    }
+
     if (commentId) {
       await octokit.rest.repos.updateCommitComment({
         ...context.repo,
@@ -106,7 +106,7 @@ export async function createCommentOnCommit(
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     core.warning(
-      `Failed to ${commentId ? 'update' : 'create'} commit comment: ${message}. `
+      `Failed to create or update commit comment: ${message}. `
       + 'Ensure the github-token has write permissions to the repository.',
     )
   }
@@ -119,25 +119,25 @@ export async function createCommentOnPullRequest(
   deploymentUrl: string,
   deploymentName: string,
 ): Promise<void> {
-  const commentId = await findPreviousComment(
-    octokit,
-    buildCommentPrefix(deploymentName),
-  )
-
-  const commentBody = buildCommentBody(
-    deploymentCommit,
-    deploymentUrl,
-    deploymentName,
-    config.githubComment,
-    config.aliasDomains,
-    DEFAULT_COMMENT_TEMPLATE,
-  )
-
-  if (!commentBody) {
-    return
-  }
-
   try {
+    const commentId = await findPreviousComment(
+      octokit,
+      buildCommentPrefix(deploymentName),
+    )
+
+    const commentBody = buildCommentBody(
+      deploymentCommit,
+      deploymentUrl,
+      deploymentName,
+      config.githubComment,
+      config.aliasDomains,
+      DEFAULT_COMMENT_TEMPLATE,
+    )
+
+    if (!commentBody) {
+      return
+    }
+
     if (commentId) {
       await octokit.rest.issues.updateComment({
         ...context.repo,
@@ -156,7 +156,7 @@ export async function createCommentOnPullRequest(
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     core.warning(
-      `Failed to ${commentId ? 'update' : 'create'} PR comment: ${message}. `
+      `Failed to create or update PR comment: ${message}. `
       + 'Ensure the github-token has write permissions to the repository.',
     )
   }

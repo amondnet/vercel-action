@@ -31831,12 +31831,12 @@ async function findPreviousComment(octokit, text) {
     return null;
 }
 async function createCommentOnCommit(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
-    const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
-    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
-    if (!commentBody) {
-        return;
-    }
     try {
+        const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+        if (!commentBody) {
+            return;
+        }
         if (commentId) {
             await octokit.rest.repos.updateCommitComment({
                 ...context.repo,
@@ -31854,17 +31854,17 @@ async function createCommentOnCommit(octokit, config, deploymentCommit, deployme
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        core.warning(`Failed to ${commentId ? 'update' : 'create'} commit comment: ${message}. `
+        core.warning(`Failed to create or update commit comment: ${message}. `
             + 'Ensure the github-token has write permissions to the repository.');
     }
 }
 async function createCommentOnPullRequest(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
-    const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
-    const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
-    if (!commentBody) {
-        return;
-    }
     try {
+        const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+        if (!commentBody) {
+            return;
+        }
         if (commentId) {
             await octokit.rest.issues.updateComment({
                 ...context.repo,
@@ -31882,7 +31882,7 @@ async function createCommentOnPullRequest(octokit, config, deploymentCommit, dep
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        core.warning(`Failed to ${commentId ? 'update' : 'create'} PR comment: ${message}. `
+        core.warning(`Failed to create or update PR comment: ${message}. `
             + 'Ensure the github-token has write permissions to the repository.');
     }
 }
@@ -32334,7 +32334,7 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
                 core.info(data.toString());
             },
             stderr: (data) => {
-                core.info(data.toString());
+                core.warning(data.toString());
             },
         },
     };
@@ -32343,7 +32343,15 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
     }
     const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
     await exec.exec('npx', [config.vercelBin, ...args], options);
-    return output;
+    const deploymentUrl = output
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .pop();
+    if (!deploymentUrl || !deploymentUrl.startsWith('https://')) {
+        throw new Error(`Failed to extract deployment URL from vercel output: ${output}`);
+    }
+    return deploymentUrl;
 }
 function buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo) {
     const { context } = github;
@@ -32390,7 +32398,14 @@ async function vercelInspect(config, deploymentUrl) {
         core.info('using scope');
         args.push('--scope', config.vercelScope);
     }
-    await exec.exec('npx', args, options);
+    try {
+        await exec.exec('npx', args, options);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        core.warning(`vercel inspect failed: ${message}`);
+        return null;
+    }
     const match = errorOutput.match(/^\s+name\s+(.+)$/m);
     if (!match?.[1]) {
         core.debug(`Failed to extract project name from inspect output`);
