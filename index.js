@@ -98,11 +98,12 @@ if (githubToken) {
 
 async function setEnv() {
   core.info('set environment for vercel cli')
+  core.exportVariable('VERCEL_TELEMETRY_DISABLED', '1')
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
   }
-  if (vercelProjectId) {
+  if (vercelProjectId && vercelOrgId) {
     core.info('set env variable : VERCEL_PROJECT_ID')
     core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
   }
@@ -183,6 +184,11 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
       providedArgs,
     ),
   ]
+
+  if (vercelProjectId && !vercelOrgId) {
+    core.info('using --project flag (no org id provided)')
+    args.push('--project', vercelProjectId)
+  }
 
   if (vercelScope) {
     core.info('using scope')
