@@ -1,0 +1,39 @@
+.github/workflows/example-express-basic-auth.yml
+  4b11c192a4d5746d 12
+.github/workflows/example-nextjs.yml
+  4b11c192a4d5746d 13,16,21
+.github/workflows/example-scope.yml
+  4b11c192a4d5746d 12
+.github/workflows/example-static.yml
+  4b11c192a4d5746d 13
+.github/workflows/check-dist.yml
+  4b11c192a4d5746d 27,29,31,52
+.github/workflows/example-angular.yml
+  4b11c192a4d5746d 12-13,18
+.github/workflows/ci.yml
+  4b11c192a4d5746d 14,19,24,46,49,54,69,72,77,92,95,100
+.github/workflows/release-please.yml
+  4b11c192a4d5746d 16
+.github/workflows/deploy.yml
+  4b11c192a4d5746d 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "f8e8c2bcc31efd419f949f870ec6bcc116efcdce",
+  "prompts": {
+    "4b11c192a4d5746d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b978e1d-6a7e-4e0e-928b-4319ca23d7e2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 27,
+      "total_deletions": 27,
+      "accepted_lines": 27,
+      "overriden_lines": 0
+    }
+  }
+}
