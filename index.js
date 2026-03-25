@@ -102,10 +102,10 @@ async function setEnv() {
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
-  }
-  if (vercelProjectId && vercelOrgId) {
-    core.info('set env variable : VERCEL_PROJECT_ID')
-    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
+    if (vercelProjectId) {
+      core.info('set env variable : VERCEL_PROJECT_ID')
+      core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
+    }
   }
 }
 
