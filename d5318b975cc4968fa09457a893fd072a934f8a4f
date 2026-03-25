@@ -1,0 +1,23 @@
+.github/workflows/example-angular.yml
+  ceb595d4f944a77b 28-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "d5318b975cc4968fa09457a893fd072a934f8a4f",
+  "prompts": {
+    "ceb595d4f944a77b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1071dc0a-91a0-4fb8-b9ad-183b1e179fb1",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 10,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
