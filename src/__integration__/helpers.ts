@@ -9,7 +9,7 @@ export const TEST_TEAM = 'test-team'
 export const TEST_PROJECT = 'test-project'
 
 export function vercelFetch(path: string, options: RequestInit = {}) {
-  const url = `${process.env.EMULATE_VERCEL_URL}${path}`
+  const url = new URL(path, process.env.EMULATE_VERCEL_URL).toString()
   return fetch(url, {
     ...options,
     headers: {

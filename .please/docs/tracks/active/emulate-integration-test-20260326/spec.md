@@ -29,7 +29,7 @@ Add integration tests for vercel-action using [emulate.dev](https://emulate.dev)
 - [ ] AC-2: Vercel deployment flow test creates a deployment and retrieves a valid deployment URL
 - [ ] AC-3: Alias domain test assigns a custom domain with PR number/branch substitution
 - [ ] AC-4: GitHub comment test creates and updates PR comments with deployment info
-- [ ] AC-5: GitHub Deployments test creates deployment statuses with correct state transitions
+- [ ] AC-5: GitHub Deployments test creates deployment statuses with correct state transitions _(blocked: emulate.dev v0.2.0 does not support GitHub Deployments API; tests skip gracefully until emulator adds support)_
 - [ ] AC-6: All integration tests pass in CI (added to `.github/workflows/ci.yml`)
 - [ ] AC-7: Code coverage for integration tests is reported separately from unit tests
 

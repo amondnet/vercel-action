@@ -1,5 +1,5 @@
 import type { ActionConfig } from '../types'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { VercelApiClient } from '../vercel-api'
 import { TEST_PROJECT, TEST_TEAM, VERCEL_TOKEN, vercelFetch } from './helpers'
 
@@ -20,7 +20,20 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   }
 }
 
+let aliasSupported = true
+
 describe('vercelApiClient (integration)', () => {
+  beforeAll(async () => {
+    // Probe whether the alias endpoint is available in this emulator version
+    const probeRes = await vercelFetch(`/v2/deployments/probe-alias-support/aliases`, {
+      method: 'POST',
+      body: JSON.stringify({ alias: 'probe.example.com' }),
+    })
+    if (probeRes.status === 404) {
+      aliasSupported = false
+    }
+  })
+
   describe('inspect', () => {
     it('should return project name from a deployment', async () => {
       const createRes = await vercelFetch(`/v13/deployments?slug=${TEST_TEAM}`, {
@@ -48,7 +61,7 @@ describe('vercelApiClient (integration)', () => {
   })
 
   describe('assignAlias', () => {
-    it('should assign an alias to a deployment', async () => {
+    it.skipIf(!aliasSupported)('should assign an alias to a deployment', async () => {
       const createRes = await vercelFetch(`/v13/deployments?slug=${TEST_TEAM}`, {
         method: 'POST',
         body: JSON.stringify({
@@ -60,18 +73,7 @@ describe('vercelApiClient (integration)', () => {
       const created = await createRes.json()
 
       const client = new VercelApiClient(createConfig(), process.env.EMULATE_VERCEL_URL)
-
-      try {
-        await client.assignAlias(created.id, 'my-alias.example.com')
-      }
-      catch (error) {
-        const msg = error instanceof Error ? error.message : ''
-        if (msg.includes('404')) {
-          console.log('Skipping: Alias creation endpoint not supported by emulator')
-          return
-        }
-        throw error
-      }
+      await client.assignAlias(created.id, 'my-alias.example.com')
     })
   })
 

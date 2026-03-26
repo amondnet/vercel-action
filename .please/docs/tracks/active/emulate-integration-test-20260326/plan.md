@@ -8,7 +8,7 @@
 - **Source**: /please:plan
 - **Track**: emulate-integration-test-20260326
 - **Created**: 2026-03-26
-- **Approach**: Two-layer testing (Vercel SDK + GitHub Octokit) against emulate.dev
+- **Approach**: Two-layer testing (direct fetch for Vercel API + GitHub Octokit) against emulate.dev
 
 ## Purpose
 
@@ -31,11 +31,11 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 **Two test layers against emulate.dev using official SDK clients:**
 
-1. **Vercel API integration tests** — Use [`@vercel/sdk`](https://github.com/vercel/sdk) with `serverURL: 'http://localhost:4000'` to test deployment creation, retrieval, and domain/alias management via the type-safe Vercel SDK client.
+1. **Vercel API integration tests** — Use direct `fetch` calls with `Authorization: Bearer <token>` headers against `http://localhost:4000` to test deployment creation, retrieval, and domain/alias management. (`@vercel/sdk` was evaluated but dropped due to strict Zod validation that rejects emulate.dev responses.)
 
 2. **GitHub API integration tests** — Create Octokit client with `baseUrl: http://localhost:4001` and test the action's comment functions (`createCommentOnPullRequest`, `createCommentOnCommit`) against emulate.dev's stateful GitHub API.
 
-**Why `@vercel/sdk` instead of Vercel CLI?** The CLI has no documented env var to redirect API calls. The SDK's `serverURL` option lets us point directly at emulate.dev, providing type-safe, production-fidelity testing of the same API contracts the CLI uses internally.
+**Why direct fetch instead of `@vercel/sdk`?** The SDK's Zod validation layer is too strict for emulate.dev's responses — it rejects fields the emulator omits or approximates. Direct `fetch` with manual JSON parsing provides the same coverage without validation friction.
 
 **Why Vitest Projects?** [Vitest Projects](https://vitest.dev/guide/projects) allow defining `unit` and `integration` as separate projects in a single `vitest.config.ts`, with independent `include` patterns, `globalSetup`, and timeouts. This is cleaner than maintaining separate config files.
 
@@ -44,7 +44,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 ### Phase 1: Infrastructure Setup
 
 - [x] T-1: Install dependencies and create Vitest globalSetup
-  - `pnpm add -D emulate @vercel/sdk`
+  - `pnpm add -D emulate` (note: `@vercel/sdk` was evaluated but dropped — see Architecture Decision section)
   - Create `src/__integration__/global-setup.ts` using emulate's programmatic API (`createEmulator`)
   - Start Vercel (port 4000) and GitHub (port 4001) services in `setup()`
   - Tear down in `teardown()`
@@ -69,21 +69,20 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Phase 2: Vercel API Integration Tests
 
-- [x] T-4: Test deployment creation and retrieval via Vercel SDK
-  - Use `@vercel/sdk` with `serverURL: 'http://localhost:4000'`
-  - `vercel.deployments.createDeployment()` — create deployment, verify response structure
-  - `vercel.deployments.getDeployment()` — retrieve by ID, verify URL and status fields
-  - `vercel.deployments.getDeployments()` — list deployments, verify pagination
-  - **Files**: `src/__integration__/vercel-deployments.test.ts`
-  - **Verify**: Deployment lifecycle endpoints return expected shapes via SDK
+- [x] T-4: Test deployment creation and retrieval via direct fetch
+  - Use direct `fetch` with `Authorization: Bearer <token>` against `http://localhost:4000`
+  - `POST /v13/deployments` — create deployment, verify response structure
+  - `GET /v13/deployments/:id` — retrieve by ID via `VercelApiClient.inspect()`
+  - **Files**: `src/__integration__/vercel-api.test.ts`
+  - **Verify**: Deployment lifecycle endpoints return expected shapes
 
-- [x] T-5: Test domain and alias management via Vercel SDK
-  - `vercel.projects.addProjectDomain()` — add domain to project
-  - `vercel.projects.getProjectDomains()` — list project domains
-  - `vercel.projects.verifyProjectDomain()` — verify domain
-  - `vercel.aliases.assignAlias()` — assign alias to deployment
-  - **Files**: `src/__integration__/vercel-domains.test.ts`
-  - **Verify**: Domain creation, listing, verification, and alias assignment work via SDK
+- [x] T-5: Test domain and alias management via direct fetch
+  - `POST /v9/projects/:id/domains` — add domain to project
+  - `GET /v9/projects/:id/domains` — list project domains
+  - `POST /v9/projects/:id/domains/:domain/verify` — verify domain
+  - `POST /v2/deployments/:id/aliases` — assign alias (skips gracefully if emulator returns 404)
+  - **Files**: `src/__integration__/vercel-api.test.ts`
+  - **Verify**: Domain creation, listing, verification, and alias assignment work via direct fetch
 
 ### Phase 3: GitHub API Integration Tests
 

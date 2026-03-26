@@ -67,9 +67,33 @@ describe('createCommentOnPullRequest (integration)', () => {
   it('should update existing comment instead of creating duplicate', async () => {
     const octokit = createOctokitClient()
 
+    // Create an isolated issue so this test does not depend on prior test state
+    const { data: isolatedIssue } = await octokit.rest.issues.create({
+      owner: TEST_OWNER,
+      repo: TEST_REPO,
+      title: 'PR comment update test (isolated)',
+    })
+    const isolatedCtx: GitHubContext = {
+      eventName: 'pull_request',
+      sha: 'abc123',
+      repo: { owner: TEST_OWNER, repo: TEST_REPO },
+      issueNumber: isolatedIssue.number,
+    }
+
+    // First write — establishes the existing comment
     await createCommentOnPullRequest(
       octokit as any,
-      ctx,
+      isolatedCtx,
+      createConfig(),
+      'abc123',
+      'https://my-app-abc123.vercel.app',
+      'my-app',
+    )
+
+    // Second write — should update, not create a duplicate
+    await createCommentOnPullRequest(
+      octokit as any,
+      isolatedCtx,
       createConfig(),
       'def456',
       'https://my-app-def456.vercel.app',
@@ -79,7 +103,7 @@ describe('createCommentOnPullRequest (integration)', () => {
     const { data: comments } = await octokit.rest.issues.listComments({
       owner: TEST_OWNER,
       repo: TEST_REPO,
-      issue_number: issueNumber,
+      issue_number: isolatedIssue.number,
       per_page: 100,
     })
 
