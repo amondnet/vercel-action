@@ -1,0 +1,29 @@
+index.js
+  67b5a927234535ae 103,109-118,228
+.github/workflows/deploy.yml
+  67b5a927234535ae 19
+.github/workflows/example-static.yml
+  67b5a927234535ae 20,43
+.github/workflows/example-angular.yml
+  67b5a927234535ae 37,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "914648654623832b3513d104f4ea8f6ed6db202c",
+  "prompts": {
+    "67b5a927234535ae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f533a11f-5ea3-40d9-a0b2-db668b69fcfb",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 18,
+      "total_deletions": 3,
+      "accepted_lines": 18,
+      "overriden_lines": 0
+    }
+  }
+}
