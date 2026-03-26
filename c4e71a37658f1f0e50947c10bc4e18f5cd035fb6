@@ -1,0 +1,27 @@
+.github/workflows/example-angular.yml
+  b2cc4c9c30aa1de2 20
+.github/workflows/example-nextjs.yml
+  b2cc4c9c30aa1de2 23
+.github/workflows/ci.yml
+  b2cc4c9c30aa1de2 51,74,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "c4e71a37658f1f0e50947c10bc4e18f5cd035fb6",
+  "prompts": {
+    "b2cc4c9c30aa1de2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "33a1c670-80a2-4193-a505-304a09e6437c",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 5,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}
