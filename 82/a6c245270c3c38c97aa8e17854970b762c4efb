@@ -1,0 +1,25 @@
+.please/docs/tracks/active/emulate-integration-test-20260326/plan.md
+  a14340154669a3d4 151-152,154-176
+.please/docs/tracks/active/emulate-integration-test-20260326/metadata.json
+  a14340154669a3d4 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "82a6c245270c3c38c97aa8e17854970b762c4efb",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 3,
+      "accepted_lines": 26,
+      "overriden_lines": 0
+    }
+  }
+}
