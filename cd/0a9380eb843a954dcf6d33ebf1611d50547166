@@ -1,0 +1,33 @@
+example/express-basic-auth/api/index.js
+  b2cc4c9c30aa1de2 14
+example/express-basic-auth/package.json
+  b2cc4c9c30aa1de2 5
+example/express-basic-auth/vercel.ts
+  b2cc4c9c30aa1de2 7-8,14
+.github/workflows/example-angular.yml
+  b2cc4c9c30aa1de2 20
+.github/workflows/ci.yml
+  b2cc4c9c30aa1de2 51,74,97
+.github/workflows/example-nextjs.yml
+  b2cc4c9c30aa1de2 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "cd0a9380eb843a954dcf6d33ebf1611d50547166",
+  "prompts": {
+    "b2cc4c9c30aa1de2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "33a1c670-80a2-4193-a505-304a09e6437c",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 5,
+      "accepted_lines": 10,
+      "overriden_lines": 0
+    }
+  }
+}
