@@ -380,10 +380,15 @@ describe('aliasDomainsToDeployment', () => {
     expect(args).toContain('my-team')
   })
 
-  it('retries on failure', async () => {
-    vi.mocked(exec.exec)
-      .mockRejectedValueOnce(new Error('fail'))
-      .mockResolvedValue(0)
+  it('retries on general failure', async () => {
+    let callCount = 0
+    vi.mocked(exec.exec).mockImplementation(async () => {
+      callCount++
+      if (callCount === 1) {
+        throw new Error('network error')
+      }
+      return 0
+    })
 
     await aliasDomainsToDeployment(
       createConfig({ aliasDomains: ['a.com'] }),
@@ -392,6 +397,69 @@ describe('aliasDomainsToDeployment', () => {
 
     expect(exec.exec).toHaveBeenCalledTimes(2)
   }, 15000)
+
+  it('retries without scope on personal account scope error', async () => {
+    let callCount = 0
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      callCount++
+      if (callCount === 1) {
+        options?.listeners?.stderr?.(
+          Buffer.from('You cannot set your Personal Account as the scope'),
+        )
+        return 1
+      }
+      return 0
+    })
+
+    await aliasDomainsToDeployment(
+      createConfig({ aliasDomains: ['a.com'], vercelScope: 'my-team' }),
+      'https://deploy.vercel.app',
+    )
+
+    expect(exec.exec).toHaveBeenCalledTimes(2)
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('Retrying without --scope'),
+    )
+    // Second call should NOT contain --scope
+    const retryArgs = vi.mocked(exec.exec).mock.calls[1][1] as string[]
+    expect(retryArgs).not.toContain('--scope')
+  })
+
+  it('throws when alias retry also fails', async () => {
+    let callCount = 0
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      callCount++
+      if (callCount === 1) {
+        options?.listeners?.stderr?.(
+          Buffer.from('You cannot set your Personal Account as the scope'),
+        )
+        return 1
+      }
+      options?.listeners?.stderr?.(Buffer.from('another error'))
+      return 1
+    })
+
+    await expect(
+      aliasDomainsToDeployment(
+        createConfig({ aliasDomains: ['a.com'] }),
+        'https://deploy.vercel.app',
+      ),
+    ).rejects.toThrow('Alias command failed for domain a.com')
+  })
+
+  it('throws on non-scope alias failure', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stderr?.(Buffer.from('permission denied'))
+      return 1
+    })
+
+    await expect(
+      aliasDomainsToDeployment(
+        createConfig({ aliasDomains: ['a.com'] }),
+        'https://deploy.vercel.app',
+      ),
+    ).rejects.toThrow('Alias command failed for domain a.com')
+  })
 
   it('logs success message after all aliases configured', async () => {
     vi.mocked(exec.exec).mockResolvedValue(0)

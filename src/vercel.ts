@@ -166,15 +166,57 @@ export async function aliasDomainsToDeployment(
     throw new Error('Deployment URL is required for aliasing domains')
   }
 
-  const args = ['-t', config.vercelToken]
-  if (config.vercelScope) {
-    core.info('using scope')
-    args.push('--scope', config.vercelScope)
-  }
-
   const promises = config.aliasDomains.map(domain =>
     retry(
-      () => exec.exec('npx', [config.vercelBin, ...args, 'alias', deploymentUrl, domain]),
+      async () => {
+        const args = [config.vercelBin, '-t', config.vercelToken]
+        if (config.vercelScope) {
+          core.info('using scope')
+          args.push('--scope', config.vercelScope)
+        }
+        args.push('alias', deploymentUrl, domain)
+
+        let aliasOutput = ''
+        let aliasError = ''
+        const exitCode = await exec.exec('npx', args, {
+          ignoreReturnCode: true,
+          listeners: {
+            stdout: (data: Buffer) => { aliasOutput += data.toString() },
+            stderr: (data: Buffer) => { aliasError += data.toString() },
+          },
+        })
+
+        if (exitCode !== 0) {
+          const combinedOutput = aliasOutput + aliasError
+          if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+            core.warning(
+              'Vercel CLI rejected the scope for alias command. '
+              + 'Retrying without --scope.',
+            )
+            const retryArgs = [config.vercelBin, '-t', config.vercelToken, 'alias', deploymentUrl, domain]
+            let retryError = ''
+            let retryOutput = ''
+            const retryExitCode = await exec.exec('npx', retryArgs, {
+              ignoreReturnCode: true,
+              listeners: {
+                stdout: (data: Buffer) => { retryOutput += data.toString() },
+                stderr: (data: Buffer) => { retryError += data.toString() },
+              },
+            })
+            if (retryExitCode !== 0) {
+              const retryStderr = retryError ? `, stderr: ${retryError.trim()}` : ''
+              const retryStdout = retryOutput ? `, stdout: ${retryOutput.trim()}` : ''
+              throw new Error(
+                `Alias command failed for domain ${domain} with exit code ${retryExitCode}${retryStderr}${retryStdout}`,
+              )
+            }
+            return
+          }
+          throw new Error(
+            `Alias command failed for domain ${domain} with exit code ${exitCode}: ${aliasError}`,
+          )
+        }
+      },
       ALIAS_RETRY_COUNT,
     ),
   )

@@ -32457,12 +32457,47 @@ async function aliasDomainsToDeployment(config, deploymentUrl) {
     if (!deploymentUrl) {
         throw new Error('Deployment URL is required for aliasing domains');
     }
-    const args = ['-t', config.vercelToken];
-    if (config.vercelScope) {
-        core.info('using scope');
-        args.push('--scope', config.vercelScope);
-    }
-    const promises = config.aliasDomains.map(domain => (0, utils_1.retry)(() => exec.exec('npx', [config.vercelBin, ...args, 'alias', deploymentUrl, domain]), ALIAS_RETRY_COUNT));
+    const promises = config.aliasDomains.map(domain => (0, utils_1.retry)(async () => {
+        const args = [config.vercelBin, '-t', config.vercelToken];
+        if (config.vercelScope) {
+            core.info('using scope');
+            args.push('--scope', config.vercelScope);
+        }
+        args.push('alias', deploymentUrl, domain);
+        let aliasOutput = '';
+        let aliasError = '';
+        const exitCode = await exec.exec('npx', args, {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => { aliasOutput += data.toString(); },
+                stderr: (data) => { aliasError += data.toString(); },
+            },
+        });
+        if (exitCode !== 0) {
+            const combinedOutput = aliasOutput + aliasError;
+            if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+                core.warning('Vercel CLI rejected the scope for alias command. '
+                    + 'Retrying without --scope.');
+                const retryArgs = [config.vercelBin, '-t', config.vercelToken, 'alias', deploymentUrl, domain];
+                let retryError = '';
+                let retryOutput = '';
+                const retryExitCode = await exec.exec('npx', retryArgs, {
+                    ignoreReturnCode: true,
+                    listeners: {
+                        stdout: (data) => { retryOutput += data.toString(); },
+                        stderr: (data) => { retryError += data.toString(); },
+                    },
+                });
+                if (retryExitCode !== 0) {
+                    const retryStderr = retryError ? `, stderr: ${retryError.trim()}` : '';
+                    const retryStdout = retryOutput ? `, stdout: ${retryOutput.trim()}` : '';
+                    throw new Error(`Alias command failed for domain ${domain} with exit code ${retryExitCode}${retryStderr}${retryStdout}`);
+                }
+                return;
+            }
+            throw new Error(`Alias command failed for domain ${domain} with exit code ${exitCode}: ${aliasError}`);
+        }
+    }, ALIAS_RETRY_COUNT));
     await Promise.all(promises);
     core.info('All alias domains configured successfully');
 }
@@ -34355,7 +34390,7 @@ module.exports = parseParams
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","version":"41.1.4","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"22.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@types/common-tags":"^1.8.4","@types/node":"^20.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0"}}');
+module.exports = JSON.parse('{"name":"vercel-action","version":"41.1.4","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@types/common-tags":"^1.8.4","@types/node":"^20.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0"}}');
 
 /***/ })
 
