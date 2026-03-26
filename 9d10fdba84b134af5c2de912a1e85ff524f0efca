@@ -1,0 +1,25 @@
+example/express-basic-auth/api/index.js
+  b2cc4c9c30aa1de2 14
+example/express-basic-auth/vercel.ts
+  b2cc4c9c30aa1de2 7-8,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "9d10fdba84b134af5c2de912a1e85ff524f0efca",
+  "prompts": {
+    "b2cc4c9c30aa1de2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "33a1c670-80a2-4193-a505-304a09e6437c",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 4,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
