@@ -26,10 +26,13 @@
 | Tool | Purpose |
 |---|---|
 | `@antfu/eslint-config` | ESLint flat config (no Prettier) |
-| `jest` | Testing framework |
+| `vitest` | Testing framework (unit + integration via Vitest Projects) |
 | `@vercel/ncc` | Single-file bundler for `dist/` distribution |
 | `husky` | Git hooks (pre-commit) |
 | `@commitlint/cli` + `config-conventional` | Commit message validation |
+| `emulate` | Local API emulator for Vercel/GitHub (integration tests) |
+| `@octokit/rest` | Direct Octokit client for integration tests |
+| `yaml` | YAML parser for emulate.dev seed config |
 
 ## CI/CD
 
