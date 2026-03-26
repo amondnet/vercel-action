@@ -94,6 +94,7 @@ export const config: VercelConfig = {
 
 ```json
 {
+  "public": false,
   "git": {
     "deploymentEnabled": false
   }

@@ -6,20 +6,19 @@ export const config: VercelConfig = {
     deploymentEnabled: false,
   },
   headers: [
+    routes.header('/(.*)', [
+      { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+    ]),
+    routes.header('/(.*).html', [
+      { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+    ]),
     routes.cacheControl(
       '/(assets/.+|amcharts/.+|.+\\.css|.+\\.js|.+\\.eot|.+\\.svg|.+\\.ttf|.+\\.woff|.+\\.gif|.+\\.png|.+\\.jpg)',
       { maxAge: '1 year', immutable: true },
     ),
-    routes.header('/(.*).html', [
-      { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-    ]),
-    routes.header('/(.*)', [
-      { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-    ]),
   ],
   rewrites: [
-    routes.rewrite('/robots.txt', '/robots.txt'),
-    routes.rewrite('/favicon.ico', '/favicon.txt'),
+    routes.rewrite('/favicon.ico', '/favicon.ico'),
     routes.rewrite('/(.*)', '/index.html'),
   ],
 };
