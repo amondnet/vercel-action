@@ -1,0 +1,29 @@
+src/__integration__/smoke.test.ts
+  a14340154669a3d4 18,22-25
+src/__integration__/github-deployments.test.ts
+  a14340154669a3d4 1-142
+src/__integration__/vercel-deployments.test.ts
+  a14340154669a3d4 65-66
+src/__integration__/global-setup.ts
+  a14340154669a3d4 21,25-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "3e10052553bd7f616e77cc9c82de23b0b3105268",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 173,
+      "total_deletions": 26,
+      "accepted_lines": 161,
+      "overriden_lines": 0
+    }
+  }
+}
