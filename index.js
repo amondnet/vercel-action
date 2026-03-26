@@ -100,13 +100,22 @@ if (githubToken) {
 async function setEnv() {
   core.info('set environment for vercel cli')
   core.exportVariable('VERCEL_TELEMETRY_DISABLED', '1')
-  if (vercelOrgId) {
+  if (vercelOrgId && vercelProjectId) {
+    core.info('set env variable : VERCEL_ORG_ID')
+    core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
+    core.info('set env variable : VERCEL_PROJECT_ID')
+    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
+  }
+  else if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
   }
-  if (vercelProjectId) {
-    core.info('set env variable : VERCEL_PROJECT_ID')
-    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
+  else if (vercelProjectId) {
+    core.warning(
+      'vercel-project-id was provided without vercel-org-id. '
+      + 'Vercel CLI v41+ requires both to be set together. '
+      + 'Skipping VERCEL_PROJECT_ID to avoid deployment failure.',
+    )
   }
 }
 
@@ -216,6 +225,7 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
         + 'Retrying without VERCEL_ORG_ID (VERCEL_PROJECT_ID is still set).',
       )
       delete process.env.VERCEL_ORG_ID
+      delete process.env.VERCEL_PROJECT_ID
 
       const originalOutput = myOutput
       const originalError = myError
