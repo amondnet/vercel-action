@@ -5,7 +5,7 @@ export const config = {
   },
   functions: {
     'api/index.js': {
-      includeFiles: '../_static/**',
+      includeFiles: '_static/**',
     },
   },
   rewrites: [
