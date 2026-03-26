@@ -431,6 +431,7 @@ async function createCommentOnPullRequest(
 async function aliasDomainsToDeployment(deploymentUrl) {
   if (!deploymentUrl) {
     core.error('deployment url is null')
+    return
   }
 
   const promises = aliasDomains.map(domain =>
@@ -443,10 +444,14 @@ async function aliasDomainsToDeployment(deploymentUrl) {
         }
         args.push('alias', deploymentUrl, domain)
 
+        let myOutput = ''
         let myError = ''
         const exitCode = await exec.exec('npx', args, {
           ignoreReturnCode: true,
           listeners: {
+            stdout: (data) => {
+              myOutput += data.toString()
+            },
             stderr: (data) => {
               myError += data.toString()
             },
@@ -454,19 +459,32 @@ async function aliasDomainsToDeployment(deploymentUrl) {
         })
 
         if (exitCode !== 0) {
-          if (myError.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+          const combinedOutput = myOutput + myError
+          if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
             core.warning(
               'Vercel CLI rejected the scope for alias command. '
               + 'Retrying without --scope.',
             )
             const retryArgs = [vercelBin, '-t', vercelToken, 'alias', deploymentUrl, domain]
-            const retryExitCode = await exec.exec('npx', retryArgs)
+            let retryError = ''
+            const retryExitCode = await exec.exec('npx', retryArgs, {
+              ignoreReturnCode: true,
+              listeners: {
+                stderr: (data) => {
+                  retryError += data.toString()
+                },
+              },
+            })
             if (retryExitCode !== 0) {
-              throw new Error(`Alias command failed for domain ${domain}`)
+              throw new Error(
+                `Alias command failed for domain ${domain} with exit code ${retryExitCode}: ${retryError}`,
+              )
             }
             return
           }
-          throw new Error(`Alias command failed for domain ${domain} with exit code ${exitCode}`)
+          throw new Error(
+            `Alias command failed for domain ${domain} with exit code ${exitCode}: ${myError}`,
+          )
         }
       },
       2,
