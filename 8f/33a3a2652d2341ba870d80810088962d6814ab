@@ -1,0 +1,31 @@
+.please/docs/tracks/active/emulate-integration-test-20260326/plan.md
+  a14340154669a3d4 90,98
+src/__integration__/global-setup.ts
+  a14340154669a3d4 36
+src/__integration__/github-pr-comments.test.ts
+  a14340154669a3d4 1-98
+src/__integration__/helpers.ts
+  a14340154669a3d4 1,23-25
+src/__integration__/github-commit-comments.test.ts
+  a14340154669a3d4 1-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "8f33a3a2652d2341ba870d80810088962d6814ab",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 300,
+      "total_deletions": 88,
+      "accepted_lines": 219,
+      "overriden_lines": 0
+    }
+  }
+}
