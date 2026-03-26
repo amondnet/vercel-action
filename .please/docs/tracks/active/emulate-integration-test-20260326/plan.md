@@ -77,7 +77,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
   - **Files**: `src/__integration__/vercel-deployments.test.ts`
   - **Verify**: Deployment lifecycle endpoints return expected shapes via SDK
 
-- [ ] T-5: Test domain and alias management via Vercel SDK
+- [x] T-5: Test domain and alias management via Vercel SDK
   - `vercel.projects.addProjectDomain()` — add domain to project
   - `vercel.projects.getProjectDomains()` — list project domains
   - `vercel.projects.verifyProjectDomain()` — verify domain
