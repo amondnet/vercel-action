@@ -69,7 +69,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Phase 2: Vercel API Integration Tests
 
-- [ ] T-4: Test deployment creation and retrieval via Vercel SDK
+- [x] T-4: Test deployment creation and retrieval via Vercel SDK
   - Use `@vercel/sdk` with `serverURL: 'http://localhost:4000'`
   - `vercel.deployments.createDeployment()` — create deployment, verify response structure
   - `vercel.deployments.getDeployment()` — retrieve by ID, verify URL and status fields
