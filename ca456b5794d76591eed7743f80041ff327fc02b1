@@ -1,0 +1,31 @@
+example/express-basic-auth/vercel.ts
+  9079ae5fb7f29fc2 1-11
+README.md
+  9079ae5fb7f29fc2 72,74,76,78-93,97-98,102-104,119,121,123-131,133,137,141
+example/static/vercel.ts
+  9079ae5fb7f29fc2 1-5
+example/nextjs/vercel.ts
+  9079ae5fb7f29fc2 1-8
+example/angular/vercel.ts
+  9079ae5fb7f29fc2 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "ca456b5794d76591eed7743f80041ff327fc02b1",
+  "prompts": {
+    "9079ae5fb7f29fc2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "43190cd5-aa82-4747-b151-980521e0668f",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 90,
+      "total_deletions": 17,
+      "accepted_lines": 90,
+      "overriden_lines": 0
+    }
+  }
+}
