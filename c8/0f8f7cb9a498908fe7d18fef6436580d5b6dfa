@@ -1,0 +1,39 @@
+src/utils.ts
+  fa6a55fe93b0fd74 58-60
+src/__tests__/index.test.ts
+  fa6a55fe93b0fd74 12
+.please/memory/session-summary.md
+  fa6a55fe93b0fd74 18
+src/index.ts
+  fa6a55fe93b0fd74 39,114
+src/github-comments.ts
+  fa6a55fe93b0fd74 27,36
+src/config.ts
+  fa6a55fe93b0fd74 27
+src/__tests__/config.test.ts
+  fa6a55fe93b0fd74 25,80
+package.json
+  fa6a55fe93b0fd74 53
+src/vercel.ts
+  fa6a55fe93b0fd74 71-72,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "c80f8f7cb9a498908fe7d18fef6436580d5b6dfa",
+  "prompts": {
+    "fa6a55fe93b0fd74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0360db59-749f-4c73-832b-7a9cbdc23959",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 21,
+      "accepted_lines": 16,
+      "overriden_lines": 0
+    }
+  }
+}
