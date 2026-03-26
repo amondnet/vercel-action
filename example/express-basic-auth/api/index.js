@@ -11,6 +11,6 @@ app.use(
     challenge: true
   })
 );
-app.use(express.static(__dirname + '/_static'));
+app.use(express.static(__dirname + '/../_static'));
 
 app.listen(4444, () => console.log('Listening on port 4444...'));
