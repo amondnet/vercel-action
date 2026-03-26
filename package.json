@@ -42,6 +42,7 @@
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.0.3",
     "@actions/github": "^6.0.0",
+    "@actions/http-client": "^4.0.0",
     "@octokit/webhooks": "latest",
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",

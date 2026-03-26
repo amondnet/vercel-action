@@ -1,11 +1,11 @@
-import type { ActionConfig, DeploymentContext, GitHubContext, OctokitClient, PullRequestPayload, ReleasePayload } from './types'
+import type { ActionConfig, DeploymentContext, GitHubContext, OctokitClient, PullRequestPayload, ReleasePayload, VercelClient } from './types'
 import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
 import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
 import { isPullRequestType } from './utils'
-import { aliasDomainsToDeployment, vercelDeploy, vercelInspect } from './vercel'
+import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspect } from './vercel'
 
 const { context } = github
 
@@ -132,6 +132,7 @@ async function getDeploymentContext(
 }
 
 async function handleDeploymentOutputs(
+  vercel: VercelClient,
   config: ActionConfig,
   deploymentUrl: string,
 ): Promise<string | null> {
@@ -149,7 +150,7 @@ async function handleDeploymentOutputs(
     core.warning('Deployment completed but no preview URL was returned')
   }
 
-  const deploymentName = config.vercelProjectName || await vercelInspect(config, deploymentUrl)
+  const deploymentName = config.vercelProjectName || await vercelInspect(vercel, deploymentUrl)
   if (deploymentName) {
     core.info('set preview-name output')
     core.setOutput('preview-name', deploymentName)
@@ -161,14 +162,14 @@ async function handleDeploymentOutputs(
   return deploymentName
 }
 
-async function handleAliasing(config: ActionConfig, deploymentUrl: string): Promise<void> {
+async function handleAliasing(vercel: VercelClient, config: ActionConfig, deploymentUrl: string): Promise<void> {
   if (config.aliasDomains.length === 0) {
     return
   }
 
   core.info('alias domains to this deployment')
   try {
-    await aliasDomainsToDeployment(config, deploymentUrl)
+    await aliasDomainsToDeployment(vercel, config, deploymentUrl)
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -217,11 +218,12 @@ async function run(): Promise<void> {
   const deploymentContext = await getDeploymentContext(octokit)
   const { sha } = deploymentContext
 
-  const deploymentUrl = await vercelDeploy(config, deploymentContext)
+  const vercelClient = createVercelClient(config)
+  const deploymentUrl = await vercelDeploy(vercelClient, config, deploymentContext)
 
-  const deploymentName = await handleDeploymentOutputs(config, deploymentUrl)
+  const deploymentName = await handleDeploymentOutputs(vercelClient, config, deploymentUrl)
 
-  await handleAliasing(config, deploymentUrl)
+  await handleAliasing(vercelClient, config, deploymentUrl)
 
   if (config.githubComment && octokit) {
     const ctx = buildGitHubContext()

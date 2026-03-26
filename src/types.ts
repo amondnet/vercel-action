@@ -41,6 +41,12 @@ export interface GitHubContext {
   issueNumber: number
 }
 
+export interface VercelClient {
+  deploy: (_config: ActionConfig, _deployContext: DeploymentContext) => Promise<string>
+  inspect: (_deploymentUrl: string) => Promise<string | null>
+  assignAlias: (_deploymentUrl: string, _domain: string) => Promise<void>
+}
+
 export interface ActionConfig {
   githubToken: string
   githubComment: boolean | string
