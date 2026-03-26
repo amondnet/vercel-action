@@ -1,0 +1,25 @@
+src/__integration__/global-setup.ts
+  a14340154669a3d4 7-9,24,31
+src/__integration__/vercel-api.test.ts
+  a14340154669a3d4 64-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "e2949e29c91b362d8b49b2ebea267018e5b914ce",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 10,
+      "total_deletions": 15,
+      "accepted_lines": 10,
+      "overriden_lines": 0
+    }
+  }
+}
