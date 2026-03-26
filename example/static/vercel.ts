@@ -1,6 +1,4 @@
-import type { VercelConfig } from '@vercel/config/v1';
-
-export const config: VercelConfig = {
+export const config = {
   public: false,
   git: {
     deploymentEnabled: false,

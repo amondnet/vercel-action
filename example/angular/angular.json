@@ -22,7 +22,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/now.json"
+              "src/vercel.json"
             ],
             "styles": [
               "src/styles.css"

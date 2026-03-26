@@ -1,6 +1,4 @@
-import { routes, type VercelConfig } from '@vercel/config/v1';
-
-export const config: VercelConfig = {
+export const config = {
   public: false,
   git: {
     deploymentEnabled: false,
@@ -10,5 +8,10 @@ export const config: VercelConfig = {
       includeFiles: '_static/**/*.js',
     },
   },
-  rewrites: [routes.rewrite('/(.*)', '/index.js')],
+  rewrites: [
+    {
+      source: '/(.*)',
+      destination: '/index.js',
+    },
+  ],
 };
