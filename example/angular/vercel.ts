@@ -18,6 +18,7 @@ export const config: VercelConfig = {
     ),
   ],
   rewrites: [
+    routes.rewrite('/robots.txt', '/robots.txt'),
     routes.rewrite('/favicon.ico', '/favicon.ico'),
     routes.rewrite('/(.*)', '/index.html'),
   ],
