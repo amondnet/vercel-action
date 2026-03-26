@@ -59687,10 +59687,10 @@ async function setEnv() {
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
-    if (vercelProjectId) {
-      core.info('set env variable : VERCEL_PROJECT_ID')
-      core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
-    }
+  }
+  if (vercelProjectId) {
+    core.info('set env variable : VERCEL_PROJECT_ID')
+    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
   }
 }
 
@@ -59803,10 +59803,18 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
   if (exitCode !== 0) {
     const combinedOutput = myOutput + myError
     if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+      if (!vercelProjectId) {
+        throw new Error(
+          'Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
+          + 'but no vercel-project-id was provided to use as a fallback. '
+          + 'Either remove vercel-org-id or add vercel-project-id to your workflow.',
+        )
+      }
       core.warning(
         'Vercel CLI rejected the org ID as a personal account scope. '
         + 'Retrying without VERCEL_ORG_ID using --project flag instead.',
       )
+      delete process.env.VERCEL_ORG_ID
       core.exportVariable('VERCEL_ORG_ID', '')
 
       myOutput = ''
