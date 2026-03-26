@@ -465,6 +465,8 @@ async function aliasDomainsToDeployment(deploymentUrl) {
               'Vercel CLI rejected the scope for alias command. '
               + 'Retrying without --scope.',
             )
+            delete process.env.VERCEL_ORG_ID
+            delete process.env.VERCEL_PROJECT_ID
             const retryArgs = [vercelBin, '-t', vercelToken, 'alias', deploymentUrl, domain]
             let retryError = ''
             let retryOutput = ''
