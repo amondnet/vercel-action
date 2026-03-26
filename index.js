@@ -67,6 +67,7 @@ function getVercelBin() {
 }
 
 const vercelToken = core.getInput('vercel-token', { required: true })
+core.setSecret(vercelToken)
 const vercelArgs = core.getInput('vercel-args')
 const vercelOrgId = core.getInput('vercel-org-id')
 const vercelProjectId = core.getInput('vercel-project-id')
@@ -160,24 +161,13 @@ function buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo) 
     ...addVercelMetadata('githubRepo', context.repo.repo, providedArgs),
     ...addVercelMetadata('githubCommitOrg', commitOrg, providedArgs),
     ...addVercelMetadata('githubCommitRepo', commitRepo, providedArgs),
-    ...addVercelMetadata('githubCommitMessage', `"${commit}"`, providedArgs),
+    ...addVercelMetadata('githubCommitMessage', `"${commit.replace(/[\r\n]+/g, ' ').replace(/"/g, '')}"`, providedArgs),
     ...addVercelMetadata(
       'githubCommitRef',
       ref.replace('refs/heads/', ''),
       providedArgs,
     ),
   ]
-}
-
-function appendProjectArgs(args, providedArgs) {
-  const hasProjectArg = providedArgs.some(
-    arg => arg === '--project' || arg.startsWith('--project='),
-  )
-
-  if (!hasProjectArg && vercelProjectId) {
-    core.info('using --project flag (personal account fallback)')
-    args.push('--project', vercelProjectId)
-  }
 }
 
 async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
@@ -204,10 +194,6 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
 
   const args = buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo)
 
-  if (vercelProjectId && !vercelOrgId) {
-    appendProjectArgs(args, providedArgs)
-  }
-
   if (vercelScope) {
     core.info('using scope')
     args.push('--scope', vercelScope)
@@ -227,18 +213,23 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
       }
       core.warning(
         'Vercel CLI rejected the org ID as a personal account scope. '
-        + 'Retrying without VERCEL_ORG_ID using --project flag instead.',
+        + 'Retrying without VERCEL_ORG_ID (VERCEL_PROJECT_ID is still set).',
       )
-      core.exportVariable('VERCEL_ORG_ID', '')
       delete process.env.VERCEL_ORG_ID
 
+      const originalOutput = myOutput
+      const originalError = myError
       myOutput = ''
       myError = ''
       const retryArgs = buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo)
-      appendProjectArgs(retryArgs, providedArgs)
       // Don't re-add --scope on retry — it may have caused the personal account error
 
       exitCode = await exec.exec('npx', [vercelBin, ...retryArgs], options)
+
+      if (exitCode !== 0) {
+        core.error(`Original attempt output:\n${originalOutput}`)
+        core.error(`Original attempt errors:\n${originalError}`)
+      }
     }
 
     if (exitCode !== 0) {
