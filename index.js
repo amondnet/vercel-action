@@ -222,7 +222,7 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
       }
       core.warning(
         'Vercel CLI rejected the org ID as a personal account scope. '
-        + 'Retrying without VERCEL_ORG_ID (VERCEL_PROJECT_ID is still set).',
+        + 'Retrying without VERCEL_ORG_ID and VERCEL_PROJECT_ID.',
       )
       delete process.env.VERCEL_ORG_ID
       delete process.env.VERCEL_PROJECT_ID
