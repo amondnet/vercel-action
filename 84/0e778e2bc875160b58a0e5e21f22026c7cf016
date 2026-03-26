@@ -1,0 +1,25 @@
+src/__integration__/github-pr-comments.test.ts
+  a14340154669a3d4 1,3,6-22,24,31,35-40,43,46-53,62,64,67,70-77,79,82-83,86-91,94,97,101,103,105-114,121
+src/__integration__/github-commit-comments.test.ts
+  a14340154669a3d4 1,3,6-22,24,32,39,45,52-57,60,63-70,79,81,84,87-94,103-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "840e778e2bc875160b58a0e5e21f22026c7cf016",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 125,
+      "total_deletions": 105,
+      "accepted_lines": 125,
+      "overriden_lines": 0
+    }
+  }
+}
