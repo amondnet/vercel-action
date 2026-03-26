@@ -1,0 +1,27 @@
+src/index.ts
+  fa6a55fe93b0fd74 208,210
+src/__tests__/vercel.test.ts
+  fa6a55fe93b0fd74 1,41-51,70,88,104,112,124,144,159,176,198,219,231,243
+src/vercel.ts
+  fa6a55fe93b0fd74 1,26,48,71,86,88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "553301b04d475c7aef00402514535233e44c7d64",
+  "prompts": {
+    "fa6a55fe93b0fd74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0360db59-749f-4c73-832b-7a9cbdc23959",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 33,
+      "total_deletions": 65,
+      "accepted_lines": 32,
+      "overriden_lines": 0
+    }
+  }
+}
