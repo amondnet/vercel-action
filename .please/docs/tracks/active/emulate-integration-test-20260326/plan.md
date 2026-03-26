@@ -43,7 +43,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Phase 1: Infrastructure Setup
 
-- [ ] T-1: Install dependencies and create Vitest globalSetup
+- [x] T-1: Install dependencies and create Vitest globalSetup
   - `pnpm add -D emulate @vercel/sdk`
   - Create `src/__integration__/global-setup.ts` using emulate's programmatic API (`createEmulator`)
   - Start Vercel (port 4000) and GitHub (port 4001) services in `setup()`
@@ -51,7 +51,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
   - **Files**: `src/__integration__/global-setup.ts`, `package.json`
   - **Verify**: `pnpm test:integration` starts emulate.dev and exits cleanly
 
-- [ ] T-2: Configure Vitest Projects for unit and integration test separation
+- [x] T-2: Configure Vitest Projects for unit and integration test separation
   - Refactor `vitest.config.ts` to use [Vitest Projects](https://vitest.dev/guide/projects)
   - Define `unit` project: `include: ['src/__tests__/**/*.test.ts']`, existing coverage thresholds
   - Define `integration` project: `include: ['src/__integration__/**/*.test.ts']`, `globalSetup: 'src/__integration__/global-setup.ts'`, extended timeouts
