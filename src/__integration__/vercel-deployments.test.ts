@@ -62,8 +62,8 @@ describe('vercel deployments API', () => {
     expect(data.deployments).toBeDefined()
     expect(data.deployments.length).toBeGreaterThan(0)
 
-    const deployment = data.deployments[0]
-    expect(deployment.name).toBe(TEST_PROJECT)
+    const deployment = data.deployments.find((d: { name: string }) => d.name === TEST_PROJECT)
+    expect(deployment).toBeDefined()
     expect(deployment.url).toBeDefined()
   })
 })

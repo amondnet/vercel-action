@@ -15,11 +15,13 @@ describe('emulate.dev smoke test', () => {
     const res = await fetch(`${process.env.EMULATE_VERCEL_URL}/v2/user`, {
       headers: { Authorization: 'Bearer test-token' },
     })
-    expect(res.status).toBeLessThan(500)
+    expect(res.ok).toBe(true)
   })
 
   it('should reach GitHub emulator', async () => {
-    const res = await fetch(`${process.env.EMULATE_GITHUB_URL}/user`)
-    expect(res.status).toBeLessThan(500)
+    const res = await fetch(`${process.env.EMULATE_GITHUB_URL}/user`, {
+      headers: { Authorization: 'Bearer test-token' },
+    })
+    expect(res.ok).toBe(true)
   })
 })

@@ -4,9 +4,6 @@ import { resolve } from 'node:path'
 import { createEmulator } from 'emulate'
 import { parse } from 'yaml'
 
-const VERCEL_PORT = 4000
-const GITHUB_PORT = 4001
-
 let vercelEmulator: Emulator
 let githubEmulator: Emulator
 
@@ -21,15 +18,21 @@ export async function setup(): Promise<void> {
 
   vercelEmulator = await createEmulator({
     service: 'vercel',
-    port: VERCEL_PORT,
+    port: 4000,
     seed,
   })
 
-  githubEmulator = await createEmulator({
-    service: 'github',
-    port: GITHUB_PORT,
-    seed,
-  })
+  try {
+    githubEmulator = await createEmulator({
+      service: 'github',
+      port: 4001,
+      seed,
+    })
+  }
+  catch (error) {
+    await vercelEmulator.close()
+    throw error
+  }
 
   process.env.EMULATE_VERCEL_URL = vercelEmulator.url
   process.env.EMULATE_GITHUB_URL = githubEmulator.url
