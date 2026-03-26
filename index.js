@@ -432,15 +432,43 @@ async function aliasDomainsToDeployment(deploymentUrl) {
   if (!deploymentUrl) {
     core.error('deployment url is null')
   }
-  const args = ['-t', vercelToken]
-  if (vercelScope) {
-    core.info('using scope')
-    args.push('--scope', vercelScope)
-  }
+
   const promises = aliasDomains.map(domain =>
     retry(
-      () =>
-        exec.exec('npx', [vercelBin, ...args, 'alias', deploymentUrl, domain]),
+      async () => {
+        const args = [vercelBin, '-t', vercelToken]
+        if (vercelScope) {
+          core.info('using scope')
+          args.push('--scope', vercelScope)
+        }
+        args.push('alias', deploymentUrl, domain)
+
+        let myError = ''
+        const exitCode = await exec.exec('npx', args, {
+          ignoreReturnCode: true,
+          listeners: {
+            stderr: (data) => {
+              myError += data.toString()
+            },
+          },
+        })
+
+        if (exitCode !== 0) {
+          if (myError.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+            core.warning(
+              'Vercel CLI rejected the scope for alias command. '
+              + 'Retrying without --scope.',
+            )
+            const retryArgs = [vercelBin, '-t', vercelToken, 'alias', deploymentUrl, domain]
+            const retryExitCode = await exec.exec('npx', retryArgs)
+            if (retryExitCode !== 0) {
+              throw new Error(`Alias command failed for domain ${domain}`)
+            }
+            return
+          }
+          throw new Error(`Alias command failed for domain ${domain} with exit code ${exitCode}`)
+        }
+      },
       2,
     ),
   )
