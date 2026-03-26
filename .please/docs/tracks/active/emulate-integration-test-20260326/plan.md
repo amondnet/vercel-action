@@ -87,7 +87,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Phase 3: GitHub API Integration Tests
 
-- [ ] T-6: Test PR comment creation and update
+- [x] T-6: Test PR comment creation and update
   - Create Octokit client with `baseUrl: http://localhost:4001`
   - Test `issues.createComment` → verify comment appears in `issues.listComments`
   - Test `issues.updateComment` → verify comment body is updated
@@ -95,7 +95,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
   - **Files**: `src/__integration__/github-pr-comments.test.ts`
   - **Verify**: Full PR comment create/find/update cycle works against emulated API
 
-- [ ] T-7: Test commit comment creation and update
+- [x] T-7: Test commit comment creation and update
   - Test `repos.createCommitComment` → verify in `repos.listCommentsForCommit`
   - Test `repos.updateCommitComment` → verify body update
   - Test the find-previous-comment pattern for push events

@@ -1,4 +1,4 @@
-import * as github from '@actions/github'
+import { Octokit } from '@octokit/rest'
 
 export const VERCEL_TOKEN = 'test-token'
 export const GITHUB_TOKEN = 'test-token'
@@ -20,10 +20,9 @@ export function vercelFetch(path: string, options: RequestInit = {}) {
   })
 }
 
-export function createOctokitClient() {
-  return github.getOctokit(GITHUB_TOKEN, {
+export function createOctokitClient(): Octokit {
+  return new Octokit({
+    auth: GITHUB_TOKEN,
     baseUrl: process.env.EMULATE_GITHUB_URL,
   })
 }
-
-export type TestOctokit = ReturnType<typeof createOctokitClient>

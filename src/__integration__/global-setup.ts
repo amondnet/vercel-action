@@ -33,6 +33,7 @@ export async function setup(): Promise<void> {
 
   process.env.EMULATE_VERCEL_URL = vercelEmulator.url
   process.env.EMULATE_GITHUB_URL = githubEmulator.url
+  process.env.GITHUB_API_URL = githubEmulator.url
 }
 
 export async function teardown(): Promise<void> {
