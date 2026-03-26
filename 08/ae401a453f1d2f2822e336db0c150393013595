@@ -1,0 +1,37 @@
+.github/workflows/ci.yml
+  a14340154669a3d4 85
+src/__integration__/global-setup.ts
+  a14340154669a3d4 7-8,16-27,33,40
+src/__integration__/vercel-api.test.ts
+  a14340154669a3d4 2,23-24,26-36,64,76
+.please/docs/tracks/active/emulate-integration-test-20260326/spec.md
+  a14340154669a3d4 32
+src/__integration__/github-commit-comments.test.ts
+  a14340154669a3d4 87-116,119,121-126,129,131,139,148
+src/__integration__/helpers.ts
+  a14340154669a3d4 12
+src/__integration__/github-pr-comments.test.ts
+  a14340154669a3d4 70-83,86-93,96,106
+.please/docs/tracks/active/emulate-integration-test-20260326/plan.md
+  a14340154669a3d4 11,34,38,47,72-77,79-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "08ae401a453f1d2f2822e336db0c150393013595",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 122,
+      "total_deletions": 44,
+      "accepted_lines": 122,
+      "overriden_lines": 0
+    }
+  }
+}
