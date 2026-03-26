@@ -1,4 +1,4 @@
-import type { ActionConfig } from './types'
+import type { ActionConfig, DeploymentContext } from './types'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as github from '@actions/github'
@@ -23,11 +23,7 @@ function extractDeploymentUrl(output: string): string {
 
 export async function vercelDeploy(
   config: ActionConfig,
-  ref: string,
-  commit: string,
-  sha: string,
-  commitOrg: string,
-  commitRepo: string,
+  deployContext: DeploymentContext,
 ): Promise<string> {
   let output = ''
   let errorOutput = ''
@@ -49,7 +45,7 @@ export async function vercelDeploy(
     options.cwd = config.workingDirectory
   }
 
-  const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo)
+  const args = buildDeployArgs(config, deployContext)
 
   let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options)
 
@@ -72,7 +68,7 @@ export async function vercelDeploy(
 
       output = ''
       errorOutput = ''
-      const retryArgs = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo)
+      const retryArgs = buildDeployArgs(config, deployContext)
 
       exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)
     }
@@ -87,12 +83,9 @@ export async function vercelDeploy(
 
 function buildDeployArgs(
   config: ActionConfig,
-  ref: string,
-  commit: string,
-  sha: string,
-  commitOrg: string,
-  commitRepo: string,
+  deployContext: DeploymentContext,
 ): string[] {
+  const { ref, commit, sha, commitOrg, commitRepo } = deployContext
   const { context } = github
   const providedArgs = parseArgs(config.vercelArgs)
 

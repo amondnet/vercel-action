@@ -205,9 +205,9 @@ async function run(): Promise<void> {
   setVercelEnv(config)
 
   const deploymentContext = await getDeploymentContext(octokit)
-  const { ref, sha, commit, commitOrg, commitRepo } = deploymentContext
+  const { sha } = deploymentContext
 
-  const deploymentUrl = await vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo)
+  const deploymentUrl = await vercelDeploy(config, deploymentContext)
 
   const deploymentName = await handleDeploymentOutputs(config, deploymentUrl)
 

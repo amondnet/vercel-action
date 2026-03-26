@@ -1,4 +1,4 @@
-import type { ActionConfig } from '../types'
+import type { ActionConfig, DeploymentContext } from '../types'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -38,6 +38,17 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   }
 }
 
+function createDeployContext(overrides: Partial<DeploymentContext> = {}): DeploymentContext {
+  return {
+    ref: 'refs/heads/main',
+    sha: 'abc123',
+    commit: 'test commit',
+    commitOrg: 'test-owner',
+    commitRepo: 'test-repo',
+    ...overrides,
+  }
+}
+
 describe('vercelDeploy', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -56,11 +67,7 @@ describe('vercelDeploy', () => {
 
     const url = await vercelDeploy(
       createConfig(),
-      'refs/heads/main',
-      'test commit',
-      'abc123',
-      'test-owner',
-      'test-repo',
+      createDeployContext(),
     )
 
     expect(url).toBe('https://my-app-abc123.vercel.app')
@@ -78,11 +85,7 @@ describe('vercelDeploy', () => {
 
     const url = await vercelDeploy(
       createConfig(),
-      'refs/heads/main',
-      'test commit',
-      'abc123',
-      'test-owner',
-      'test-repo',
+      createDeployContext(),
     )
 
     expect(url).toBe('https://my-app.vercel.app')
@@ -98,7 +101,7 @@ describe('vercelDeploy', () => {
     })
 
     await expect(
-      vercelDeploy(createConfig(), 'refs/heads/main', 'commit', 'sha', 'owner', 'repo'),
+      vercelDeploy(createConfig(), createDeployContext()),
     ).rejects.toThrow('Failed to extract deployment URL')
   })
 
@@ -106,7 +109,7 @@ describe('vercelDeploy', () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
     await expect(
-      vercelDeploy(createConfig(), 'refs/heads/main', 'commit', 'sha', 'owner', 'repo'),
+      vercelDeploy(createConfig(), createDeployContext()),
     ).rejects.toThrow('Failed to extract deployment URL')
   })
 
@@ -118,11 +121,7 @@ describe('vercelDeploy', () => {
 
     await vercelDeploy(
       createConfig({ vercelToken: 'my-secret-token', vercelBin: 'vercel@30' }),
-      'refs/heads/main',
-      'test commit',
-      'sha123',
-      'org',
-      'repo',
+      createDeployContext({ sha: 'sha123', commitOrg: 'org', commitRepo: 'repo' }),
     )
 
     const call = vi.mocked(exec.exec).mock.calls[0]
@@ -142,11 +141,7 @@ describe('vercelDeploy', () => {
 
     await vercelDeploy(
       createConfig({ workingDirectory: '/custom/dir' }),
-      'refs/heads/main',
-      'commit',
-      'sha',
-      'owner',
-      'repo',
+      createDeployContext(),
     )
 
     const options = vi.mocked(exec.exec).mock.calls[0][2]
@@ -161,11 +156,7 @@ describe('vercelDeploy', () => {
 
     await vercelDeploy(
       createConfig({ vercelScope: 'my-team' }),
-      'refs/heads/main',
-      'commit',
-      'sha',
-      'owner',
-      'repo',
+      createDeployContext(),
     )
 
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
@@ -182,11 +173,7 @@ describe('vercelDeploy', () => {
 
     await vercelDeploy(
       createConfig(),
-      'refs/heads/main',
-      'commit',
-      'sha',
-      'owner',
-      'repo',
+      createDeployContext(),
     )
 
     expect(core.info).toHaveBeenCalledWith('warning message')
@@ -208,11 +195,7 @@ describe('vercelDeploy', () => {
 
     const url = await vercelDeploy(
       createConfig({ vercelProjectId: 'proj-123' }),
-      'refs/heads/main',
-      'commit',
-      'sha',
-      'owner',
-      'repo',
+      createDeployContext(),
     )
 
     expect(url).toBe('https://retry-deploy.vercel.app')
@@ -233,11 +216,7 @@ describe('vercelDeploy', () => {
     await expect(
       vercelDeploy(
         createConfig({ vercelProjectId: '' }),
-        'refs/heads/main',
-        'commit',
-        'sha',
-        'owner',
-        'repo',
+        createDeployContext(),
       ),
     ).rejects.toThrow('no vercel-project-id was provided')
   })
@@ -249,7 +228,7 @@ describe('vercelDeploy', () => {
     })
 
     await expect(
-      vercelDeploy(createConfig(), 'refs/heads/main', 'commit', 'sha', 'owner', 'repo'),
+      vercelDeploy(createConfig(), createDeployContext()),
     ).rejects.toThrow('failed with exit code 1')
   })
 
@@ -261,11 +240,7 @@ describe('vercelDeploy', () => {
 
     await vercelDeploy(
       createConfig(),
-      'refs/heads/main',
-      'line1\nline2\r\n"quoted"',
-      'sha',
-      'owner',
-      'repo',
+      createDeployContext({ commit: 'line1\nline2\r\n"quoted"' }),
     )
 
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]

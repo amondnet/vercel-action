@@ -32099,8 +32099,8 @@ async function run() {
     const octokit = (0, config_1.createOctokitClient)(config.githubToken);
     (0, config_1.setVercelEnv)(config);
     const deploymentContext = await getDeploymentContext(octokit);
-    const { ref, sha, commit, commitOrg, commitRepo } = deploymentContext;
-    const deploymentUrl = await (0, vercel_1.vercelDeploy)(config, ref, commit, sha, commitOrg, commitRepo);
+    const { sha } = deploymentContext;
+    const deploymentUrl = await (0, vercel_1.vercelDeploy)(config, deploymentContext);
     const deploymentName = await handleDeploymentOutputs(config, deploymentUrl);
     await handleAliasing(config, deploymentUrl);
     if (config.githubComment && octokit) {
@@ -32348,7 +32348,7 @@ function extractDeploymentUrl(output) {
     }
     return deploymentUrl;
 }
-async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
+async function vercelDeploy(config, deployContext) {
     let output = '';
     let errorOutput = '';
     const options = {
@@ -32367,7 +32367,7 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
     if (config.workingDirectory) {
         options.cwd = config.workingDirectory;
     }
-    const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
+    const args = buildDeployArgs(config, deployContext);
     let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options);
     if (exitCode !== 0) {
         const combinedOutput = output + errorOutput;
@@ -32383,7 +32383,7 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
             delete process.env.VERCEL_PROJECT_ID;
             output = '';
             errorOutput = '';
-            const retryArgs = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
+            const retryArgs = buildDeployArgs(config, deployContext);
             exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options);
         }
         if (exitCode !== 0) {
@@ -32392,7 +32392,8 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
     }
     return extractDeploymentUrl(output);
 }
-function buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo) {
+function buildDeployArgs(config, deployContext) {
+    const { ref, commit, sha, commitOrg, commitRepo } = deployContext;
     const { context } = github;
     const providedArgs = (0, utils_1.parseArgs)(config.vercelArgs);
     const args = [
