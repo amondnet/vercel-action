@@ -1,4 +1,7 @@
-import type { Emulator } from 'emulate'
+import type { Emulator, SeedConfig } from 'emulate'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { parse } from 'yaml'
 import { createEmulator } from 'emulate'
 
 const VERCEL_PORT = 4000
@@ -7,15 +10,25 @@ const GITHUB_PORT = 4001
 let vercelEmulator: Emulator
 let githubEmulator: Emulator
 
+function loadSeedConfig(): SeedConfig {
+  const configPath = resolve(process.cwd(), 'emulate.config.yaml')
+  const content = readFileSync(configPath, 'utf-8')
+  return parse(content) as SeedConfig
+}
+
 export async function setup(): Promise<void> {
+  const seed = loadSeedConfig()
+
   vercelEmulator = await createEmulator({
     service: 'vercel',
     port: VERCEL_PORT,
+    seed,
   })
 
   githubEmulator = await createEmulator({
     service: 'github',
     port: GITHUB_PORT,
+    seed,
   })
 
   process.env.EMULATE_VERCEL_URL = vercelEmulator.url

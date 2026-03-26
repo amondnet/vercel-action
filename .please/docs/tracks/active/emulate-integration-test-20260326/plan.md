@@ -60,7 +60,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
   - **Files**: `vitest.config.ts`, `package.json`
   - **Verify**: `pnpm test:integration` runs only integration tests, `pnpm test:unit` runs only unit tests
 
-- [ ] T-3: Create emulate.config.yaml seed data
+- [x] T-3: Create emulate.config.yaml seed data
   - Define tokens, Vercel users/teams/projects, GitHub users/repos
   - Seed data should match action's typical usage (org ID, project ID, repo owner/name)
   - Create shared test helpers (`src/__integration__/helpers.ts`) with Vercel SDK and Octokit client factories
