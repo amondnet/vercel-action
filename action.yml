@@ -65,7 +65,7 @@ outputs:
   preview-name:
     description: deployment preview name
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
 
 branding:
