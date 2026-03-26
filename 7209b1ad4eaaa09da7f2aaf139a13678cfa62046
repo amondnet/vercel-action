@@ -1,0 +1,23 @@
+.github/dependabot.yml
+  4b11c192a4d5746d 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "7209b1ad4eaaa09da7f2aaf139a13678cfa62046",
+  "prompts": {
+    "4b11c192a4d5746d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b978e1d-6a7e-4e0e-928b-4319ca23d7e2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
