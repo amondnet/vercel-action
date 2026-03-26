@@ -431,7 +431,7 @@ async function createCommentOnPullRequest(
 async function aliasDomainsToDeployment(deploymentUrl) {
   if (!deploymentUrl) {
     core.error('deployment url is null')
-    return
+    throw new Error('deployment url is null')
   }
 
   const promises = aliasDomains.map(domain =>
@@ -467,17 +467,23 @@ async function aliasDomainsToDeployment(deploymentUrl) {
             )
             const retryArgs = [vercelBin, '-t', vercelToken, 'alias', deploymentUrl, domain]
             let retryError = ''
+            let retryOutput = ''
             const retryExitCode = await exec.exec('npx', retryArgs, {
               ignoreReturnCode: true,
               listeners: {
                 stderr: (data) => {
                   retryError += data.toString()
                 },
+                stdout: (data) => {
+                  retryOutput += data.toString()
+                },
               },
             })
             if (retryExitCode !== 0) {
+              const retryStderr = retryError ? `, stderr: ${retryError.trim()}` : ''
+              const retryStdout = retryOutput ? `, stdout: ${retryOutput.trim()}` : ''
               throw new Error(
-                `Alias command failed for domain ${domain} with exit code ${retryExitCode}: ${retryError}`,
+                `Alias command failed for domain ${domain} with exit code ${retryExitCode}${retryStderr}${retryStdout}`,
               )
             }
             return
