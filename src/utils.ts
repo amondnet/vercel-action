@@ -55,8 +55,9 @@ export async function retry<T>(fn: () => Promise<T>, retries: number): Promise<T
         throw error
       }
       else {
-        core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1}`)
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
+        const delay = RETRY_DELAY_MS * (2 ** (retryCount - 1))
+        core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1} in ${delay}ms`)
+        await new Promise(resolve => setTimeout(resolve, delay))
         return attempt(retryCount + 1)
       }
     }

@@ -13,16 +13,6 @@ export interface PullRequestPayload {
       }
     }
   }
-  pull_request_target?: {
-    head: {
-      ref: string
-      sha: string
-      repo?: {
-        owner: { login: string }
-        name: string
-      }
-    }
-  }
 }
 
 export interface ReleasePayload {

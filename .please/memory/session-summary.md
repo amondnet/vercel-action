@@ -15,7 +15,7 @@ Migrate vercel-action from JavaScript to TypeScript with modern tooling:
 
 ## Constraints
 - GitHub Action must remain functional
-- Node 20 runtime requirement
+- Node 24 runtime requirement
 - ncc bundling for dist/
 
 ## Current Phase: Codebase Exploration

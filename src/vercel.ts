@@ -68,7 +68,8 @@ export async function vercelDeploy(
 
       output = ''
       errorOutput = ''
-      const retryArgs = buildDeployArgs(config, deployContext)
+      const retryConfig: ActionConfig = { ...config, vercelScope: undefined as unknown as string }
+      const retryArgs = buildDeployArgs(retryConfig, deployContext)
 
       exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)
     }
@@ -125,7 +126,7 @@ export async function vercelInspect(
       },
       stderr: (data: Buffer) => {
         errorOutput += data.toString()
-        core.warning(data.toString())
+        core.info(data.toString())
       },
     },
   }

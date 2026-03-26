@@ -22,7 +22,7 @@ vi.mock('@actions/github', () => ({
   getOctokit: vi.fn(() => ({})),
 }))
 
-vi.mock('../package.json', () => ({
+vi.mock('../../package.json', () => ({
   default: { dependencies: { vercel: '30.0.0' } },
 }))
 
@@ -77,7 +77,7 @@ describe('getActionConfig', () => {
     const { getActionConfig } = await import('../config')
     const config = getActionConfig()
 
-    expect(config.vercelBin).toBe('vercel@^50.0.0')
+    expect(config.vercelBin).toBe('vercel@30.0.0')
   })
 })
 

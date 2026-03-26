@@ -24,6 +24,7 @@ async function findCommentsForEvent(
     return octokit.rest.repos.listCommentsForCommit({
       ...context.repo,
       commit_sha: context.sha,
+      per_page: 100,
     })
   }
 
@@ -32,6 +33,7 @@ async function findCommentsForEvent(
     return octokit.rest.issues.listComments({
       ...context.repo,
       issue_number: context.issue.number,
+      per_page: 100,
     })
   }
 

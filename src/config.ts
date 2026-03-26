@@ -24,7 +24,7 @@ function parseAliasDomains(): string[] {
       let branch = slugify(context.ref.replace('refs/heads/', ''))
       if (isPullRequestType(context.eventName)) {
         const payload = context.payload as PullRequestPayload
-        const pr = payload.pull_request || payload.pull_request_target
+        const pr = payload.pull_request
         if (pr) {
           branch = slugify(pr.head.ref.replace('refs/heads/', ''))
           url = url.replace(PR_NUMBER_REGEXP, context.issue.number.toString())

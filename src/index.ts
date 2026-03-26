@@ -36,7 +36,7 @@ async function getDeploymentContextForPullRequest(
   commit: string,
 ): Promise<DeploymentContext | null> {
   const payload = context.payload as PullRequestPayload
-  const pr = payload.pull_request || payload.pull_request_target
+  const pr = payload.pull_request
 
   if (!pr) {
     return null
@@ -111,7 +111,7 @@ async function getDeploymentContext(
 
   if (context.eventName === 'push') {
     const pushPayload = context.payload
-    core.debug(`The head commit is: ${pushPayload.head_commit}`)
+    core.debug(`The head commit is: ${JSON.stringify(pushPayload.head_commit)}`)
     return baseContext
   }
 
