@@ -1,0 +1,31 @@
+.github/workflows/example-angular.yml
+  b2cc4c9c30aa1de2 20
+.github/workflows/check-dist.yml
+  b2cc4c9c30aa1de2 33
+.github/workflows/example-nextjs.yml
+  b2cc4c9c30aa1de2 23
+.github/workflows/ci.yml
+  b2cc4c9c30aa1de2 26,51,74,97
+.nvmrc
+  b2cc4c9c30aa1de2 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "e9387627d208bb9804c62edccf9bedb341b56e9a",
+  "prompts": {
+    "b2cc4c9c30aa1de2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "33a1c670-80a2-4193-a505-304a09e6437c",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": null,
+      "messages": [],
+      "total_additions": 13,
+      "total_deletions": 13,
+      "accepted_lines": 8,
+      "overriden_lines": 0
+    }
+  }
+}
