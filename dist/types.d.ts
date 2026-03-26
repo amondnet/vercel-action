@@ -13,18 +13,6 @@ export interface PullRequestPayload {
             };
         };
     };
-    pull_request_target?: {
-        head: {
-            ref: string;
-            sha: string;
-            repo?: {
-                owner: {
-                    login: string;
-                };
-                name: string;
-            };
-        };
-    };
 }
 export interface ReleasePayload {
     release?: {
@@ -42,6 +30,20 @@ export interface DeploymentContext {
     commitOrg: string;
     commitRepo: string;
 }
+export interface GitHubContext {
+    eventName: string;
+    sha: string;
+    repo: {
+        owner: string;
+        repo: string;
+    };
+    issueNumber: number;
+}
+export interface VercelClient {
+    deploy: (_config: ActionConfig, _deployContext: DeploymentContext) => Promise<string>;
+    inspect: (_deploymentUrl: string) => Promise<string | null>;
+    assignAlias: (_deploymentUrl: string, _domain: string) => Promise<void>;
+}
 export interface ActionConfig {
     githubToken: string;
     githubComment: boolean | string;
@@ -50,7 +52,7 @@ export interface ActionConfig {
     vercelArgs: string;
     vercelOrgId: string;
     vercelProjectId: string;
-    vercelScope: string;
+    vercelScope?: string;
     vercelProjectName: string;
     vercelBin: string;
     aliasDomains: string[];

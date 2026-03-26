@@ -31699,7 +31699,7 @@ function parseAliasDomains() {
         let branch = (0, utils_1.slugify)(context.ref.replace('refs/heads/', ''));
         if ((0, utils_1.isPullRequestType)(context.eventName)) {
             const payload = context.payload;
-            const pr = payload.pull_request || payload.pull_request_target;
+            const pr = payload.pull_request;
             if (pr) {
                 branch = (0, utils_1.slugify)(pr.head.ref.replace('refs/heads/', ''));
                 url = url.replace(PR_NUMBER_REGEXP, context.issue.number.toString());
@@ -31799,10 +31799,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCommentOnCommit = createCommentOnCommit;
 exports.createCommentOnPullRequest = createCommentOnPullRequest;
 const core = __importStar(__nccwpck_require__(1078));
-const github = __importStar(__nccwpck_require__(9848));
 const common_tags_1 = __nccwpck_require__(5752);
 const utils_1 = __nccwpck_require__(3924);
-const { context } = github;
 const DEFAULT_COMMENT_TEMPLATE = (0, common_tags_1.stripIndents) `
   ✅ Preview
   {{deploymentUrl}}
@@ -31810,29 +31808,31 @@ const DEFAULT_COMMENT_TEMPLATE = (0, common_tags_1.stripIndents) `
   Built with commit {{deploymentCommit}}.
   This pull request is being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)
 `;
-async function findCommentsForEvent(octokit) {
+async function findCommentsForEvent(octokit, ctx) {
     core.debug('find comments for event');
-    if (context.eventName === 'push') {
+    if (ctx.eventName === 'push') {
         core.debug('event is "commit", use "listCommentsForCommit"');
         return octokit.rest.repos.listCommentsForCommit({
-            ...context.repo,
-            commit_sha: context.sha,
+            ...ctx.repo,
+            commit_sha: ctx.sha,
+            per_page: 100,
         });
     }
-    if ((0, utils_1.isPullRequestType)(context.eventName)) {
-        core.debug(`event is "${context.eventName}", use "listComments"`);
+    if ((0, utils_1.isPullRequestType)(ctx.eventName)) {
+        core.debug(`event is "${ctx.eventName}", use "listComments"`);
         return octokit.rest.issues.listComments({
-            ...context.repo,
-            issue_number: context.issue.number,
+            ...ctx.repo,
+            issue_number: ctx.issueNumber,
+            per_page: 100,
         });
     }
-    core.warning(`Event type "${context.eventName}" is not supported for GitHub comments. `
+    core.warning(`Event type "${ctx.eventName}" is not supported for GitHub comments. `
         + 'Supported events: push, pull_request, pull_request_target');
     return { data: [] };
 }
-async function findPreviousComment(octokit, text) {
+async function findPreviousComment(octokit, ctx, text) {
     core.info('find comment');
-    const { data: comments } = await findCommentsForEvent(octokit);
+    const { data: comments } = await findCommentsForEvent(octokit, ctx);
     const vercelPreviewURLComment = comments.find(comment => comment.body?.startsWith(text));
     if (vercelPreviewURLComment) {
         core.info('previous comment found');
@@ -31841,24 +31841,24 @@ async function findPreviousComment(octokit, text) {
     core.info('previous comment not found');
     return null;
 }
-async function createCommentOnCommit(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnCommit(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName) {
     try {
-        const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+        const commentId = await findPreviousComment(octokit, ctx, (0, utils_1.buildCommentPrefix)(deploymentName));
         const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
         if (!commentBody) {
             return;
         }
         if (commentId) {
             await octokit.rest.repos.updateCommitComment({
-                ...context.repo,
+                ...ctx.repo,
                 comment_id: commentId,
                 body: commentBody,
             });
         }
         else {
             await octokit.rest.repos.createCommitComment({
-                ...context.repo,
-                commit_sha: context.sha,
+                ...ctx.repo,
+                commit_sha: ctx.sha,
                 body: commentBody,
             });
         }
@@ -31869,24 +31869,24 @@ async function createCommentOnCommit(octokit, config, deploymentCommit, deployme
             + 'Ensure the github-token has write permissions to the repository.');
     }
 }
-async function createCommentOnPullRequest(octokit, config, deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnPullRequest(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName) {
     try {
-        const commentId = await findPreviousComment(octokit, (0, utils_1.buildCommentPrefix)(deploymentName));
+        const commentId = await findPreviousComment(octokit, ctx, (0, utils_1.buildCommentPrefix)(deploymentName));
         const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
         if (!commentBody) {
             return;
         }
         if (commentId) {
             await octokit.rest.issues.updateComment({
-                ...context.repo,
+                ...ctx.repo,
                 comment_id: commentId,
                 body: commentBody,
             });
         }
         else {
             await octokit.rest.issues.createComment({
-                ...context.repo,
-                issue_number: context.issue.number,
+                ...ctx.repo,
+                issue_number: ctx.issueNumber,
                 body: commentBody,
             });
         }
@@ -31968,7 +31968,7 @@ function logContextDebug() {
 }
 async function getDeploymentContextForPullRequest(octokit, commit) {
     const payload = context.payload;
-    const pr = payload.pull_request || payload.pull_request_target;
+    const pr = payload.pull_request;
     if (!pr) {
         return null;
     }
@@ -32029,7 +32029,7 @@ async function getDeploymentContext(octokit) {
     };
     if (context.eventName === 'push') {
         const pushPayload = context.payload;
-        core.debug(`The head commit is: ${pushPayload.head_commit}`);
+        core.debug(`The head commit is: ${JSON.stringify(pushPayload.head_commit)}`);
         return baseContext;
     }
     if ((0, utils_1.isPullRequestType)(context.eventName)) {
@@ -32045,7 +32045,7 @@ async function getDeploymentContext(octokit) {
     }
     return baseContext;
 }
-async function handleDeploymentOutputs(config, deploymentUrl) {
+async function handleDeploymentOutputs(vercel, config, deploymentUrl) {
     if (deploymentUrl) {
         core.info('set preview-url output');
         if (config.aliasDomains.length > 0) {
@@ -32059,7 +32059,7 @@ async function handleDeploymentOutputs(config, deploymentUrl) {
     else {
         core.warning('Deployment completed but no preview URL was returned');
     }
-    const deploymentName = config.vercelProjectName || await (0, vercel_1.vercelInspect)(config, deploymentUrl);
+    const deploymentName = config.vercelProjectName || await (0, vercel_1.vercelInspect)(vercel, deploymentUrl);
     if (deploymentName) {
         core.info('set preview-name output');
         core.setOutput('preview-name', deploymentName);
@@ -32069,13 +32069,13 @@ async function handleDeploymentOutputs(config, deploymentUrl) {
     }
     return deploymentName;
 }
-async function handleAliasing(config, deploymentUrl) {
+async function handleAliasing(vercel, config, deploymentUrl) {
     if (config.aliasDomains.length === 0) {
         return;
     }
     core.info('alias domains to this deployment');
     try {
-        await (0, vercel_1.aliasDomainsToDeployment)(config, deploymentUrl);
+        await (0, vercel_1.aliasDomainsToDeployment)(vercel, config, deploymentUrl);
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -32083,14 +32083,22 @@ async function handleAliasing(config, deploymentUrl) {
             + 'The deployment succeeded but alias configuration failed.');
     }
 }
-async function handleComments(octokit, config, sha, deploymentUrl, deploymentName) {
-    if (context.issue.number) {
+function buildGitHubContext() {
+    return {
+        eventName: context.eventName,
+        sha: context.sha,
+        repo: context.repo,
+        issueNumber: context.issue.number,
+    };
+}
+async function handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName) {
+    if (ctx.issueNumber) {
         core.info('this is related issue or pull_request');
-        await (0, github_comments_1.createCommentOnPullRequest)(octokit, config, sha, deploymentUrl, deploymentName);
+        await (0, github_comments_1.createCommentOnPullRequest)(octokit, ctx, config, sha, deploymentUrl, deploymentName);
     }
-    else if (context.eventName === 'push') {
+    else if (ctx.eventName === 'push') {
         core.info('this is push event');
-        await (0, github_comments_1.createCommentOnCommit)(octokit, config, sha, deploymentUrl, deploymentName);
+        await (0, github_comments_1.createCommentOnCommit)(octokit, ctx, config, sha, deploymentUrl, deploymentName);
     }
 }
 async function run() {
@@ -32100,11 +32108,13 @@ async function run() {
     (0, config_1.setVercelEnv)(config);
     const deploymentContext = await getDeploymentContext(octokit);
     const { sha } = deploymentContext;
-    const deploymentUrl = await (0, vercel_1.vercelDeploy)(config, deploymentContext);
-    const deploymentName = await handleDeploymentOutputs(config, deploymentUrl);
-    await handleAliasing(config, deploymentUrl);
+    const vercelClient = (0, vercel_1.createVercelClient)(config);
+    const deploymentUrl = await (0, vercel_1.vercelDeploy)(vercelClient, config, deploymentContext);
+    const deploymentName = await handleDeploymentOutputs(vercelClient, config, deploymentUrl);
+    await handleAliasing(vercelClient, config, deploymentUrl);
     if (config.githubComment && octokit) {
-        await handleComments(octokit, config, sha, deploymentUrl, deploymentName ?? '');
+        const ctx = buildGitHubContext();
+        await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '');
     }
     else {
         core.info('comment : disabled');
@@ -32221,8 +32231,9 @@ async function retry(fn, retries) {
                 throw error;
             }
             else {
-                core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1}`);
-                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+                const delay = RETRY_DELAY_MS * (2 ** (retryCount - 1));
+                core.info(`retrying: attempt ${retryCount + 1} / ${retries + 1} in ${delay}ms`);
+                await new Promise(resolve => setTimeout(resolve, delay));
                 return attempt(retryCount + 1);
             }
         }
@@ -32289,6 +32300,220 @@ function getGithubCommentInput(input) {
 
 /***/ }),
 
+/***/ 2340:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VercelCliClient = void 0;
+const core = __importStar(__nccwpck_require__(1078));
+const exec = __importStar(__nccwpck_require__(1757));
+const github = __importStar(__nccwpck_require__(9848));
+const utils_1 = __nccwpck_require__(3924);
+const PERSONAL_ACCOUNT_SCOPE_ERROR = 'You cannot set your Personal Account as the scope';
+function extractDeploymentUrl(output) {
+    const deploymentUrl = output
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .pop();
+    if (!deploymentUrl || !deploymentUrl.startsWith('https://')) {
+        throw new Error(`Failed to extract deployment URL from vercel output: ${output}`);
+    }
+    return deploymentUrl;
+}
+function buildDeployArgs(config, deployContext) {
+    const { ref, commit, sha, commitOrg, commitRepo } = deployContext;
+    const { context } = github;
+    const providedArgs = (0, utils_1.parseArgs)(config.vercelArgs);
+    const args = [
+        ...providedArgs,
+        '-t',
+        config.vercelToken,
+        ...(0, utils_1.addVercelMetadata)('githubCommitSha', sha, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorName', context.actor, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorLogin', context.actor, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubDeployment', 1, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubOrg', context.repo.owner, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubRepo', context.repo.repo, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitOrg', commitOrg, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitRepo', commitRepo, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit.replace(/[\r\n]+/g, ' ').replace(/"/g, '')}"`, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
+    ];
+    if (config.vercelScope) {
+        core.info('using scope');
+        args.push('--scope', config.vercelScope);
+    }
+    return args;
+}
+class VercelCliClient {
+    config;
+    constructor(config) {
+        this.config = config;
+    }
+    async deploy(config, deployContext) {
+        let output = '';
+        let errorOutput = '';
+        const options = {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                    core.info(data.toString());
+                },
+                stderr: (data) => {
+                    errorOutput += data.toString();
+                    core.info(data.toString());
+                },
+            },
+        };
+        if (config.workingDirectory) {
+            options.cwd = config.workingDirectory;
+        }
+        const args = buildDeployArgs(config, deployContext);
+        let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options);
+        if (exitCode !== 0) {
+            const combinedOutput = output + errorOutput;
+            if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+                if (!config.vercelProjectId) {
+                    throw new Error('Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
+                        + 'but no vercel-project-id was provided to use as a fallback. '
+                        + 'Either remove vercel-org-id or add vercel-project-id to your workflow.');
+                }
+                core.warning('Vercel CLI rejected the org ID as a personal account scope. '
+                    + 'Retrying without VERCEL_ORG_ID and VERCEL_PROJECT_ID.');
+                delete process.env.VERCEL_ORG_ID;
+                delete process.env.VERCEL_PROJECT_ID;
+                output = '';
+                errorOutput = '';
+                const retryConfig = { ...config, vercelScope: undefined };
+                const retryArgs = buildDeployArgs(retryConfig, deployContext);
+                exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options);
+            }
+            if (exitCode !== 0) {
+                throw new Error(`The process 'npx' failed with exit code ${exitCode}`);
+            }
+        }
+        return extractDeploymentUrl(output);
+    }
+    async inspect(deploymentUrl) {
+        let errorOutput = '';
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    core.info(data.toString());
+                },
+                stderr: (data) => {
+                    errorOutput += data.toString();
+                    core.info(data.toString());
+                },
+            },
+        };
+        if (this.config.workingDirectory) {
+            options.cwd = this.config.workingDirectory;
+        }
+        const args = [this.config.vercelBin, 'inspect', deploymentUrl, '-t', this.config.vercelToken];
+        if (this.config.vercelScope) {
+            core.info('using scope');
+            args.push('--scope', this.config.vercelScope);
+        }
+        try {
+            await exec.exec('npx', args, options);
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            core.warning(`vercel inspect failed: ${message}`);
+            return null;
+        }
+        const match = errorOutput.match(/^\s+name\s+(.+)$/m);
+        if (!match?.[1]) {
+            core.debug(`Failed to extract project name from inspect output`);
+            return null;
+        }
+        return match[1];
+    }
+    async assignAlias(deploymentUrl, domain) {
+        const args = [this.config.vercelBin, '-t', this.config.vercelToken];
+        if (this.config.vercelScope) {
+            core.info('using scope');
+            args.push('--scope', this.config.vercelScope);
+        }
+        args.push('alias', deploymentUrl, domain);
+        let aliasOutput = '';
+        let aliasError = '';
+        const exitCode = await exec.exec('npx', args, {
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => { aliasOutput += data.toString(); },
+                stderr: (data) => { aliasError += data.toString(); },
+            },
+        });
+        if (exitCode !== 0) {
+            const combinedOutput = aliasOutput + aliasError;
+            if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+                core.warning('Vercel CLI rejected the scope for alias command. '
+                    + 'Retrying without --scope.');
+                const retryArgs = [this.config.vercelBin, '-t', this.config.vercelToken, 'alias', deploymentUrl, domain];
+                let retryError = '';
+                let retryOutput = '';
+                const retryExitCode = await exec.exec('npx', retryArgs, {
+                    ignoreReturnCode: true,
+                    listeners: {
+                        stdout: (data) => { retryOutput += data.toString(); },
+                        stderr: (data) => { retryError += data.toString(); },
+                    },
+                });
+                if (retryExitCode !== 0) {
+                    const retryStderr = retryError ? `, stderr: ${retryError.trim()}` : '';
+                    const retryStdout = retryOutput ? `, stdout: ${retryOutput.trim()}` : '';
+                    throw new Error(`Alias command failed for domain ${domain} with exit code ${retryExitCode}${retryStderr}${retryStdout}`);
+                }
+                return;
+            }
+            throw new Error(`Alias command failed for domain ${domain} with exit code ${exitCode}: ${aliasError}`);
+        }
+    }
+}
+exports.VercelCliClient = VercelCliClient;
+
+
+/***/ }),
+
 /***/ 3597:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -32328,176 +32553,28 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createVercelClient = createVercelClient;
 exports.vercelDeploy = vercelDeploy;
 exports.vercelInspect = vercelInspect;
 exports.aliasDomainsToDeployment = aliasDomainsToDeployment;
 const core = __importStar(__nccwpck_require__(1078));
-const exec = __importStar(__nccwpck_require__(1757));
-const github = __importStar(__nccwpck_require__(9848));
 const utils_1 = __nccwpck_require__(3924);
+const vercel_cli_1 = __nccwpck_require__(2340);
 const ALIAS_RETRY_COUNT = 2;
-const PERSONAL_ACCOUNT_SCOPE_ERROR = 'You cannot set your Personal Account as the scope';
-function extractDeploymentUrl(output) {
-    const deploymentUrl = output
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .pop();
-    if (!deploymentUrl || !deploymentUrl.startsWith('https://')) {
-        throw new Error(`Failed to extract deployment URL from vercel output: ${output}`);
-    }
-    return deploymentUrl;
+function createVercelClient(config) {
+    return new vercel_cli_1.VercelCliClient(config);
 }
-async function vercelDeploy(config, deployContext) {
-    let output = '';
-    let errorOutput = '';
-    const options = {
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                output += data.toString();
-                core.info(data.toString());
-            },
-            stderr: (data) => {
-                errorOutput += data.toString();
-                core.info(data.toString());
-            },
-        },
-    };
-    if (config.workingDirectory) {
-        options.cwd = config.workingDirectory;
-    }
-    const args = buildDeployArgs(config, deployContext);
-    let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options);
-    if (exitCode !== 0) {
-        const combinedOutput = output + errorOutput;
-        if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
-            if (!config.vercelProjectId) {
-                throw new Error('Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
-                    + 'but no vercel-project-id was provided to use as a fallback. '
-                    + 'Either remove vercel-org-id or add vercel-project-id to your workflow.');
-            }
-            core.warning('Vercel CLI rejected the org ID as a personal account scope. '
-                + 'Retrying without VERCEL_ORG_ID and VERCEL_PROJECT_ID.');
-            delete process.env.VERCEL_ORG_ID;
-            delete process.env.VERCEL_PROJECT_ID;
-            output = '';
-            errorOutput = '';
-            const retryArgs = buildDeployArgs(config, deployContext);
-            exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options);
-        }
-        if (exitCode !== 0) {
-            throw new Error(`The process 'npx' failed with exit code ${exitCode}`);
-        }
-    }
-    return extractDeploymentUrl(output);
+async function vercelDeploy(client, config, deployContext) {
+    return client.deploy(config, deployContext);
 }
-function buildDeployArgs(config, deployContext) {
-    const { ref, commit, sha, commitOrg, commitRepo } = deployContext;
-    const { context } = github;
-    const providedArgs = (0, utils_1.parseArgs)(config.vercelArgs);
-    const args = [
-        ...providedArgs,
-        '-t',
-        config.vercelToken,
-        ...(0, utils_1.addVercelMetadata)('githubCommitSha', sha, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorName', context.actor, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitAuthorLogin', context.actor, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubDeployment', 1, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubOrg', context.repo.owner, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubRepo', context.repo.repo, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitOrg', commitOrg, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitRepo', commitRepo, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit.replace(/[\r\n]+/g, ' ').replace(/"/g, '')}"`, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
-    ];
-    if (config.vercelScope) {
-        core.info('using scope');
-        args.push('--scope', config.vercelScope);
-    }
-    return args;
+async function vercelInspect(client, deploymentUrl) {
+    return client.inspect(deploymentUrl);
 }
-async function vercelInspect(config, deploymentUrl) {
-    let errorOutput = '';
-    const options = {
-        listeners: {
-            stdout: (data) => {
-                core.info(data.toString());
-            },
-            stderr: (data) => {
-                errorOutput += data.toString();
-                core.warning(data.toString());
-            },
-        },
-    };
-    if (config.workingDirectory) {
-        options.cwd = config.workingDirectory;
-    }
-    const args = [config.vercelBin, 'inspect', deploymentUrl, '-t', config.vercelToken];
-    if (config.vercelScope) {
-        core.info('using scope');
-        args.push('--scope', config.vercelScope);
-    }
-    try {
-        await exec.exec('npx', args, options);
-    }
-    catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        core.warning(`vercel inspect failed: ${message}`);
-        return null;
-    }
-    const match = errorOutput.match(/^\s+name\s+(.+)$/m);
-    if (!match?.[1]) {
-        core.debug(`Failed to extract project name from inspect output`);
-        return null;
-    }
-    return match[1];
-}
-async function aliasDomainsToDeployment(config, deploymentUrl) {
+async function aliasDomainsToDeployment(client, config, deploymentUrl) {
     if (!deploymentUrl) {
         throw new Error('Deployment URL is required for aliasing domains');
     }
-    const promises = config.aliasDomains.map(domain => (0, utils_1.retry)(async () => {
-        const args = [config.vercelBin, '-t', config.vercelToken];
-        if (config.vercelScope) {
-            core.info('using scope');
-            args.push('--scope', config.vercelScope);
-        }
-        args.push('alias', deploymentUrl, domain);
-        let aliasOutput = '';
-        let aliasError = '';
-        const exitCode = await exec.exec('npx', args, {
-            ignoreReturnCode: true,
-            listeners: {
-                stdout: (data) => { aliasOutput += data.toString(); },
-                stderr: (data) => { aliasError += data.toString(); },
-            },
-        });
-        if (exitCode !== 0) {
-            const combinedOutput = aliasOutput + aliasError;
-            if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
-                core.warning('Vercel CLI rejected the scope for alias command. '
-                    + 'Retrying without --scope.');
-                const retryArgs = [config.vercelBin, '-t', config.vercelToken, 'alias', deploymentUrl, domain];
-                let retryError = '';
-                let retryOutput = '';
-                const retryExitCode = await exec.exec('npx', retryArgs, {
-                    ignoreReturnCode: true,
-                    listeners: {
-                        stdout: (data) => { retryOutput += data.toString(); },
-                        stderr: (data) => { retryError += data.toString(); },
-                    },
-                });
-                if (retryExitCode !== 0) {
-                    const retryStderr = retryError ? `, stderr: ${retryError.trim()}` : '';
-                    const retryStdout = retryOutput ? `, stdout: ${retryOutput.trim()}` : '';
-                    throw new Error(`Alias command failed for domain ${domain} with exit code ${retryExitCode}${retryStderr}${retryStdout}`);
-                }
-                return;
-            }
-            throw new Error(`Alias command failed for domain ${domain} with exit code ${exitCode}: ${aliasError}`);
-        }
-    }, ALIAS_RETRY_COUNT));
+    const promises = config.aliasDomains.map(domain => (0, utils_1.retry)(() => client.assignAlias(deploymentUrl, domain), ALIAS_RETRY_COUNT));
     await Promise.all(promises);
     core.info('All alias domains configured successfully');
 }
@@ -34390,7 +34467,7 @@ module.exports = parseParams
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","version":"41.1.4","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@types/common-tags":"^1.8.4","@types/node":"^20.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0"}}');
+module.exports = JSON.parse('{"name":"vercel-action","version":"41.1.4","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
 
 /***/ })
 

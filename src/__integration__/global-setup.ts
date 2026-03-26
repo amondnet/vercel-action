@@ -13,10 +13,10 @@ function loadSeedConfig(): SeedConfig {
   return parse(content) as SeedConfig
 }
 
-function getPortFromEnv(envVar: string): number {
+function getPortFromEnv(envVar: string, defaultPort: number): number {
   const value = process.env[envVar]
   if (!value) {
-    return 0
+    return defaultPort
   }
   const port = Number(value)
   if (!Number.isInteger(port) || port <= 0 || port > 65535) {
@@ -30,14 +30,14 @@ export async function setup(): Promise<void> {
 
   vercelEmulator = await createEmulator({
     service: 'vercel',
-    port: getPortFromEnv('EMULATE_VERCEL_PORT'),
+    port: getPortFromEnv('EMULATE_VERCEL_PORT', 4000),
     seed,
   })
 
   try {
     githubEmulator = await createEmulator({
       service: 'github',
-      port: getPortFromEnv('EMULATE_GITHUB_PORT'),
+      port: getPortFromEnv('EMULATE_GITHUB_PORT', 4001),
       seed,
     })
   }
