@@ -1,9 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "name": "zeit-now-deployment-action-example-static",
-  "scope": "amond",
-  "public": false,
-  "builds": [
-    { "src": "./**", "use": "@vercel/static" }
-  ]
-}

@@ -69,22 +69,40 @@ The name of deployment name.
 ### Disable Vercel for GitHub
 
 > The Vercel for GitHub integration automatically deploys your GitHub projects with Vercel, providing Preview Deployment URLs, and automatic Custom Domain updates.
-[link](https://vercel.com/docs/v2/git-integrations)
+> See [Git Configuration](https://vercel.com/docs/project-configuration/git-configuration) for more details.
 
-We would like to to use `github actions` for build and deploy instead of `Vercel`.
+We would like to use `github actions` for build and deploy instead of `Vercel`.
 
-Set `github.enabled: false` in `vercel.json`, see example `vercel.json` file below:
+Disable automatic deployments by setting `git.deploymentEnabled: false` in your project configuration.
+
+#### Using `vercel.ts` (recommended)
+
+Install `@vercel/config` and create a `vercel.ts` file:
+
+```typescript
+import type { VercelConfig } from '@vercel/config/v1';
+
+export const config: VercelConfig = {
+  public: false,
+  git: {
+    deploymentEnabled: false,
+  },
+};
+```
+
+#### Using `vercel.json`
 
 ```json
 {
-  "version": 2,
   "public": false,
-  "github": {
-    "enabled": false
+  "git": {
+    "deploymentEnabled": false
   }
 }
 ```
-When `github.enabled` set to `false`, `Vercel for GitHub` will not deploy the given project regardless of the GitHub app being installed.
+
+> **Note:** The `github.enabled` property is deprecated. Use `git.deploymentEnabled` instead.
+> See [Turning off all automatic deployments](https://vercel.com/docs/project-configuration/git-configuration#turning-off-all-automatic-deployments).
 
 ### Skip vercel's build step
 
@@ -99,20 +117,29 @@ Since we do the `build` in `github actions`, we don't need to build in `vercel`.
 
 See [docs](https://vercel.com/docs/concepts/deployments/build-step#build-command) for more details
 
-#### Method 2 - via `vercel.json`
+#### Method 2 - via project configuration
 
-If a Deployment defines the builds configuration property, the vercel's `Build & Development Settings` are ignored.
+You can override the build command in your project configuration to skip Vercel's build step.
+
+**`vercel.ts`** (recommended):
+
+```typescript
+import type { VercelConfig } from '@vercel/config/v1';
+
+export const config: VercelConfig = {
+  buildCommand: '',
+};
+```
+
+**`vercel.json`**:
 
 ```json
 {
-  "builds": [
-    { "src": "{{Source for distribution}}", "use": "@vercel/static" }
-  ]
+  "buildCommand": ""
 }
 ```
-Set `builds` to `@vercel/static` to skip vercel's build step. `src` is the path to the directory containing the files to be deployed.
 
-See [docs](https://vercel.com/docs/cli#legacy/builds) for more details
+See [Build Command docs](https://vercel.com/docs/deployments/configure-a-build#build-command) and [Programmatic Configuration](https://vercel.com/docs/project-configuration/vercel-ts) for more details.
 
 ### Project Linking
 

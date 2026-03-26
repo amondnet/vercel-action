@@ -1,28 +1,31 @@
 {
-  "name": "zeit-now-deployment-action-example-angular",
-  "version": 2,
-  "scope": "amond",
   "public": false,
-  "github": {
-    "enabled": false
+  "git": {
+    "deploymentEnabled": false
   },
-  "routes": [
+  "headers": [
     {
-      "src": "/(assets/.+|amcharts/.+|.+\\.css|.+\\.js|.+\\.eot|.+\\.svg|.+\\.ttf|.+\\.woff|.+\\.gif|.+\\.png|.+\\.jpg)",
-      "headers": { "cache-control": "max-age=31536000,immutable" },
-      "dest": "/$1"
+      "source": "/(assets/.+|amcharts/.+|.+\\.css|.+\\.js|.+\\.eot|.+\\.svg|.+\\.ttf|.+\\.woff|.+\\.gif|.+\\.png|.+\\.jpg)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     },
     {
-      "src": "/(.*).html",
-      "headers": { "cache-control": "public,max-age=0,must-revalidate" },
-      "dest": "/$1.html"
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     },
     {
-      "src": "/(.*)",
-      "headers": { "cache-control": "public,max-age=0,must-revalidate" },
-      "dest": "/index.html"
-    },
-    { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "src": "/favicon.ico", "dest": "/favicon.txt" }
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/favicon.ico", "destination": "/favicon.ico" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
