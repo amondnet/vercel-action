@@ -7,7 +7,7 @@ updates:
     commit-message:
       prefix: "ci"
 
-  - package-ecosystem: "pnpm"
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
