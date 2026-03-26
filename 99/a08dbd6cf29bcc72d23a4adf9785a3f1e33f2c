@@ -1,0 +1,31 @@
+vitest.config.ts
+  a14340154669a3d4 11,19-41
+package.json
+  a14340154669a3d4 34-35
+src/__integration__/global-setup.ts
+  a14340154669a3d4 1-28
+src/__integration__/smoke.test.ts
+  a14340154669a3d4 1-25
+.please/docs/tracks/active/emulate-integration-test-20260326/plan.md
+  a14340154669a3d4 46,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "99a08dbd6cf29bcc72d23a4adf9785a3f1e33f2c",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 83,
+      "total_deletions": 9,
+      "accepted_lines": 81,
+      "overriden_lines": 0
+    }
+  }
+}
