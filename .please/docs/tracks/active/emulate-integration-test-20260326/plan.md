@@ -148,6 +148,29 @@ _(Updated by /please:implement)_
 ## Surprises & Discoveries
 
 - Vercel CLI has no `VERCEL_API` env var for custom API endpoints
-- `@vercel/sdk` supports `serverURL` option — ideal for emulate.dev
-- `@actions/github.getOctokit()` supports `baseUrl` option natively
+- `@vercel/sdk` Zod validation is too strict for emulate.dev responses — switched to direct fetch
+- `@actions/github.getOctokit()` bakes `baseUrl` at module load via `.defaults()` — used `@octokit/rest` directly instead
 - emulate.dev has a programmatic API (`createEmulator`) ideal for Vitest globalSetup
+- emulate.dev v0.2.0 does not support GitHub Deployments API endpoints (404)
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+- Integration test infrastructure with emulate.dev (Vitest Projects, globalSetup, seed config)
+- Vercel API contract tests (deployments, domains)
+- GitHub API integration tests (PR comments, commit comments)
+- CI pipeline integration (`test:integration` job)
+- GitHub Deployments API tests (gracefully skip until emulate.dev adds support)
+
+### What Went Well
+- emulate.dev's programmatic API made Vitest integration seamless
+- Vitest Projects cleanly separated unit and integration concerns
+- Seed config approach keeps tests deterministic
+
+### What Could Improve
+- `@vercel/sdk` couldn't be used due to strict Zod validation vs emulator responses — future emulate.dev versions may fix this
+- `@actions/github` defaults pattern required using `@octokit/rest` directly
+
+### Tech Debt Created
+- GitHub Deployments API tests are stubs (skip when unsupported) — revisit when emulate.dev adds support
+- Decision log still references `@vercel/sdk` approach that was changed to direct fetch
