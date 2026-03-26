@@ -1,0 +1,25 @@
+example/nextjs/package.json
+  9079ae5fb7f29fc2 17
+example/angular/package.json
+  9079ae5fb7f29fc2 45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "210caa4794c2ce4a0b85afe961e7d5210d88c0b7",
+  "prompts": {
+    "9079ae5fb7f29fc2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "43190cd5-aa82-4747-b151-980521e0668f",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 7,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
