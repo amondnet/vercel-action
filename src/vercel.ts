@@ -5,36 +5,9 @@ import * as github from '@actions/github'
 import { addVercelMetadata, parseArgs, retry } from './utils'
 
 const ALIAS_RETRY_COUNT = 2
+const PERSONAL_ACCOUNT_SCOPE_ERROR = 'You cannot set your Personal Account as the scope'
 
-export async function vercelDeploy(
-  config: ActionConfig,
-  ref: string,
-  commit: string,
-  sha: string,
-  commitOrg: string,
-  commitRepo: string,
-): Promise<string> {
-  let output = ''
-  const options: exec.ExecOptions = {
-    listeners: {
-      stdout: (data: Buffer) => {
-        output += data.toString()
-        core.info(data.toString())
-      },
-      stderr: (data: Buffer) => {
-        core.warning(data.toString())
-      },
-    },
-  }
-
-  if (config.workingDirectory) {
-    options.cwd = config.workingDirectory
-  }
-
-  const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo)
-
-  await exec.exec('npx', [config.vercelBin, ...args], options)
-
+function extractDeploymentUrl(output: string): string {
   const deploymentUrl = output
     .split('\n')
     .map(line => line.trim())
@@ -46,6 +19,70 @@ export async function vercelDeploy(
   }
 
   return deploymentUrl
+}
+
+export async function vercelDeploy(
+  config: ActionConfig,
+  ref: string,
+  commit: string,
+  sha: string,
+  commitOrg: string,
+  commitRepo: string,
+): Promise<string> {
+  let output = ''
+  let errorOutput = ''
+  const options: exec.ExecOptions = {
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        output += data.toString()
+        core.info(data.toString())
+      },
+      stderr: (data: Buffer) => {
+        errorOutput += data.toString()
+        core.info(data.toString())
+      },
+    },
+  }
+
+  if (config.workingDirectory) {
+    options.cwd = config.workingDirectory
+  }
+
+  const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo)
+
+  let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options)
+
+  if (exitCode !== 0) {
+    const combinedOutput = output + errorOutput
+    if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+      if (!config.vercelProjectId) {
+        throw new Error(
+          'Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
+          + 'but no vercel-project-id was provided to use as a fallback. '
+          + 'Either remove vercel-org-id or add vercel-project-id to your workflow.',
+        )
+      }
+      core.warning(
+        'Vercel CLI rejected the org ID as a personal account scope. '
+        + 'Retrying without VERCEL_ORG_ID and VERCEL_PROJECT_ID.',
+      )
+      delete process.env.VERCEL_ORG_ID
+      delete process.env.VERCEL_PROJECT_ID
+
+      output = ''
+      errorOutput = ''
+      const retryArgs = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo)
+
+      exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)
+    }
+
+    if (exitCode !== 0) {
+      throw new Error(`The process 'npx' failed with exit code ${exitCode}`)
+    }
+  }
+
+  return extractDeploymentUrl(output)
 }
 
 function buildDeployArgs(
@@ -71,7 +108,7 @@ function buildDeployArgs(
     ...addVercelMetadata('githubRepo', context.repo.repo, providedArgs),
     ...addVercelMetadata('githubCommitOrg', commitOrg, providedArgs),
     ...addVercelMetadata('githubCommitRepo', commitRepo, providedArgs),
-    ...addVercelMetadata('githubCommitMessage', `"${commit}"`, providedArgs),
+    ...addVercelMetadata('githubCommitMessage', `"${commit.replace(/[\r\n]+/g, ' ').replace(/"/g, '')}"`, providedArgs),
     ...addVercelMetadata('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
   ]
 

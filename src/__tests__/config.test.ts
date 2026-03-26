@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@actions/core', () => ({
   getInput: vi.fn(),
+  setSecret: vi.fn(),
   info: vi.fn(),
   debug: vi.fn(),
   warning: vi.fn(),
@@ -254,45 +255,58 @@ describe('setVercelEnv', () => {
     vi.resetModules()
   })
 
-  it('exports VERCEL_ORG_ID when provided', async () => {
+  it('always disables telemetry', async () => {
+    const { setVercelEnv } = await import('../config')
+    setVercelEnv({ vercelOrgId: '', vercelProjectId: '' } as any)
+
+    expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_TELEMETRY_DISABLED', '1')
+  })
+
+  it('exports both org and project IDs when both provided', async () => {
     const { setVercelEnv } = await import('../config')
     setVercelEnv({
       vercelOrgId: 'org-123',
-      vercelProjectId: '',
+      vercelProjectId: 'proj-456',
     } as any)
 
     expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_ORG_ID', 'org-123')
-    expect(core.exportVariable).not.toHaveBeenCalledWith('VERCEL_PROJECT_ID', expect.anything())
+    expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_PROJECT_ID', 'proj-456')
   })
 
-  it('exports VERCEL_PROJECT_ID when provided', async () => {
+  it('warns and skips org ID when provided without project ID', async () => {
+    const { setVercelEnv } = await import('../config')
+    setVercelEnv({
+      vercelOrgId: 'org-123',
+      vercelProjectId: '',
+    } as any)
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('vercel-org-id was provided without vercel-project-id'),
+    )
+    expect(core.exportVariable).not.toHaveBeenCalledWith('VERCEL_ORG_ID', expect.anything())
+  })
+
+  it('warns and skips project ID when provided without org ID', async () => {
     const { setVercelEnv } = await import('../config')
     setVercelEnv({
       vercelOrgId: '',
       vercelProjectId: 'proj-456',
     } as any)
 
-    expect(core.exportVariable).not.toHaveBeenCalledWith('VERCEL_ORG_ID', expect.anything())
-    expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_PROJECT_ID', 'proj-456')
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('vercel-project-id was provided without vercel-org-id'),
+    )
+    expect(core.exportVariable).not.toHaveBeenCalledWith('VERCEL_PROJECT_ID', expect.anything())
   })
 
-  it('exports both when both provided', async () => {
-    const { setVercelEnv } = await import('../config')
-    setVercelEnv({
-      vercelOrgId: 'org-123',
-      vercelProjectId: 'proj-456',
-    } as any)
-
-    expect(core.exportVariable).toHaveBeenCalledTimes(2)
-  })
-
-  it('exports nothing when neither provided', async () => {
+  it('only exports telemetry when neither provided', async () => {
     const { setVercelEnv } = await import('../config')
     setVercelEnv({
       vercelOrgId: '',
       vercelProjectId: '',
     } as any)
 
-    expect(core.exportVariable).not.toHaveBeenCalled()
+    expect(core.exportVariable).toHaveBeenCalledTimes(1)
+    expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_TELEMETRY_DISABLED', '1')
   })
 })

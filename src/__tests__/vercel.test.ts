@@ -173,7 +173,7 @@ describe('vercelDeploy', () => {
     expect(args).toContain('my-team')
   })
 
-  it('routes stderr to core.warning', async () => {
+  it('routes stderr to core.info', async () => {
     vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
       options?.listeners?.stderr?.(Buffer.from('warning message'))
       options?.listeners?.stdout?.(Buffer.from('https://deploy.vercel.app\n'))
@@ -189,7 +189,90 @@ describe('vercelDeploy', () => {
       'repo',
     )
 
-    expect(core.warning).toHaveBeenCalledWith('warning message')
+    expect(core.info).toHaveBeenCalledWith('warning message')
+  })
+
+  it('retries without org ID on personal account scope error', async () => {
+    let callCount = 0
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      callCount++
+      if (callCount === 1) {
+        options?.listeners?.stderr?.(
+          Buffer.from('You cannot set your Personal Account as the scope'),
+        )
+        return 1
+      }
+      options?.listeners?.stdout?.(Buffer.from('https://retry-deploy.vercel.app\n'))
+      return 0
+    })
+
+    const url = await vercelDeploy(
+      createConfig({ vercelProjectId: 'proj-123' }),
+      'refs/heads/main',
+      'commit',
+      'sha',
+      'owner',
+      'repo',
+    )
+
+    expect(url).toBe('https://retry-deploy.vercel.app')
+    expect(exec.exec).toHaveBeenCalledTimes(2)
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('Retrying without VERCEL_ORG_ID'),
+    )
+  })
+
+  it('throws on personal account scope error without project ID', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stderr?.(
+        Buffer.from('You cannot set your Personal Account as the scope'),
+      )
+      return 1
+    })
+
+    await expect(
+      vercelDeploy(
+        createConfig({ vercelProjectId: '' }),
+        'refs/heads/main',
+        'commit',
+        'sha',
+        'owner',
+        'repo',
+      ),
+    ).rejects.toThrow('no vercel-project-id was provided')
+  })
+
+  it('throws on non-zero exit code for non-scope errors', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stderr?.(Buffer.from('some other error'))
+      return 1
+    })
+
+    await expect(
+      vercelDeploy(createConfig(), 'refs/heads/main', 'commit', 'sha', 'owner', 'repo'),
+    ).rejects.toThrow('failed with exit code 1')
+  })
+
+  it('sanitizes commit message in metadata', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stdout?.(Buffer.from('https://deploy.vercel.app\n'))
+      return 0
+    })
+
+    await vercelDeploy(
+      createConfig(),
+      'refs/heads/main',
+      'line1\nline2\r\n"quoted"',
+      'sha',
+      'owner',
+      'repo',
+    )
+
+    const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
+    const metaArgs = args.filter(a => a.startsWith('"'))
+    for (const arg of metaArgs) {
+      expect(arg).not.toMatch(/[\r\n]/)
+    }
   })
 })
 

@@ -31710,11 +31710,13 @@ function parseAliasDomains() {
     });
 }
 function getActionConfig() {
+    const vercelToken = core.getInput('vercel-token', { required: true });
+    core.setSecret(vercelToken);
     return {
         githubToken: core.getInput('github-token'),
         githubComment: (0, utils_1.getGithubCommentInput)(core.getInput('github-comment')),
         workingDirectory: core.getInput('working-directory'),
-        vercelToken: core.getInput('vercel-token', { required: true }),
+        vercelToken,
         vercelArgs: core.getInput('vercel-args'),
         vercelOrgId: core.getInput('vercel-org-id'),
         vercelProjectId: core.getInput('vercel-project-id'),
@@ -31733,13 +31735,22 @@ function createOctokitClient(githubToken) {
 }
 function setVercelEnv(config) {
     core.info('set environment for vercel cli');
-    if (config.vercelOrgId) {
+    core.exportVariable('VERCEL_TELEMETRY_DISABLED', '1');
+    if (config.vercelOrgId && config.vercelProjectId) {
         core.info('set env variable : VERCEL_ORG_ID');
         core.exportVariable('VERCEL_ORG_ID', config.vercelOrgId);
-    }
-    if (config.vercelProjectId) {
         core.info('set env variable : VERCEL_PROJECT_ID');
         core.exportVariable('VERCEL_PROJECT_ID', config.vercelProjectId);
+    }
+    else if (config.vercelOrgId) {
+        core.warning('vercel-org-id was provided without vercel-project-id. '
+            + 'Vercel CLI v41+ requires both to be set together. '
+            + 'Skipping VERCEL_ORG_ID to avoid deployment failure.');
+    }
+    else if (config.vercelProjectId) {
+        core.warning('vercel-project-id was provided without vercel-org-id. '
+            + 'Vercel CLI v41+ requires both to be set together. '
+            + 'Skipping VERCEL_PROJECT_ID to avoid deployment failure.');
     }
 }
 
@@ -32325,24 +32336,8 @@ const exec = __importStar(__nccwpck_require__(1757));
 const github = __importStar(__nccwpck_require__(9848));
 const utils_1 = __nccwpck_require__(3924);
 const ALIAS_RETRY_COUNT = 2;
-async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
-    let output = '';
-    const options = {
-        listeners: {
-            stdout: (data) => {
-                output += data.toString();
-                core.info(data.toString());
-            },
-            stderr: (data) => {
-                core.warning(data.toString());
-            },
-        },
-    };
-    if (config.workingDirectory) {
-        options.cwd = config.workingDirectory;
-    }
-    const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
-    await exec.exec('npx', [config.vercelBin, ...args], options);
+const PERSONAL_ACCOUNT_SCOPE_ERROR = 'You cannot set your Personal Account as the scope';
+function extractDeploymentUrl(output) {
     const deploymentUrl = output
         .split('\n')
         .map(line => line.trim())
@@ -32352,6 +32347,50 @@ async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
         throw new Error(`Failed to extract deployment URL from vercel output: ${output}`);
     }
     return deploymentUrl;
+}
+async function vercelDeploy(config, ref, commit, sha, commitOrg, commitRepo) {
+    let output = '';
+    let errorOutput = '';
+    const options = {
+        ignoreReturnCode: true,
+        listeners: {
+            stdout: (data) => {
+                output += data.toString();
+                core.info(data.toString());
+            },
+            stderr: (data) => {
+                errorOutput += data.toString();
+                core.info(data.toString());
+            },
+        },
+    };
+    if (config.workingDirectory) {
+        options.cwd = config.workingDirectory;
+    }
+    const args = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
+    let exitCode = await exec.exec('npx', [config.vercelBin, ...args], options);
+    if (exitCode !== 0) {
+        const combinedOutput = output + errorOutput;
+        if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+            if (!config.vercelProjectId) {
+                throw new Error('Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
+                    + 'but no vercel-project-id was provided to use as a fallback. '
+                    + 'Either remove vercel-org-id or add vercel-project-id to your workflow.');
+            }
+            core.warning('Vercel CLI rejected the org ID as a personal account scope. '
+                + 'Retrying without VERCEL_ORG_ID and VERCEL_PROJECT_ID.');
+            delete process.env.VERCEL_ORG_ID;
+            delete process.env.VERCEL_PROJECT_ID;
+            output = '';
+            errorOutput = '';
+            const retryArgs = buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo);
+            exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options);
+        }
+        if (exitCode !== 0) {
+            throw new Error(`The process 'npx' failed with exit code ${exitCode}`);
+        }
+    }
+    return extractDeploymentUrl(output);
 }
 function buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo) {
     const { context } = github;
@@ -32368,7 +32407,7 @@ function buildDeployArgs(config, ref, commit, sha, commitOrg, commitRepo) {
         ...(0, utils_1.addVercelMetadata)('githubRepo', context.repo.repo, providedArgs),
         ...(0, utils_1.addVercelMetadata)('githubCommitOrg', commitOrg, providedArgs),
         ...(0, utils_1.addVercelMetadata)('githubCommitRepo', commitRepo, providedArgs),
-        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit}"`, providedArgs),
+        ...(0, utils_1.addVercelMetadata)('githubCommitMessage', `"${commit.replace(/[\r\n]+/g, ' ').replace(/"/g, '')}"`, providedArgs),
         ...(0, utils_1.addVercelMetadata)('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
     ];
     if (config.vercelScope) {
@@ -32386,7 +32425,7 @@ async function vercelInspect(config, deploymentUrl) {
             },
             stderr: (data) => {
                 errorOutput += data.toString();
-                core.info(data.toString());
+                core.warning(data.toString());
             },
         },
     };

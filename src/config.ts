@@ -36,11 +36,14 @@ function parseAliasDomains(): string[] {
 }
 
 export function getActionConfig(): ActionConfig {
+  const vercelToken = core.getInput('vercel-token', { required: true })
+  core.setSecret(vercelToken)
+
   return {
     githubToken: core.getInput('github-token'),
     githubComment: getGithubCommentInput(core.getInput('github-comment')),
     workingDirectory: core.getInput('working-directory'),
-    vercelToken: core.getInput('vercel-token', { required: true }),
+    vercelToken,
     vercelArgs: core.getInput('vercel-args'),
     vercelOrgId: core.getInput('vercel-org-id'),
     vercelProjectId: core.getInput('vercel-project-id'),
@@ -61,12 +64,26 @@ export function createOctokitClient(githubToken: string): OctokitClient | undefi
 
 export function setVercelEnv(config: ActionConfig): void {
   core.info('set environment for vercel cli')
-  if (config.vercelOrgId) {
+  core.exportVariable('VERCEL_TELEMETRY_DISABLED', '1')
+
+  if (config.vercelOrgId && config.vercelProjectId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', config.vercelOrgId)
-  }
-  if (config.vercelProjectId) {
     core.info('set env variable : VERCEL_PROJECT_ID')
     core.exportVariable('VERCEL_PROJECT_ID', config.vercelProjectId)
+  }
+  else if (config.vercelOrgId) {
+    core.warning(
+      'vercel-org-id was provided without vercel-project-id. '
+      + 'Vercel CLI v41+ requires both to be set together. '
+      + 'Skipping VERCEL_ORG_ID to avoid deployment failure.',
+    )
+  }
+  else if (config.vercelProjectId) {
+    core.warning(
+      'vercel-project-id was provided without vercel-org-id. '
+      + 'Vercel CLI v41+ requires both to be set together. '
+      + 'Skipping VERCEL_PROJECT_ID to avoid deployment failure.',
+    )
   }
 }
