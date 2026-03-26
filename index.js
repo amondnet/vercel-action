@@ -102,10 +102,10 @@ async function setEnv() {
   if (vercelOrgId) {
     core.info('set env variable : VERCEL_ORG_ID')
     core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
-    if (vercelProjectId) {
-      core.info('set env variable : VERCEL_PROJECT_ID')
-      core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
-    }
+  }
+  if (vercelProjectId) {
+    core.info('set env variable : VERCEL_PROJECT_ID')
+    core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
   }
 }
 
@@ -142,27 +142,10 @@ function parseArgs(s) {
   return args
 }
 
-async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
-  let myOutput = ''
-  let _myError = ''
-  const options = {}
-  options.listeners = {
-    stdout: (data) => {
-      myOutput += data.toString()
-      core.info(data.toString())
-    },
-    stderr: (data) => {
-      _myError += data.toString()
-      core.info(data.toString())
-    },
-  }
-  if (workingDirectory) {
-    options.cwd = workingDirectory
-  }
+const PERSONAL_ACCOUNT_SCOPE_ERROR = 'You cannot set your Personal Account as the scope'
 
-  const providedArgs = parseArgs(vercelArgs)
-
-  const args = [
+function buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo) {
+  return [
     ...providedArgs,
     ...['-t', vercelToken],
     ...addVercelMetadata('githubCommitSha', sha, providedArgs),
@@ -184,19 +167,45 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
       providedArgs,
     ),
   ]
+}
+
+function appendProjectArgs(args, providedArgs) {
+  const hasProjectArg = providedArgs.some(
+    arg => arg === '--project' || arg.startsWith('--project='),
+  )
+
+  if (!hasProjectArg && vercelProjectId) {
+    core.info('using --project flag (personal account fallback)')
+    args.push('--project', vercelProjectId)
+  }
+}
+
+async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
+  let myOutput = ''
+  let myError = ''
+  const options = {
+    ignoreReturnCode: true,
+  }
+  options.listeners = {
+    stdout: (data) => {
+      myOutput += data.toString()
+      core.info(data.toString())
+    },
+    stderr: (data) => {
+      myError += data.toString()
+      core.info(data.toString())
+    },
+  }
+  if (workingDirectory) {
+    options.cwd = workingDirectory
+  }
+
+  const providedArgs = parseArgs(vercelArgs)
+
+  const args = buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo)
 
   if (vercelProjectId && !vercelOrgId) {
-    const hasProjectArg = providedArgs.some(
-      arg => arg === '--project' || arg.startsWith('--project='),
-    )
-
-    if (!hasProjectArg) {
-      core.info('using --project flag (no org id provided)')
-      args.push('--project', vercelProjectId)
-    }
-    else {
-      core.info('skipping automatic --project flag because it was provided in vercel-args')
-    }
+    appendProjectArgs(args, providedArgs)
   }
 
   if (vercelScope) {
@@ -204,7 +213,38 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
     args.push('--scope', vercelScope)
   }
 
-  await exec.exec('npx', [vercelBin, ...args], options)
+  let exitCode = await exec.exec('npx', [vercelBin, ...args], options)
+
+  if (exitCode !== 0) {
+    const combinedOutput = myOutput + myError
+    if (combinedOutput.includes(PERSONAL_ACCOUNT_SCOPE_ERROR)) {
+      if (!vercelProjectId) {
+        throw new Error(
+          'Vercel CLI rejected VERCEL_ORG_ID as a personal account scope, '
+          + 'but no vercel-project-id was provided to use as a fallback. '
+          + 'Either remove vercel-org-id or add vercel-project-id to your workflow.',
+        )
+      }
+      core.warning(
+        'Vercel CLI rejected the org ID as a personal account scope. '
+        + 'Retrying without VERCEL_ORG_ID using --project flag instead.',
+      )
+      core.exportVariable('VERCEL_ORG_ID', '')
+      delete process.env.VERCEL_ORG_ID
+
+      myOutput = ''
+      myError = ''
+      const retryArgs = buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo)
+      appendProjectArgs(retryArgs, providedArgs)
+      // Don't re-add --scope on retry — it may have caused the personal account error
+
+      exitCode = await exec.exec('npx', [vercelBin, ...retryArgs], options)
+    }
+
+    if (exitCode !== 0) {
+      throw new Error(`The process 'npx' failed with exit code ${exitCode}`)
+    }
+  }
 
   return myOutput
 }
