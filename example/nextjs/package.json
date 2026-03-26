@@ -7,13 +7,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "12.1.4",
-    "react": "18.0.0",
-    "react-dom": "18.0.0",
-    "vercel": "^25.0.1"
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "vercel": "^41.1.4"
   },
   "devDependencies": {
-    "eslint": "8.12.0",
-    "eslint-config-next": "12.1.4"
+    "eslint": "9.34.0",
+    "eslint-config-next": "16.2.1"
   }
 }
