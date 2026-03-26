@@ -1,0 +1,23 @@
+example/nextjs/package.json
+  20f6d387ca7d0491 10-13,16-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "aa96100aec82457799c56eee4eb685721c44ed9e",
+  "prompts": {
+    "20f6d387ca7d0491": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b569bb94-730d-44ba-b09e-e75884aa1719",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 6,
+      "accepted_lines": 6,
+      "overriden_lines": 0
+    }
+  }
+}
