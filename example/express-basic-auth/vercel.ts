@@ -4,14 +4,14 @@ export const config = {
     deploymentEnabled: false,
   },
   functions: {
-    'index.js': {
-      includeFiles: '_static/**/*.js',
+    'api/index.js': {
+      includeFiles: '_static/**',
     },
   },
   rewrites: [
     {
       source: '/(.*)',
-      destination: '/index.js',
+      destination: '/api/index.js',
     },
   ],
 };
