@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { vercelFetch, TEST_PROJECT, TEST_TEAM } from './helpers'
+import { TEST_PROJECT, TEST_TEAM, vercelFetch } from './helpers'
 
 describe('vercel deployments API', () => {
   it('should create a deployment via POST /v13/deployments', async () => {

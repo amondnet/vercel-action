@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { vercelFetch, TEST_PROJECT, TEST_TEAM } from './helpers'
+import { TEST_PROJECT, TEST_TEAM, vercelFetch } from './helpers'
 
 describe('vercel domains and aliases API', () => {
   it('should add a domain to a project via POST /v10/projects/:id/domains', async () => {

@@ -55,7 +55,6 @@
     "@types/common-tags": "^1.8.4",
     "@types/node": "^24.0.0",
     "@vercel/ncc": "^0.36.0",
-    "@vercel/sdk": "^1.19.11",
     "@vitest/coverage-v8": "^3.0.0",
     "emulate": "^0.2.0",
     "eslint": "^9.9.0",

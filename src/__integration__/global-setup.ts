@@ -1,8 +1,8 @@
 import type { Emulator, SeedConfig } from 'emulate'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { parse } from 'yaml'
 import { createEmulator } from 'emulate'
+import { parse } from 'yaml'
 
 const VERCEL_PORT = 4000
 const GITHUB_PORT = 4001

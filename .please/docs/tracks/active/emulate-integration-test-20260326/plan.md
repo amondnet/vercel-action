@@ -104,7 +104,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Phase 4: CI Integration
 
-- [ ] T-8: Add integration test job to CI workflow
+- [x] T-8: Add integration test job to CI workflow
   - Add `test:integration` job to `.github/workflows/ci.yml`
   - Same Node.js/pnpm setup as existing test job
   - Runs `pnpm test:integration`
