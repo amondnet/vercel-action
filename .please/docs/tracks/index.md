@@ -7,6 +7,7 @@
 | Track | Feature | Type | Issue | Started | Status |
 |-------|---------|------|-------|---------|--------|
 | [improve-test-coverage-20260326](active/improve-test-coverage-20260326/) | Improve Test Coverage | test | — | 2026-03-26 | draft |
+| [emulate-integration-test-20260326](active/emulate-integration-test-20260326/) | Integration Tests with emulate.dev | feature | — | 2026-03-26 | planned |
 
 ## Recently Completed
 
