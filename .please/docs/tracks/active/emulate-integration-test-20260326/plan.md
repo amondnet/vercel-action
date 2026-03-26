@@ -24,12 +24,12 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 
 ### Key Constraints
 - emulate.dev provides stateful Vercel API (port 4000) and GitHub API (port 4001)
-- `@vercel/sdk` supports `serverURL` option for custom API endpoints
-- `@actions/github.getOctokit()` supports `baseUrl` option for custom endpoints
+- Direct `fetch` with `Authorization: Bearer <token>` is used for Vercel API calls
+- `@actions/github.getOctokit()` bakes `baseUrl` at load time — `@octokit/rest` used directly with `baseUrl` option
 
 ## Architecture Decision
 
-**Two test layers against emulate.dev using official SDK clients:**
+**Two test layers against emulate.dev:**
 
 1. **Vercel API integration tests** — Use direct `fetch` calls with `Authorization: Bearer <token>` headers against `http://localhost:4000` to test deployment creation, retrieval, and domain/alias management. (`@vercel/sdk` was evaluated but dropped due to strict Zod validation that rejects emulate.dev responses.)
 
@@ -63,7 +63,7 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 - [x] T-3: Create emulate.config.yaml seed data
   - Define tokens, Vercel users/teams/projects, GitHub users/repos
   - Seed data should match action's typical usage (org ID, project ID, repo owner/name)
-  - Create shared test helpers (`src/__integration__/helpers.ts`) with Vercel SDK and Octokit client factories
+  - Create shared test helpers (`src/__integration__/helpers.ts`) with `vercelFetch` and `createOctokitClient` factories
   - **Files**: `emulate.config.yaml`, `src/__integration__/helpers.ts`
   - **Verify**: emulate.dev starts with seed data populated
 
@@ -115,11 +115,10 @@ Add integration tests using [emulate.dev](https://emulate.dev) — a local, stat
 | File | Purpose |
 |---|---|
 | `src/__integration__/global-setup.ts` | Vitest globalSetup — starts/stops emulate.dev |
-| `src/__integration__/helpers.ts` | Shared test helpers (Vercel SDK + Octokit client factories) |
+| `src/__integration__/helpers.ts` | Shared test helpers (`vercelFetch` + `createOctokitClient` factories) |
 | `vitest.config.ts` | Vitest config with unit + integration projects |
 | `emulate.config.yaml` | Seed data for emulate.dev |
-| `src/__integration__/vercel-deployments.test.ts` | Vercel deployment integration tests via SDK |
-| `src/__integration__/vercel-domains.test.ts` | Vercel domain/alias integration tests via SDK |
+| `src/__integration__/vercel-api.test.ts` | Vercel deployment, domain, and alias integration tests via direct fetch |
 | `src/__integration__/github-pr-comments.test.ts` | GitHub PR comment integration tests |
 | `src/__integration__/github-commit-comments.test.ts` | GitHub commit comment integration tests |
 | `.github/workflows/ci.yml` | CI pipeline with integration test job |
@@ -140,7 +139,7 @@ _(Updated by /please:implement)_
 
 | Date | Decision | Rationale |
 |---|---|---|
-| 2026-03-26 | Use `@vercel/sdk` with `serverURL` | Type-safe SDK with configurable endpoint; CLI has no API redirect mechanism |
+| 2026-03-26 | Use direct `fetch` for Vercel API | `@vercel/sdk` evaluated but dropped — Zod validation too strict for emulate.dev responses; direct fetch avoids this friction |
 | 2026-03-26 | Vitest Projects (not separate config) | Single `vitest.config.ts` with `unit` + `integration` projects; cleaner than separate config files |
 | 2026-03-26 | `src/__integration__/` directory | Clear separation from unit tests in `src/__tests__/` |
 
@@ -172,4 +171,3 @@ _(Updated by /please:implement)_
 
 ### Tech Debt Created
 - GitHub Deployments API tests are stubs (skip when unsupported) — revisit when emulate.dev adds support
-- Decision log still references `@vercel/sdk` approach that was changed to direct fetch
