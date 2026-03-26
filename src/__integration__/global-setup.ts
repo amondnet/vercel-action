@@ -4,6 +4,9 @@ import { resolve } from 'node:path'
 import { createEmulator } from 'emulate'
 import { parse } from 'yaml'
 
+const VERCEL_PORT = 4000
+const GITHUB_PORT = 4001
+
 let vercelEmulator: Emulator | undefined
 let githubEmulator: Emulator | undefined
 
@@ -13,31 +16,19 @@ function loadSeedConfig(): SeedConfig {
   return parse(content) as SeedConfig
 }
 
-function getPortFromEnv(envVar: string, defaultPort: number): number {
-  const value = process.env[envVar]
-  if (!value) {
-    return defaultPort
-  }
-  const port = Number(value)
-  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    throw new Error(`Invalid port value "${value}" for ${envVar}`)
-  }
-  return port
-}
-
 export async function setup(): Promise<void> {
   const seed = loadSeedConfig()
 
   vercelEmulator = await createEmulator({
     service: 'vercel',
-    port: getPortFromEnv('EMULATE_VERCEL_PORT', 4000),
+    port: VERCEL_PORT,
     seed,
   })
 
   try {
     githubEmulator = await createEmulator({
       service: 'github',
-      port: getPortFromEnv('EMULATE_GITHUB_PORT', 4001),
+      port: GITHUB_PORT,
       seed,
     })
   }

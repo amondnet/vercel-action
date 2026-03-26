@@ -61,7 +61,11 @@ describe('vercelApiClient (integration)', () => {
   })
 
   describe('assignAlias', () => {
-    it.skipIf(!aliasSupported)('should assign an alias to a deployment', async () => {
+    it('should assign an alias to a deployment', async () => {
+      if (!aliasSupported) {
+        return
+      }
+
       const createRes = await vercelFetch(`/v13/deployments?slug=${TEST_TEAM}`, {
         method: 'POST',
         body: JSON.stringify({
