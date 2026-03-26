@@ -1,0 +1,25 @@
+.please/docs/tracks/active/emulate-integration-test-20260326/plan.md
+  a14340154669a3d4 80
+src/__integration__/vercel-domains.test.ts
+  a14340154669a3d4 1-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "3f27ec52a8661f2e97098145326fb35d39626ab6",
+  "prompts": {
+    "a14340154669a3d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "896c3429-460a-48af-a18c-163a5f451ebc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 54,
+      "total_deletions": 2,
+      "accepted_lines": 53,
+      "overriden_lines": 0
+    }
+  }
+}
