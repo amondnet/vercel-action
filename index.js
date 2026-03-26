@@ -107,8 +107,11 @@ async function setEnv() {
     core.exportVariable('VERCEL_PROJECT_ID', vercelProjectId)
   }
   else if (vercelOrgId) {
-    core.info('set env variable : VERCEL_ORG_ID')
-    core.exportVariable('VERCEL_ORG_ID', vercelOrgId)
+    core.warning(
+      'vercel-org-id was provided without vercel-project-id. '
+      + 'Vercel CLI v41+ requires both to be set together. '
+      + 'Skipping VERCEL_ORG_ID to avoid deployment failure.',
+    )
   }
   else if (vercelProjectId) {
     core.warning(
