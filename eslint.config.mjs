@@ -12,6 +12,7 @@ export default antfu({
     'example/**',
     'node_modules/**',
     '*.min.js',
+    '**/*.md',
   ],
   languageOptions: {
     globals: {
