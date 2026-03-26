@@ -59814,16 +59814,14 @@ async function vercelDeploy(ref, commit, sha, commitOrg, commitRepo) {
         'Vercel CLI rejected the org ID as a personal account scope. '
         + 'Retrying without VERCEL_ORG_ID using --project flag instead.',
       )
-      delete process.env.VERCEL_ORG_ID
       core.exportVariable('VERCEL_ORG_ID', '')
+      delete process.env.VERCEL_ORG_ID
 
       myOutput = ''
       myError = ''
       const retryArgs = buildDeployArgs(providedArgs, ref, commit, sha, commitOrg, commitRepo)
       appendProjectArgs(retryArgs, providedArgs)
-      if (vercelScope) {
-        retryArgs.push('--scope', vercelScope)
-      }
+      // Don't re-add --scope on retry — it may have caused the personal account error
 
       exitCode = await exec.exec('npx', [vercelBin, ...retryArgs], options)
     }
