@@ -68,7 +68,7 @@ export async function vercelDeploy(
 
       output = ''
       errorOutput = ''
-      const retryConfig: ActionConfig = { ...config, vercelScope: undefined as unknown as string }
+      const retryConfig: ActionConfig = { ...config, vercelScope: undefined }
       const retryArgs = buildDeployArgs(retryConfig, deployContext)
 
       exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)

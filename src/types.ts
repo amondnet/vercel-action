@@ -42,7 +42,7 @@ export interface ActionConfig {
   vercelArgs: string
   vercelOrgId: string
   vercelProjectId: string
-  vercelScope: string
+  vercelScope?: string
   vercelProjectName: string
   vercelBin: string
   aliasDomains: string[]
