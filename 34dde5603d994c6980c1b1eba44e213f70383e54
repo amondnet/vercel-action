@@ -1,0 +1,23 @@
+tsconfig.json
+  fa6a55fe93b0fd74 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "34dde5603d994c6980c1b1eba44e213f70383e54",
+  "prompts": {
+    "fa6a55fe93b0fd74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0360db59-749f-4c73-832b-7a9cbdc23959",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
