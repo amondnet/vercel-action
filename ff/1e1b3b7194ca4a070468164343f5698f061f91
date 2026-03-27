@@ -1,0 +1,23 @@
+vercel.json
+  317f8cc20aabffdb 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "ff1e1b3b7194ca4a070468164343f5698f061f91",
+  "prompts": {
+    "317f8cc20aabffdb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b4aab79-fb92-4dc7-a34c-0b53292b9e57",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
