@@ -3,6 +3,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { aliasDomainsToDeployment, vercelDeploy, vercelInspect } from '../vercel'
+import { VercelCliClient } from '../vercel-cli'
 
 vi.mock('@actions/core', () => ({
   info: vi.fn(),
@@ -38,6 +39,10 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   }
 }
 
+function createClient(config?: ActionConfig): VercelCliClient {
+  return new VercelCliClient(config ?? createConfig())
+}
+
 function createDeployContext(overrides: Partial<DeploymentContext> = {}): DeploymentContext {
   return {
     ref: 'refs/heads/main',
@@ -65,8 +70,10 @@ describe('vercelDeploy', () => {
       return 0
     })
 
+    const config = createConfig()
     const url = await vercelDeploy(
-      createConfig(),
+      createClient(config),
+      config,
       createDeployContext(),
     )
 
@@ -83,8 +90,10 @@ describe('vercelDeploy', () => {
       return 0
     })
 
+    const config = createConfig()
     const url = await vercelDeploy(
-      createConfig(),
+      createClient(config),
+      config,
       createDeployContext(),
     )
 
@@ -101,7 +110,7 @@ describe('vercelDeploy', () => {
     })
 
     await expect(
-      vercelDeploy(createConfig(), createDeployContext()),
+      vercelDeploy(createClient(), createConfig(), createDeployContext()),
     ).rejects.toThrow('Failed to extract deployment URL')
   })
 
@@ -109,7 +118,7 @@ describe('vercelDeploy', () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
     await expect(
-      vercelDeploy(createConfig(), createDeployContext()),
+      vercelDeploy(createClient(), createConfig(), createDeployContext()),
     ).rejects.toThrow('Failed to extract deployment URL')
   })
 
@@ -119,8 +128,10 @@ describe('vercelDeploy', () => {
       return 0
     })
 
+    const cfg = createConfig({ vercelToken: 'my-secret-token', vercelBin: 'vercel@30' })
     await vercelDeploy(
-      createConfig({ vercelToken: 'my-secret-token', vercelBin: 'vercel@30' }),
+      createClient(cfg),
+      cfg,
       createDeployContext({ sha: 'sha123', commitOrg: 'org', commitRepo: 'repo' }),
     )
 
@@ -139,10 +150,8 @@ describe('vercelDeploy', () => {
       return 0
     })
 
-    await vercelDeploy(
-      createConfig({ workingDirectory: '/custom/dir' }),
-      createDeployContext(),
-    )
+    const cfg = createConfig({ workingDirectory: '/custom/dir' })
+    await vercelDeploy(createClient(cfg), cfg, createDeployContext())
 
     const options = vi.mocked(exec.exec).mock.calls[0][2]
     expect(options?.cwd).toBe('/custom/dir')
@@ -154,10 +163,8 @@ describe('vercelDeploy', () => {
       return 0
     })
 
-    await vercelDeploy(
-      createConfig({ vercelScope: 'my-team' }),
-      createDeployContext(),
-    )
+    const cfg = createConfig({ vercelScope: 'my-team' })
+    await vercelDeploy(createClient(cfg), cfg, createDeployContext())
 
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
     expect(args).toContain('--scope')
@@ -171,10 +178,7 @@ describe('vercelDeploy', () => {
       return 0
     })
 
-    await vercelDeploy(
-      createConfig(),
-      createDeployContext(),
-    )
+    await vercelDeploy(createClient(), createConfig(), createDeployContext())
 
     expect(core.info).toHaveBeenCalledWith('warning message')
   })
@@ -193,10 +197,8 @@ describe('vercelDeploy', () => {
       return 0
     })
 
-    const url = await vercelDeploy(
-      createConfig({ vercelProjectId: 'proj-123' }),
-      createDeployContext(),
-    )
+    const cfg = createConfig({ vercelProjectId: 'proj-123' })
+    const url = await vercelDeploy(createClient(cfg), cfg, createDeployContext())
 
     expect(url).toBe('https://retry-deploy.vercel.app')
     expect(exec.exec).toHaveBeenCalledTimes(2)
@@ -214,10 +216,7 @@ describe('vercelDeploy', () => {
     })
 
     await expect(
-      vercelDeploy(
-        createConfig({ vercelProjectId: '' }),
-        createDeployContext(),
-      ),
+      vercelDeploy(createClient(), createConfig({ vercelProjectId: '' }), createDeployContext()),
     ).rejects.toThrow('no vercel-project-id was provided')
   })
 
@@ -228,7 +227,7 @@ describe('vercelDeploy', () => {
     })
 
     await expect(
-      vercelDeploy(createConfig(), createDeployContext()),
+      vercelDeploy(createClient(), createConfig(), createDeployContext()),
     ).rejects.toThrow('failed with exit code 1')
   })
 
@@ -238,10 +237,7 @@ describe('vercelDeploy', () => {
       return 0
     })
 
-    await vercelDeploy(
-      createConfig(),
-      createDeployContext({ commit: 'line1\nline2\r\n"quoted"' }),
-    )
+    await vercelDeploy(createClient(), createConfig(), createDeployContext({ commit: 'line1\nline2\r\n"quoted"' }))
 
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
     const metaArgs = args.filter(a => a.startsWith('"'))
@@ -262,7 +258,7 @@ describe('vercelInspect', () => {
       return 0
     })
 
-    const name = await vercelInspect(createConfig(), 'https://deploy.vercel.app')
+    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
     expect(name).toBe('my-project')
   })
 
@@ -272,14 +268,14 @@ describe('vercelInspect', () => {
       return 0
     })
 
-    const name = await vercelInspect(createConfig(), 'https://deploy.vercel.app')
+    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
     expect(name).toBeNull()
   })
 
   it('returns null and warns when exec fails', async () => {
     vi.mocked(exec.exec).mockRejectedValue(new Error('command failed'))
 
-    const name = await vercelInspect(createConfig(), 'https://deploy.vercel.app')
+    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
 
     expect(name).toBeNull()
     expect(core.warning).toHaveBeenCalledWith(
@@ -291,7 +287,7 @@ describe('vercelInspect', () => {
     vi.mocked(exec.exec).mockRejectedValue(new Error('network error'))
 
     await expect(
-      vercelInspect(createConfig(), 'https://deploy.vercel.app'),
+      vercelInspect(createClient(), 'https://deploy.vercel.app'),
     ).resolves.toBeNull()
   })
 
@@ -299,7 +295,7 @@ describe('vercelInspect', () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
     await vercelInspect(
-      createConfig({ vercelBin: 'vercel@30', vercelToken: 'tok' }),
+      createClient(createConfig({ vercelBin: 'vercel@30', vercelToken: 'tok' })),
       'https://deploy.vercel.app',
     )
 
@@ -317,7 +313,7 @@ describe('vercelInspect', () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
     await vercelInspect(
-      createConfig({ vercelScope: 'my-team' }),
+      createClient(createConfig({ vercelScope: 'my-team' })),
       'https://deploy.vercel.app',
     )
 
@@ -332,7 +328,7 @@ describe('vercelInspect', () => {
       return 0
     })
 
-    const name = await vercelInspect(createConfig(), 'https://deploy.vercel.app')
+    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
     expect(name).toBe('my-project-name')
   })
 })
@@ -344,17 +340,15 @@ describe('aliasDomainsToDeployment', () => {
 
   it('throws when deploymentUrl is empty', async () => {
     await expect(
-      aliasDomainsToDeployment(createConfig({ aliasDomains: ['example.com'] }), ''),
+      aliasDomainsToDeployment(createClient(), createConfig({ aliasDomains: ['example.com'] }), ''),
     ).rejects.toThrow('Deployment URL is required for aliasing domains')
   })
 
   it('calls exec for each alias domain', async () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
-    await aliasDomainsToDeployment(
-      createConfig({ aliasDomains: ['a.com', 'b.com'] }),
-      'https://deploy.vercel.app',
-    )
+    const cfg = createConfig({ aliasDomains: ['a.com', 'b.com'] })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     expect(exec.exec).toHaveBeenCalledTimes(2)
 
@@ -370,10 +364,8 @@ describe('aliasDomainsToDeployment', () => {
   it('includes scope when provided', async () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
-    await aliasDomainsToDeployment(
-      createConfig({ aliasDomains: ['a.com'], vercelScope: 'my-team' }),
-      'https://deploy.vercel.app',
-    )
+    const cfg = createConfig({ aliasDomains: ['a.com'], vercelScope: 'my-team' })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
     expect(args).toContain('--scope')
@@ -390,10 +382,8 @@ describe('aliasDomainsToDeployment', () => {
       return 0
     })
 
-    await aliasDomainsToDeployment(
-      createConfig({ aliasDomains: ['a.com'] }),
-      'https://deploy.vercel.app',
-    )
+    const cfg = createConfig({ aliasDomains: ['a.com'] })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     expect(exec.exec).toHaveBeenCalledTimes(2)
   }, 15000)
@@ -411,10 +401,8 @@ describe('aliasDomainsToDeployment', () => {
       return 0
     })
 
-    await aliasDomainsToDeployment(
-      createConfig({ aliasDomains: ['a.com'], vercelScope: 'my-team' }),
-      'https://deploy.vercel.app',
-    )
+    const cfg = createConfig({ aliasDomains: ['a.com'], vercelScope: 'my-team' })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     expect(exec.exec).toHaveBeenCalledTimes(2)
     expect(core.warning).toHaveBeenCalledWith(
@@ -440,10 +428,7 @@ describe('aliasDomainsToDeployment', () => {
     })
 
     await expect(
-      aliasDomainsToDeployment(
-        createConfig({ aliasDomains: ['a.com'] }),
-        'https://deploy.vercel.app',
-      ),
+      aliasDomainsToDeployment(createClient(), createConfig({ aliasDomains: ['a.com'] }), 'https://deploy.vercel.app'),
     ).rejects.toThrow('Alias command failed for domain a.com')
   })
 
@@ -454,20 +439,15 @@ describe('aliasDomainsToDeployment', () => {
     })
 
     await expect(
-      aliasDomainsToDeployment(
-        createConfig({ aliasDomains: ['a.com'] }),
-        'https://deploy.vercel.app',
-      ),
+      aliasDomainsToDeployment(createClient(), createConfig({ aliasDomains: ['a.com'] }), 'https://deploy.vercel.app'),
     ).rejects.toThrow('Alias command failed for domain a.com')
   })
 
   it('logs success message after all aliases configured', async () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
 
-    await aliasDomainsToDeployment(
-      createConfig({ aliasDomains: ['a.com'] }),
-      'https://deploy.vercel.app',
-    )
+    const cfg = createConfig({ aliasDomains: ['a.com'] })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     expect(core.info).toHaveBeenCalledWith('All alias domains configured successfully')
   })

@@ -18,7 +18,8 @@
     "gatekeeper@pleaseai": true,
     "claude-code-setup@claude-plugins-official": true,
     "cloudflare@cloudflare": true,
-    "pnpm@pleaseai": true
+    "pnpm@pleaseai": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "passionfactory": {

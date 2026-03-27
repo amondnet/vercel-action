@@ -1,0 +1,26 @@
+tokens:
+  test-token:
+    login: test-user
+    scopes: [repo, user]
+
+vercel:
+  users:
+    - username: test-user
+      name: Test User
+      email: test@example.com
+  teams:
+    - slug: test-team
+      name: Test Team
+  projects:
+    - name: test-project
+      team: test-team
+      framework: nextjs
+
+github:
+  users:
+    - login: test-user
+      name: Test User
+  repos:
+    - owner: test-user
+      name: test-repo
+      language: TypeScript

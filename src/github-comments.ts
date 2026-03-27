@@ -1,10 +1,7 @@
-import type { ActionConfig, CommentData, OctokitClient } from './types'
+import type { ActionConfig, CommentData, GitHubContext, OctokitClient } from './types'
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import { stripIndents } from 'common-tags'
 import { buildCommentBody, buildCommentPrefix, isPullRequestType } from './utils'
-
-const { context } = github
 
 const DEFAULT_COMMENT_TEMPLATE = stripIndents`
   ✅ Preview
@@ -16,29 +13,30 @@ const DEFAULT_COMMENT_TEMPLATE = stripIndents`
 
 async function findCommentsForEvent(
   octokit: OctokitClient,
+  ctx: GitHubContext,
 ): Promise<{ data: CommentData[] }> {
   core.debug('find comments for event')
 
-  if (context.eventName === 'push') {
+  if (ctx.eventName === 'push') {
     core.debug('event is "commit", use "listCommentsForCommit"')
     return octokit.rest.repos.listCommentsForCommit({
-      ...context.repo,
-      commit_sha: context.sha,
+      ...ctx.repo,
+      commit_sha: ctx.sha,
       per_page: 100,
     })
   }
 
-  if (isPullRequestType(context.eventName)) {
-    core.debug(`event is "${context.eventName}", use "listComments"`)
+  if (isPullRequestType(ctx.eventName)) {
+    core.debug(`event is "${ctx.eventName}", use "listComments"`)
     return octokit.rest.issues.listComments({
-      ...context.repo,
-      issue_number: context.issue.number,
+      ...ctx.repo,
+      issue_number: ctx.issueNumber,
       per_page: 100,
     })
   }
 
   core.warning(
-    `Event type "${context.eventName}" is not supported for GitHub comments. `
+    `Event type "${ctx.eventName}" is not supported for GitHub comments. `
     + 'Supported events: push, pull_request, pull_request_target',
   )
   return { data: [] }
@@ -46,10 +44,11 @@ async function findCommentsForEvent(
 
 async function findPreviousComment(
   octokit: OctokitClient,
+  ctx: GitHubContext,
   text: string,
 ): Promise<number | null> {
   core.info('find comment')
-  const { data: comments } = await findCommentsForEvent(octokit)
+  const { data: comments } = await findCommentsForEvent(octokit, ctx)
 
   const vercelPreviewURLComment = comments.find(comment =>
     comment.body?.startsWith(text),
@@ -66,6 +65,7 @@ async function findPreviousComment(
 
 export async function createCommentOnCommit(
   octokit: OctokitClient,
+  ctx: GitHubContext,
   config: ActionConfig,
   deploymentCommit: string,
   deploymentUrl: string,
@@ -74,6 +74,7 @@ export async function createCommentOnCommit(
   try {
     const commentId = await findPreviousComment(
       octokit,
+      ctx,
       buildCommentPrefix(deploymentName),
     )
 
@@ -92,15 +93,15 @@ export async function createCommentOnCommit(
 
     if (commentId) {
       await octokit.rest.repos.updateCommitComment({
-        ...context.repo,
+        ...ctx.repo,
         comment_id: commentId,
         body: commentBody,
       })
     }
     else {
       await octokit.rest.repos.createCommitComment({
-        ...context.repo,
-        commit_sha: context.sha,
+        ...ctx.repo,
+        commit_sha: ctx.sha,
         body: commentBody,
       })
     }
@@ -116,6 +117,7 @@ export async function createCommentOnCommit(
 
 export async function createCommentOnPullRequest(
   octokit: OctokitClient,
+  ctx: GitHubContext,
   config: ActionConfig,
   deploymentCommit: string,
   deploymentUrl: string,
@@ -124,6 +126,7 @@ export async function createCommentOnPullRequest(
   try {
     const commentId = await findPreviousComment(
       octokit,
+      ctx,
       buildCommentPrefix(deploymentName),
     )
 
@@ -142,15 +145,15 @@ export async function createCommentOnPullRequest(
 
     if (commentId) {
       await octokit.rest.issues.updateComment({
-        ...context.repo,
+        ...ctx.repo,
         comment_id: commentId,
         body: commentBody,
       })
     }
     else {
       await octokit.rest.issues.createComment({
-        ...context.repo,
-        issue_number: context.issue.number,
+        ...ctx.repo,
+        issue_number: ctx.issueNumber,
         body: commentBody,
       })
     }

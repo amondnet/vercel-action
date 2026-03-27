@@ -4,13 +4,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.test.ts'],
-    exclude: ['node_modules', 'dist', 'example'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts'],
+      exclude: ['src/**/*.test.ts', 'src/__integration__/**'],
       thresholds: {
         lines: 80,
         functions: 80,
@@ -18,7 +16,28 @@ export default defineConfig({
         statements: 80,
       },
     },
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['src/__tests__/**/*.test.ts'],
+          exclude: ['node_modules', 'dist', 'example'],
+          testTimeout: 10000,
+          hookTimeout: 10000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'integration',
+          include: ['src/__integration__/**/*.test.ts'],
+          exclude: ['node_modules', 'dist', 'example'],
+          globalSetup: ['src/__integration__/global-setup.ts'],
+          testTimeout: 30000,
+          hookTimeout: 30000,
+        },
+      },
+    ],
   },
 })

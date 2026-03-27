@@ -1,5 +1,5 @@
+import type { GitHubContext } from '../types'
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createCommentOnCommit, createCommentOnPullRequest } from '../github-comments'
 
@@ -16,15 +16,6 @@ const mockListComments = vi.fn()
 const mockCreateComment = vi.fn()
 const mockUpdateComment = vi.fn()
 
-vi.mock('@actions/github', () => ({
-  context: {
-    eventName: 'push',
-    sha: 'abc123',
-    repo: { owner: 'test-owner', repo: 'test-repo' },
-    issue: { number: 42 },
-  },
-}))
-
 function createMockOctokit() {
   return {
     rest: {
@@ -40,6 +31,16 @@ function createMockOctokit() {
       },
     },
   } as any
+}
+
+function createContext(overrides: Partial<GitHubContext> = {}): GitHubContext {
+  return {
+    eventName: 'push',
+    sha: 'abc123',
+    repo: { owner: 'test-owner', repo: 'test-repo' },
+    issueNumber: 42,
+    ...overrides,
+  }
 }
 
 function createConfig(overrides: Record<string, unknown> = {}) {
@@ -60,10 +61,10 @@ function createConfig(overrides: Record<string, unknown> = {}) {
 }
 
 describe('createCommentOnCommit', () => {
+  const ctx = createContext({ eventName: 'push' })
+
   beforeEach(() => {
     vi.clearAllMocks()
-    const ctx = github.context as { eventName: string }
-    ctx.eventName = 'push'
   })
 
   it('creates a new comment when no previous comment exists', async () => {
@@ -72,6 +73,7 @@ describe('createCommentOnCommit', () => {
 
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -95,6 +97,7 @@ describe('createCommentOnCommit', () => {
 
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -107,8 +110,11 @@ describe('createCommentOnCommit', () => {
   })
 
   it('skips comment when githubComment is false', async () => {
+    mockListCommentsForCommit.mockResolvedValue({ data: [] })
+
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig({ githubComment: false }),
       'abc123',
       'https://deploy.vercel.app',
@@ -125,6 +131,7 @@ describe('createCommentOnCommit', () => {
 
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -142,6 +149,7 @@ describe('createCommentOnCommit', () => {
 
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -159,6 +167,7 @@ describe('createCommentOnCommit', () => {
 
     await createCommentOnCommit(
       createMockOctokit(),
+      ctx,
       createConfig({ githubComment: 'Custom: {{deploymentUrl}}' }),
       'abc123',
       'https://deploy.vercel.app',
@@ -171,10 +180,10 @@ describe('createCommentOnCommit', () => {
 })
 
 describe('createCommentOnPullRequest', () => {
+  const ctx = createContext({ eventName: 'pull_request' })
+
   beforeEach(() => {
     vi.clearAllMocks()
-    const ctx = github.context as { eventName: string }
-    ctx.eventName = 'pull_request'
   })
 
   it('creates a new PR comment when no previous comment exists', async () => {
@@ -183,6 +192,7 @@ describe('createCommentOnPullRequest', () => {
 
     await createCommentOnPullRequest(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -204,6 +214,7 @@ describe('createCommentOnPullRequest', () => {
 
     await createCommentOnPullRequest(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -220,6 +231,7 @@ describe('createCommentOnPullRequest', () => {
 
     await createCommentOnPullRequest(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -239,6 +251,7 @@ describe('createCommentOnPullRequest', () => {
 
     await createCommentOnPullRequest(
       createMockOctokit(),
+      ctx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
@@ -251,13 +264,13 @@ describe('createCommentOnPullRequest', () => {
   })
 
   it('warns for unsupported event types', async () => {
-    const ctx = github.context as { eventName: string }
-    ctx.eventName = 'workflow_dispatch'
+    const unsupportedCtx = createContext({ eventName: 'workflow_dispatch' })
 
     mockCreateComment.mockResolvedValue({})
 
     await createCommentOnPullRequest(
       createMockOctokit(),
+      unsupportedCtx,
       createConfig(),
       'abc123',
       'https://deploy.vercel.app',
