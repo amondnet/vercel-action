@@ -1,0 +1,23 @@
+example/nextjs/next.config.js
+  bb669a49b98b3829 4-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "99c78b870197ea04bac11b2e5e36a03d63563412",
+  "prompts": {
+    "bb669a49b98b3829": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "830c038e-eacc-4072-ba18-3a42c9d8f3a3",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 0,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
