@@ -1,5 +1,12 @@
 # Changelog
 
+## [42.2.0](https://github.com/amondnet/vercel-action/compare/v42.1.0...v42.2.0) (2026-03-29)
+
+
+### Features
+
+* GitHub Deployment integration ([#322](https://github.com/amondnet/vercel-action/issues/322)) ([3c572bd](https://github.com/amondnet/vercel-action/commit/3c572bd13515d06e00ca6581eb83a54be340e072))
+
 ## [42.1.0](https://github.com/amondnet/vercel-action/compare/v42.0.0...v42.1.0) (2026-03-29)
 
 
