@@ -21,7 +21,7 @@ inputs:
     description: 'if you want to create github deployment, set true, default: false'
   github-deployment-environment:
     required: false
-    description: 'The environment for the GitHub deployment (e.g., production, staging, preview). If not specified, auto-detects: "production" when vercel-args contains --prod, otherwise "preview".'
+    description: 'The environment for the GitHub deployment (e.g., production, staging, preview). If not specified, auto-detects: "production" when vercel-args contains --prod or --production, otherwise "preview".'
     default: ''
   working-directory:
     required: false

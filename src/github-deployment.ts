@@ -92,7 +92,7 @@ export async function updateGitHubDeploymentStatus(
       state,
       environment_url: options.environmentUrl,
       log_url: options.logUrl,
-      description: options.description,
+      description: options.description?.slice(0, 140),
       auto_inactive: true,
     })
   }

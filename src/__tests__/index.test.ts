@@ -229,20 +229,11 @@ describe('github deployment integration', () => {
     expect(result).toBe('false')
   })
 
-  it('github-deployment-environment auto-detects from vercel-args', () => {
-    vi.mocked(core.getInput).mockImplementation((name: string) => {
-      const inputs: Record<string, string> = {
-        'vercel-token': 'test-vercel-token',
-        'github-deployment': 'true',
-        'github-deployment-environment': '',
-        'vercel-args': '--prod',
-      }
-      return inputs[name] ?? ''
-    })
-
-    // Verify that --prod is in vercel-args
-    expect(core.getInput('vercel-args')).toBe('--prod')
-    expect(core.getInput('github-deployment-environment')).toBe('')
+  it('resolveDeploymentEnvironment auto-detects production from --prod', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', '--prod')).toBe('production')
+    expect(resolveDeploymentEnvironment('', '')).toBe('preview')
+    expect(resolveDeploymentEnvironment('staging', '--prod')).toBe('staging')
   })
 
   it('octokit has deployment API methods available', () => {

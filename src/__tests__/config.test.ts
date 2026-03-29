@@ -107,10 +107,9 @@ describe('resolveDeploymentEnvironment', () => {
     expect(resolveDeploymentEnvironment('', '--force --prod --debug')).toBe('production')
   })
 
-  it('returns "preview" when args contain --production but not --prod', async () => {
+  it('returns "production" when args contain --production', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    // --production is not the same flag as --prod in Vercel CLI
-    // but --production string contains --prod substring, so this matches
+    // --production is also matched by the regex since it contains --prod
     expect(resolveDeploymentEnvironment('', '--production')).toBe('production')
   })
 })

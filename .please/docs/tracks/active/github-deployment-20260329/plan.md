@@ -48,7 +48,7 @@ Alternative considered: embedding deployment logic directly in `index.ts`. Rejec
 
 ### Create
 
-- `src/github-deployment.ts` — New module: `createGitHubDeployment()`, `updateGitHubDeploymentStatus()`, `resolveEnvironment()`
+- `src/github-deployment.ts` — New module: `createGitHubDeployment()`, `updateGitHubDeploymentStatus()`
 
 ### Modify
 
