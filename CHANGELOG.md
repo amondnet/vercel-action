@@ -1,5 +1,13 @@
 # Changelog
 
+## [42.1.0](https://github.com/amondnet/vercel-action/compare/v42.0.0...v42.1.0) (2026-03-29)
+
+
+### Features
+
+* **comment:** redesign deployment comments with rich HTML table ([#320](https://github.com/amondnet/vercel-action/issues/320)) ([255bd7b](https://github.com/amondnet/vercel-action/commit/255bd7ba961b97c03107fb43b8d2d1ad05e40069))
+* **example:** add turbopack configuration to nextjs example ([#315](https://github.com/amondnet/vercel-action/issues/315)) ([aae0c95](https://github.com/amondnet/vercel-action/commit/aae0c954252f21c9af8e0c99396c778d4f847027))
+
 ## [42.0.0](https://github.com/amondnet/vercel-action/compare/v41.1.4...v42.0.0) (2026-03-27)
 
 
