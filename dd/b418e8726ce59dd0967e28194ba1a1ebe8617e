@@ -1,0 +1,25 @@
+.please/docs/tracks/index.md
+  b0a06c9be3429b2d 12
+.please/docs/tracks/active/github-deployment-20260329/metadata.json
+  b0a06c9be3429b2d 4,6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "ddb418e8726ce59dd0967e28194ba1a1ebe8617e",
+  "prompts": {
+    "b0a06c9be3429b2d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c5c40c4-70e2-41ec-9924-eec1af9fe5e4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
