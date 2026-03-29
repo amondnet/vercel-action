@@ -360,7 +360,7 @@ describe('parseAliasDomains', () => {
   })
 })
 
-describe('API deployment inputs', () => {
+describe('aPI deployment inputs', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetModules()

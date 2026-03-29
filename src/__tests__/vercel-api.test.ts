@@ -127,7 +127,8 @@ describe('vercelApiClient.deploy', () => {
 
     const client = new VercelApiClient(createConfig())
     await expect(client.deploy(createConfig(), createDeployContext()))
-      .rejects.toThrow('Deployment failed')
+      .rejects
+      .toThrow('Deployment failed')
   })
 
   it('throws when no URL is returned', async () => {
@@ -138,7 +139,8 @@ describe('vercelApiClient.deploy', () => {
 
     const client = new VercelApiClient(createConfig())
     await expect(client.deploy(createConfig(), createDeployContext()))
-      .rejects.toThrow('Deployment completed but no URL was returned')
+      .rejects
+      .toThrow('Deployment completed but no URL was returned')
   })
 
   it('logs deployment events', async () => {

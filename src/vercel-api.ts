@@ -1,8 +1,9 @@
+import type { DeploymentOptions, VercelClientOptions } from '@vercel/client'
 import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import { HttpClient } from '@actions/http-client'
 import { createDeployment } from '@vercel/client'
-import * as github from '@actions/github'
 
 const DEFAULT_BASE_URL = 'https://api.vercel.com'
 
@@ -17,8 +18,8 @@ function buildGitMetadata(deployContext: DeploymentContext) {
   }
 }
 
-function buildClientOptions(config: ActionConfig): Record<string, unknown> {
-  const options: Record<string, unknown> = {
+function buildClientOptions(config: ActionConfig): VercelClientOptions {
+  const options: VercelClientOptions = {
     token: config.vercelToken,
     path: config.workingDirectory || process.cwd(),
     debug: core.isDebug(),
@@ -33,8 +34,8 @@ function buildClientOptions(config: ActionConfig): Record<string, unknown> {
   if (config.prebuilt) {
     options.prebuilt = true
   }
-  if (config.archive) {
-    options.archive = config.archive
+  if (config.archive === 'tgz') {
+    options.archive = 'tgz'
   }
   if (config.rootDirectory) {
     options.rootDirectory = config.rootDirectory
@@ -49,8 +50,8 @@ function buildClientOptions(config: ActionConfig): Record<string, unknown> {
   return options
 }
 
-function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentContext): Record<string, unknown> {
-  const options: Record<string, unknown> = {
+function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentContext): DeploymentOptions {
+  const options: DeploymentOptions = {
     meta: {
       githubCommitSha: deployContext.sha,
       githubCommitAuthorName: github.context.actor,
@@ -126,7 +127,7 @@ export class VercelApiClient implements VercelClient {
 
     let deploymentUrl = ''
 
-    for await (const event of createDeployment(clientOptions as any, deploymentOptions as any)) {
+    for await (const event of createDeployment(clientOptions, deploymentOptions)) {
       switch (event.type) {
         case 'hashes-calculated':
           core.info(`Files hashed: ${Object.keys(event.payload).length} files`)
