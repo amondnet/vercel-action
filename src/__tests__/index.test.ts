@@ -19,6 +19,7 @@ vi.mock('@actions/core', () => ({
 
 vi.mock('@actions/exec', () => ({
   exec: vi.fn(),
+  getExecOutput: vi.fn().mockResolvedValue({ exitCode: 0, stdout: 'test commit message', stderr: '' }),
 }))
 
 vi.mock('@actions/github', () => ({
@@ -57,10 +58,6 @@ vi.mock('@actions/github', () => ({
       },
     },
   })),
-}))
-
-vi.mock('node:child_process', () => ({
-  execSync: vi.fn(() => Buffer.from('test commit message')),
 }))
 
 describe('gitHub Action Integration', () => {

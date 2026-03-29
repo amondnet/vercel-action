@@ -32068,8 +32068,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const node_child_process_1 = __nccwpck_require__(7718);
 const core = __importStar(__nccwpck_require__(1078));
+const exec = __importStar(__nccwpck_require__(1757));
 const github = __importStar(__nccwpck_require__(9848));
 const config_1 = __nccwpck_require__(7296);
 const github_comments_1 = __nccwpck_require__(4019);
@@ -32077,9 +32077,10 @@ const github_deployment_1 = __nccwpck_require__(1859);
 const utils_1 = __nccwpck_require__(3924);
 const vercel_1 = __nccwpck_require__(3597);
 const { context } = github;
-function getGitCommitMessage() {
+async function getGitCommitMessage() {
     try {
-        return (0, node_child_process_1.execSync)('git log -1 --pretty=format:%B').toString().trim();
+        const { stdout } = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true });
+        return stdout.trim();
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -32152,7 +32153,7 @@ async function getDeploymentContext(octokit) {
     const baseContext = {
         ref: context.ref,
         sha: context.sha,
-        commit: getGitCommitMessage(),
+        commit: await getGitCommitMessage(),
         commitOrg: context.repo.owner,
         commitRepo: context.repo.repo,
     };
@@ -32885,14 +32886,6 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
-
-/***/ }),
-
-/***/ 7718:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("node:child_process");
 
 /***/ }),
 

@@ -1,6 +1,6 @@
 import type { ActionConfig, DeploymentContext, GitHubContext, GitHubDeploymentResult, OctokitClient, PullRequestPayload, ReleasePayload, VercelClient } from './types'
-import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
+import * as exec from '@actions/exec'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
 import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
@@ -10,9 +10,10 @@ import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspe
 
 const { context } = github
 
-function getGitCommitMessage(): string {
+async function getGitCommitMessage(): Promise<string> {
   try {
-    return execSync('git log -1 --pretty=format:%B').toString().trim()
+    const { stdout } = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true })
+    return stdout.trim()
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -105,7 +106,7 @@ async function getDeploymentContext(
   const baseContext: DeploymentContext = {
     ref: context.ref,
     sha: context.sha,
-    commit: getGitCommitMessage(),
+    commit: await getGitCommitMessage(),
     commitOrg: context.repo.owner,
     commitRepo: context.repo.repo,
   }
