@@ -29,14 +29,19 @@ The inspect URL is derived from the deployment URL by constructing `https://verc
 
 ## Tasks
 
-- [ ] T001 Add `inspectUrl` to types and config flow (file: src/types.ts)
-- [ ] T002 Build HTML table comment generator (file: src/utils.ts, depends on T001)
-- [ ] T003 Update comment prefix and detection logic (file: src/utils.ts, depends on T002)
-- [ ] T004 Wire inspect URL through deployment flow (file: src/index.ts, depends on T001)
-- [ ] T005 Update comment functions to pass new data (file: src/github-comments.ts, depends on T002, T003, T004)
-- [ ] T006 Update unit tests for HTML table comments (file: src/__tests__/utils.test.ts, depends on T002, T003)
-- [ ] T007 Update unit tests for comment functions (file: src/__tests__/github-comments.test.ts, depends on T005)
-- [ ] T008 [P] Update integration tests (file: src/__integration__/github-pr-comments.test.ts, depends on T005)
+- [x] T001 Add `inspectUrl` to types and config flow (file: src/types.ts)
+- [x] T002 Build HTML table comment generator (file: src/utils.ts, depends on T001)
+- [x] T003 Update comment prefix and detection logic (file: src/utils.ts, depends on T002)
+- [x] T004 Wire inspect URL through deployment flow (file: src/index.ts, depends on T001)
+- [x] T005 Update comment functions to pass new data (file: src/github-comments.ts, depends on T002, T003, T004)
+- [x] T006 Update unit tests for HTML table comments (file: src/__tests__/utils.test.ts, depends on T002, T003)
+- [x] T007 Update unit tests for comment functions (file: src/__tests__/github-comments.test.ts, depends on T005)
+- [x] T008 [P] Update integration tests (file: src/__integration__/github-pr-comments.test.ts, depends on T005)
+
+## Progress
+
+- [x] (2026-03-29 17:30 KST) T001-T008 All tasks implemented in single pass
+  Evidence: `npx vitest run --project unit` → 117 tests passed (22.15s), 0 lint errors
 
 ## Key Files
 
