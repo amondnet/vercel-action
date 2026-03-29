@@ -1,12 +1,18 @@
 import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
 import { retry } from './utils'
+import { VercelApiClient } from './vercel-api'
 import { VercelCliClient } from './vercel-cli'
 
 const ALIAS_RETRY_COUNT = 2
 
 export function createVercelClient(config: ActionConfig): VercelClient {
-  return new VercelCliClient(config)
+  if (config.vercelArgs) {
+    core.info('Using CLI-based deployment (vercel-args provided)')
+    return new VercelCliClient(config)
+  }
+  core.info('Using API-based deployment')
+  return new VercelApiClient(config)
 }
 
 export async function vercelDeploy(
