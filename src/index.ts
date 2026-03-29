@@ -11,9 +11,14 @@ import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspe
 const { context } = github
 
 async function getGitCommitMessage(): Promise<string> {
+  let result: Awaited<ReturnType<typeof exec.getExecOutput>>
+
   try {
-    const { stdout } = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true })
-    return stdout.trim()
+    result = await exec.getExecOutput(
+      'git',
+      ['log', '-1', '--pretty=format:%B'],
+      { silent: true, ignoreReturnCode: true },
+    )
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -22,6 +27,18 @@ async function getGitCommitMessage(): Promise<string> {
       + 'Ensure this action runs in a git repository with at least one commit.',
     )
   }
+
+  if (result.exitCode !== 0) {
+    const detail = result.stderr.trim()
+      || `git exited with code ${result.exitCode}`
+
+    throw new Error(
+      `Failed to retrieve git commit message: ${detail}. `
+      + 'Ensure this action runs in a git repository with at least one commit.',
+    )
+  }
+
+  return result.stdout.trim()
 }
 
 function logContextDebug(): void {

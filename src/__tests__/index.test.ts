@@ -159,6 +159,41 @@ describe('gitHub Action Integration', () => {
       expect(core.error).toBeDefined()
     })
   })
+
+  describe('getGitCommitMessage error paths', () => {
+    it('surfaces a descriptive error when getExecOutput throws', async () => {
+      vi.mocked(exec.getExecOutput).mockRejectedValueOnce(
+        new Error('spawn git ENOENT'),
+      )
+
+      vi.resetModules()
+      await import('../index')
+
+      // Allow the async run() to settle
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(vi.mocked(core.setFailed)).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to retrieve git commit message'),
+      )
+    })
+
+    it('surfaces a descriptive error when getExecOutput returns non-zero exit code', async () => {
+      vi.mocked(exec.getExecOutput).mockResolvedValueOnce({
+        exitCode: 128,
+        stdout: '',
+        stderr: 'fatal: not a git repository',
+      })
+
+      vi.resetModules()
+      await import('../index')
+
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(vi.mocked(core.setFailed)).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to retrieve git commit message'),
+      )
+    })
+  })
 })
 
 describe('octokit API v6 compatibility', () => {
