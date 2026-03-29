@@ -30,7 +30,7 @@ This action make a Vercel deployment with github actions.
 - [x] Comment on commit.
 - [x] [Password Protect ( Basic Auth )](https://github.com/amondnet/vercel-action#basic-auth-example)
 - [x] [Alias domain to deployment.](https://github.com/amondnet/vercel-action#alias-domains)
-- [ ] Create Deployment on github.
+- [x] [Create Deployment on GitHub.](https://github.com/amondnet/vercel-action#github-deployments)
 
 ## Result
 
@@ -41,19 +41,21 @@ This action make a Vercel deployment with github actions.
 [commit](https://github.com/amondnet/now-deployment/commit/3d926623510294463c589327f5420663b1b0b35f)
 ## Inputs
 
-| Name                |         Required         | Default | Description                                                                                       |
-|---------------------|:------------------------:|---------|---------------------------------------------------------------------------------------------------|
-| vercel-token        | <ul><li>- [x] </li></ol> |         | Vercel token. see https://vercel.com/account/tokens                                                                                   |
-| github-comment      | <ul><li>- [ ] </li></ol> |  true   | Its type can be either **string or boolean**. When string, it leaves PR a comment with the string. When boolean, it leaves PR a default comment(true) or does not leave a comment at all(false).                                                      |
-| github-token        | <ul><li>- [ ] </li></ol> |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
-| vercel-project-id   | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-org-id       | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-args         | <ul><li>- [ ] </li></ol> |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
-| working-directory   | <ul><li>- [ ] </li></ol> |         | the working directory                                                                             |
-| scope               | <ul><li>- [ ] </li></ol> |         | If you are working in a team scope, you should set this value to your `team ID`.
-| alias-domains       | <ul><li>- [ ] </li></ol> |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.
-| vercel-project-name | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
-| vercel-version      | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
+| Name                             |         Required         | Default | Description                                                                                       |
+|----------------------------------|:------------------------:|---------|---------------------------------------------------------------------------------------------------|
+| vercel-token                     | <ul><li>- [x] </li></ol> |         | Vercel token. see https://vercel.com/account/tokens                                                                                   |
+| github-comment                   | <ul><li>- [ ] </li></ol> |  true   | Its type can be either **string or boolean**. When string, it leaves PR a comment with the string. When boolean, it leaves PR a default comment(true) or does not leave a comment at all(false).                                                      |
+| github-token                     | <ul><li>- [ ] </li></ol> |         | if you want to comment on pull request or commit. `${{ secrets.GITHUB_TOKEN }}` ([GitHub token docs](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token))                                                         |
+| github-deployment                | <ul><li>- [ ] </li></ol> |  false  | if you want to create a [GitHub Deployment](https://docs.github.com/en/rest/deployments/deployments), set `true`.                                                      |
+| github-deployment-environment    | <ul><li>- [ ] </li></ol> |         | The environment for the GitHub deployment (e.g., `production`, `staging`, `preview`). If not specified, auto-detects: `production` when `vercel-args` contains `--prod`, otherwise `preview`. |
+| vercel-project-id                | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-org-id                    | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
+| vercel-args                      | <ul><li>- [ ] </li></ol> |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
+| working-directory                | <ul><li>- [ ] </li></ol> |         | the working directory                                                                             |
+| scope                            | <ul><li>- [ ] </li></ol> |         | If you are working in a team scope, you should set this value to your `team ID`.
+| alias-domains                    | <ul><li>- [ ] </li></ol> |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.
+| vercel-project-name              | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
+| vercel-version                   | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
 ## Outputs
 
 ### `preview-url`
@@ -63,6 +65,10 @@ The url of deployment preview.
 ### `preview-name`
 
 The name of deployment name.
+
+### `deployment-id`
+
+The GitHub Deployment ID. Only set when `github-deployment` is `true`. Can be used by downstream steps to reference the deployment.
 
 ## How To Use
 
@@ -259,6 +265,44 @@ jobs:
             staging.angular.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.angular.vercel-action.amond.dev
 ```
+
+### GitHub Deployments
+
+You can create [GitHub Deployments](https://docs.github.com/en/rest/deployments/deployments) to track your Vercel deployments directly in GitHub's Environments tab.
+
+Set `github-deployment` to `true` and provide a `github-token` with `deployments: write` permission.
+
+The environment is auto-detected from `vercel-args`: `production` when `--prod` is present, otherwise `preview`. You can override this with `github-deployment-environment`.
+
+```yaml
+name: deploy website
+on: [pull_request]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+      - uses: actions/checkout@v2
+      - uses: amondnet/vercel-action@v25
+        id: vercel
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
+          github-deployment: true
+          # github-deployment-environment: staging  # Optional override
+      - run: echo "Deployment ID is ${{ steps.vercel.outputs.deployment-id }}"
+```
+
+The deployment lifecycle:
+1. A GitHub Deployment is created with status `in_progress` before the Vercel deploy
+2. On success, the status is updated to `success` with the preview URL
+3. On failure, the status is updated to `failure`
+4. Previous deployments to the same environment are automatically deactivated
+
+> **Note:** GitHub Deployment errors are non-blocking. If the GitHub API call fails, the Vercel deployment will still proceed normally.
 
 ## Migration from v2
 
