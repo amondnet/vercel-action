@@ -60,4 +60,16 @@ export interface ActionConfig {
     vercelProjectName: string;
     vercelBin: string;
     aliasDomains: string[];
+    target: string;
+    prebuilt: boolean;
+    force: boolean;
+    env: Record<string, string>;
+    buildEnv: Record<string, string>;
+    regions: string[];
+    archive: string;
+    rootDirectory: string;
+    autoAssignCustomDomains: boolean;
+    customEnvironment: string;
+    isPublic: boolean;
+    withCache: boolean;
 }
