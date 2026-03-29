@@ -1,0 +1,23 @@
+.please/docs/tracks/active/use-actions-exec-20260329/plan.md
+  d650db583ff42d43 31-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "7f34fbdd918112d6eb46dc3bfe89d0b8d2405849",
+  "prompts": {
+    "d650db583ff42d43": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6368fc4a-98a7-4130-9cb4-9e4065a56cbc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 2,
+      "accepted_lines": 9,
+      "overriden_lines": 0
+    }
+  }
+}
