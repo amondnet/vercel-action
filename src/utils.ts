@@ -66,6 +66,34 @@ export async function retry<T>(fn: () => Promise<T>, retries: number): Promise<T
 }
 
 /**
+ * Parses multiline KEY=VALUE pairs into a Record
+ *
+ * @example
+ * parseKeyValueLines('FOO=bar\nBAZ=qux')
+ * // => { FOO: 'bar', BAZ: 'qux' }
+ */
+export function parseKeyValueLines(input: string): Record<string, string> {
+  const result: Record<string, string> = {}
+  if (!input)
+    return result
+
+  for (const line of input.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed)
+      continue
+    const eqIndex = trimmed.indexOf('=')
+    if (eqIndex === -1)
+      continue
+    const key = trimmed.substring(0, eqIndex).trim()
+    const value = trimmed.substring(eqIndex + 1).trim()
+    if (key) {
+      result[key] = value
+    }
+  }
+  return result
+}
+
+/**
  * Adds Vercel metadata arguments if not already provided by user
  */
 export function addVercelMetadata(key: string, value: string | number, providedArgs: string[]): string[] {
