@@ -61,7 +61,7 @@ inputs:
   target:
     required: false
     description: 'Deployment target: "production" or "preview" (default: preview). Replaces --prod flag in vercel-args.'
-    default: 'preview'
+    default: preview
   prebuilt:
     required: false
     description: 'Deploy prebuilt output from .vercel/output (default: false). Replaces --prebuilt flag in vercel-args.'
@@ -72,11 +72,11 @@ inputs:
     default: 'false'
   env:
     required: false
-    description: 'Environment variables for the deployment (KEY=VALUE per line). Replaces --env flags in vercel-args.'
+    description: Environment variables for the deployment (KEY=VALUE per line). Replaces --env flags in vercel-args.
     default: ''
   build-env:
     required: false
-    description: 'Build-time environment variables (KEY=VALUE per line). Replaces --build-env flags in vercel-args.'
+    description: Build-time environment variables (KEY=VALUE per line). Replaces --build-env flags in vercel-args.
     default: ''
   regions:
     required: false
@@ -88,7 +88,7 @@ inputs:
     default: ''
   root-directory:
     required: false
-    description: 'Root directory of the project relative to the repository root.'
+    description: Root directory of the project relative to the repository root.
     default: ''
   auto-assign-custom-domains:
     required: false
@@ -96,7 +96,7 @@ inputs:
     default: 'true'
   custom-environment:
     required: false
-    description: 'Custom environment slug or ID for the deployment.'
+    description: Custom environment slug or ID for the deployment.
     default: ''
   public:
     required: false
