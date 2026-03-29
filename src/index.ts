@@ -1,6 +1,6 @@
 import type { ActionConfig, DeploymentContext, GitHubContext, GitHubDeploymentResult, OctokitClient, PullRequestPayload, ReleasePayload, VercelClient } from './types'
-import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
+import * as exec from '@actions/exec'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
 import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
@@ -10,9 +10,15 @@ import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspe
 
 const { context } = github
 
-function getGitCommitMessage(): string {
+async function getGitCommitMessage(): Promise<string> {
+  let result: Awaited<ReturnType<typeof exec.getExecOutput>>
+
   try {
-    return execSync('git log -1 --pretty=format:%B').toString().trim()
+    result = await exec.getExecOutput(
+      'git',
+      ['log', '-1', '--pretty=format:%B'],
+      { silent: true, ignoreReturnCode: true },
+    )
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -21,6 +27,18 @@ function getGitCommitMessage(): string {
       + 'Ensure this action runs in a git repository with at least one commit.',
     )
   }
+
+  if (result.exitCode !== 0) {
+    const detail = result.stderr.trim()
+      || `git exited with code ${result.exitCode}`
+
+    throw new Error(
+      `Failed to retrieve git commit message: ${detail}. `
+      + 'Ensure this action runs in a git repository with at least one commit.',
+    )
+  }
+
+  return result.stdout.trim()
 }
 
 function logContextDebug(): void {
@@ -105,7 +123,7 @@ async function getDeploymentContext(
   const baseContext: DeploymentContext = {
     ref: context.ref,
     sha: context.sha,
-    commit: getGitCommitMessage(),
+    commit: await getGitCommitMessage(),
     commitOrg: context.repo.owner,
     commitRepo: context.repo.repo,
   }

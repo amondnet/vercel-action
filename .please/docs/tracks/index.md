@@ -10,6 +10,7 @@
 | [emulate-integration-test-20260326](active/emulate-integration-test-20260326/) | Integration Tests with emulate.dev | feature | — | 2026-03-26 | in_progress |
 | [improve-github-comment-20260329](active/improve-github-comment-20260329/) | Improve GitHub Deployment Comments | feature | #319 | 2026-03-29 | in_progress |
 | [github-deployment-20260329](active/github-deployment-20260329/) | GitHub Deployment Integration | feature | #321 | 2026-03-29 | in_progress |
+| [use-actions-exec-20260329](active/use-actions-exec-20260329/) | Replace execSync with @actions/exec | refactor | #317 | 2026-03-29 | in_progress |
 
 ## Recently Completed
 

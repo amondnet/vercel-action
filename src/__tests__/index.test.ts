@@ -19,6 +19,7 @@ vi.mock('@actions/core', () => ({
 
 vi.mock('@actions/exec', () => ({
   exec: vi.fn(),
+  getExecOutput: vi.fn().mockResolvedValue({ exitCode: 0, stdout: 'test commit message', stderr: '' }),
 }))
 
 vi.mock('@actions/github', () => ({
@@ -57,10 +58,6 @@ vi.mock('@actions/github', () => ({
       },
     },
   })),
-}))
-
-vi.mock('node:child_process', () => ({
-  execSync: vi.fn(() => Buffer.from('test commit message')),
 }))
 
 describe('gitHub Action Integration', () => {
@@ -160,6 +157,41 @@ describe('gitHub Action Integration', () => {
     it('warning and error logging are available', () => {
       expect(core.warning).toBeDefined()
       expect(core.error).toBeDefined()
+    })
+  })
+
+  describe('getGitCommitMessage error paths', () => {
+    it('surfaces a descriptive error when getExecOutput throws', async () => {
+      vi.mocked(exec.getExecOutput).mockRejectedValueOnce(
+        new Error('spawn git ENOENT'),
+      )
+
+      vi.resetModules()
+      await import('../index')
+
+      // Allow the async run() to settle
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(vi.mocked(core.setFailed)).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to retrieve git commit message'),
+      )
+    })
+
+    it('surfaces a descriptive error when getExecOutput returns non-zero exit code', async () => {
+      vi.mocked(exec.getExecOutput).mockResolvedValueOnce({
+        exitCode: 128,
+        stdout: '',
+        stderr: 'fatal: not a git repository',
+      })
+
+      vi.resetModules()
+      await import('../index')
+
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(vi.mocked(core.setFailed)).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to retrieve git commit message'),
+      )
     })
   })
 })

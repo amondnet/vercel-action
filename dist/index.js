@@ -32068,8 +32068,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const node_child_process_1 = __nccwpck_require__(7718);
 const core = __importStar(__nccwpck_require__(1078));
+const exec = __importStar(__nccwpck_require__(1757));
 const github = __importStar(__nccwpck_require__(9848));
 const config_1 = __nccwpck_require__(7296);
 const github_comments_1 = __nccwpck_require__(4019);
@@ -32077,15 +32077,23 @@ const github_deployment_1 = __nccwpck_require__(1859);
 const utils_1 = __nccwpck_require__(3924);
 const vercel_1 = __nccwpck_require__(3597);
 const { context } = github;
-function getGitCommitMessage() {
+async function getGitCommitMessage() {
+    let result;
     try {
-        return (0, node_child_process_1.execSync)('git log -1 --pretty=format:%B').toString().trim();
+        result = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true, ignoreReturnCode: true });
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(`Failed to retrieve git commit message: ${message}. `
             + 'Ensure this action runs in a git repository with at least one commit.');
     }
+    if (result.exitCode !== 0) {
+        const detail = result.stderr.trim()
+            || `git exited with code ${result.exitCode}`;
+        throw new Error(`Failed to retrieve git commit message: ${detail}. `
+            + 'Ensure this action runs in a git repository with at least one commit.');
+    }
+    return result.stdout.trim();
 }
 function logContextDebug() {
     core.debug(`action : ${context.action}`);
@@ -32152,7 +32160,7 @@ async function getDeploymentContext(octokit) {
     const baseContext = {
         ref: context.ref,
         sha: context.sha,
-        commit: getGitCommitMessage(),
+        commit: await getGitCommitMessage(),
         commitOrg: context.repo.owner,
         commitRepo: context.repo.repo,
     };
@@ -32885,14 +32893,6 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
-
-/***/ }),
-
-/***/ 7718:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("node:child_process");
 
 /***/ }),
 
@@ -34669,7 +34669,7 @@ module.exports = parseParams
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","version":"42.1.0","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
+module.exports = JSON.parse('{"name":"vercel-action","version":"42.1.0","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt --transpile-only","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
 
 /***/ })
 
