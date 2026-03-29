@@ -1,0 +1,25 @@
+src/index.ts
+  d650db583ff42d43 13-14,16-20,29-33,35,39-40
+src/__tests__/index.test.ts
+  d650db583ff42d43 160-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "828f7acb01b9e6f4ad9ca9bc9e7d4c4df5db0a19",
+  "prompts": {
+    "d650db583ff42d43": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6368fc4a-98a7-4130-9cb4-9e4065a56cbc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 64,
+      "total_deletions": 12,
+      "accepted_lines": 59,
+      "overriden_lines": 0
+    }
+  }
+}
