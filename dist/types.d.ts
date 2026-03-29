@@ -39,9 +39,13 @@ export interface GitHubContext {
     };
     issueNumber: number;
 }
+export interface InspectResult {
+    name: string | null;
+    inspectUrl: string | null;
+}
 export interface VercelClient {
     deploy: (_config: ActionConfig, _deployContext: DeploymentContext) => Promise<string>;
-    inspect: (_deploymentUrl: string) => Promise<string | null>;
+    inspect: (_deploymentUrl: string) => Promise<InspectResult>;
     assignAlias: (_deploymentUrl: string, _domain: string) => Promise<void>;
 }
 export interface ActionConfig {
