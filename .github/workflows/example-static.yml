@@ -11,38 +11,63 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Pull Vercel environment
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec vercel pull --yes --token=${VERCEL_TOKEN}
+        working-directory: example/static
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (preview)
+        if: github.event_name == 'pull_request_target'
+        run: pnpm exec vercel build
+        working-directory: example/static
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
       - uses: ./
         id: now-deployment-staging
         if: github.event_name == 'pull_request_target'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
+          vercel-args: --prebuilt
           working-directory: example/static
           alias-domains: |
             staging.static.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.static.vercel-action.amond.dev
-      - name: production or not
-        id: prod_or_not
-        run: |
-          if [ "$REF" == 'refs/heads/master' ]
-          then
-              echo "vercel-args=--prod" >> $GITHUB_OUTPUT
-          else
-              echo "vercel-args=" >> $GITHUB_OUTPUT
-          fi
+
+      - name: Build (production)
+        if: github.event_name == 'push'
+        run: pnpm exec vercel build --prod
+        working-directory: example/static
         env:
-          REF: ${{ github.ref }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
       - uses: ./
         id: now-deployment-production
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_STATIC }}
-          vercel-args: ${{ steps.prod_or_not.outputs.vercel-args }}
+          vercel-args: --prod --prebuilt
           working-directory: example/static
           alias-domains: |
             {{BRANCH}}.static.vercel-action.amond.dev
