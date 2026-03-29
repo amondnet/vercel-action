@@ -1,0 +1,25 @@
+.please/docs/tracks/active/api-based-deployment-20260329/metadata.json
+  cc1137572caf1542 8
+src/vercel-api.ts
+  cc1137572caf1542 1,4,21-22,37-38,53-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "1b6754621dbebcc7aed45ec1e90d2344289f85f7",
+  "prompts": {
+    "cc1137572caf1542": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58a10960-d61c-401a-b460-8307ed135153",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 8,
+      "accepted_lines": 9,
+      "overriden_lines": 0
+    }
+  }
+}
