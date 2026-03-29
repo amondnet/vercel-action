@@ -128,3 +128,24 @@ Alternative considered: embedding deployment logic directly in `index.ts`. Rejec
   Evidence: `pnpm test -- index` → 17 tests passed (5 new)
 - [x] (2026-03-29 18:29 KST) T009 Build dist bundle
   Evidence: `pnpm run build` → dist/index.js (1248kB), dist/github-deployment.d.ts created
+- [x] (2026-03-29 18:36 KST) Review fixes applied (SHA: `7f1fe25`)
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+- GitHub Deployment integration with full lifecycle management (in_progress → success/failure)
+- Environment auto-detection from `--prod` flag with explicit override
+- `deployment-id` output for downstream workflow steps
+- Non-blocking error handling with graceful degradation
+
+### What Went Well
+- Following the `github-comments.ts` module pattern made the implementation clean and consistent
+- Code review caught a critical issue (unsafe cast on GitHub 202 response) before merge
+- TDD approach with 18 new tests provided good coverage from the start
+
+### What Could Improve
+- Initial implementation had unsafe type cast — should have checked GitHub API docs for the 202 response variant earlier
+- The `run()` integration tests in `index.test.ts` test mock structure rather than actual `run()` execution
+
+### Tech Debt Created
+- `index.test.ts` integration tests don't exercise the full `run()` function with `github-deployment: true` — they only verify mock structure
