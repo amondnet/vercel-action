@@ -1,0 +1,25 @@
+.please/docs/tracks/index.md
+  d650db583ff42d43 11
+.please/docs/tracks/active/use-actions-exec-20260329/metadata.json
+  d650db583ff42d43 4,6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "61babe21dd1768118b231c8d05737f303180d871",
+  "prompts": {
+    "d650db583ff42d43": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6368fc4a-98a7-4130-9cb4-9e4065a56cbc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
