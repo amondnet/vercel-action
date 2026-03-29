@@ -55,6 +55,8 @@ export interface VercelClient {
 export interface ActionConfig {
   githubToken: string
   githubComment: boolean | string
+  githubDeployment: boolean
+  githubDeploymentEnvironment: string
   workingDirectory: string
   vercelToken: string
   vercelArgs: string
@@ -64,4 +66,8 @@ export interface ActionConfig {
   vercelProjectName: string
   vercelBin: string
   aliasDomains: string[]
+}
+
+export interface GitHubDeploymentResult {
+  deploymentId: number
 }
