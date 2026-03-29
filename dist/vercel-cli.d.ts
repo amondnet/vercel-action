@@ -1,8 +1,8 @@
-import type { ActionConfig, DeploymentContext, VercelClient } from './types';
+import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types';
 export declare class VercelCliClient implements VercelClient {
     private readonly config;
     constructor(config: ActionConfig);
     deploy(config: ActionConfig, deployContext: DeploymentContext): Promise<string>;
-    inspect(deploymentUrl: string): Promise<string | null>;
+    inspect(deploymentUrl: string): Promise<InspectResult>;
     assignAlias(deploymentUrl: string, domain: string): Promise<void>;
 }

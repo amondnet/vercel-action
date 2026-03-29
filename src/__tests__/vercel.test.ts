@@ -258,26 +258,26 @@ describe('vercelInspect', () => {
       return 0
     })
 
-    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
-    expect(name).toBe('my-project')
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    expect(result.name).toBe('my-project')
   })
 
-  it('returns null when name not found in output', async () => {
+  it('returns null name when name not found in output', async () => {
     vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
       options?.listeners?.stderr?.(Buffer.from('some other output\n'))
       return 0
     })
 
-    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
-    expect(name).toBeNull()
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    expect(result.name).toBeNull()
   })
 
-  it('returns null and warns when exec fails', async () => {
+  it('returns null values and warns when exec fails', async () => {
     vi.mocked(exec.exec).mockRejectedValue(new Error('command failed'))
 
-    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
 
-    expect(name).toBeNull()
+    expect(result).toEqual({ name: null, inspectUrl: null })
     expect(core.warning).toHaveBeenCalledWith(
       'vercel inspect failed: command failed',
     )
@@ -286,9 +286,19 @@ describe('vercelInspect', () => {
   it('does not throw when exec fails', async () => {
     vi.mocked(exec.exec).mockRejectedValue(new Error('network error'))
 
-    await expect(
-      vercelInspect(createClient(), 'https://deploy.vercel.app'),
-    ).resolves.toBeNull()
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    expect(result).toEqual({ name: null, inspectUrl: null })
+  })
+
+  it('extracts inspectUrl from stderr when available', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stderr?.(Buffer.from('  name  my-project\n  inspectorUrl  https://vercel.com/team/project/dpl_123\n'))
+      return 0
+    })
+
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    expect(result.name).toBe('my-project')
+    expect(result.inspectUrl).toBe('https://vercel.com/team/project/dpl_123')
   })
 
   it('passes correct args including token and inspect command', async () => {
@@ -328,8 +338,8 @@ describe('vercelInspect', () => {
       return 0
     })
 
-    const name = await vercelInspect(createClient(), 'https://deploy.vercel.app')
-    expect(name).toBe('my-project-name')
+    const result = await vercelInspect(createClient(), 'https://deploy.vercel.app')
+    expect(result.name).toBe('my-project-name')
   })
 })
 

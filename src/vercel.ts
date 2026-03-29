@@ -1,4 +1,4 @@
-import type { ActionConfig, DeploymentContext, VercelClient } from './types'
+import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
 import { retry } from './utils'
 import { VercelCliClient } from './vercel-cli'
@@ -20,7 +20,7 @@ export async function vercelDeploy(
 export async function vercelInspect(
   client: VercelClient,
   deploymentUrl: string,
-): Promise<string | null> {
+): Promise<InspectResult> {
   return client.inspect(deploymentUrl)
 }
 

@@ -1,4 +1,4 @@
-import type { ActionConfig, DeploymentContext, VercelClient } from './types'
+import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as github from '@actions/github'
@@ -117,7 +117,7 @@ export class VercelCliClient implements VercelClient {
     return extractDeploymentUrl(output)
   }
 
-  async inspect(deploymentUrl: string): Promise<string | null> {
+  async inspect(deploymentUrl: string): Promise<InspectResult> {
     let errorOutput = ''
     const options: exec.ExecOptions = {
       listeners: {
@@ -148,15 +148,20 @@ export class VercelCliClient implements VercelClient {
     catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       core.warning(`vercel inspect failed: ${message}`)
-      return null
+      return { name: null, inspectUrl: null }
     }
 
-    const match = errorOutput.match(/^\s+name\s+(.+)$/m)
-    if (!match?.[1]) {
+    const nameMatch = errorOutput.match(/^\s+name\s+(.+)$/m)
+    const inspectUrlMatch = errorOutput.match(/^\s+inspectorUrl\s+(.+)$/m)
+
+    if (!nameMatch?.[1]) {
       core.debug(`Failed to extract project name from inspect output`)
-      return null
     }
-    return match[1]
+
+    return {
+      name: nameMatch?.[1]?.trim() ?? null,
+      inspectUrl: inspectUrlMatch?.[1]?.trim() ?? null,
+    }
   }
 
   async assignAlias(deploymentUrl: string, domain: string): Promise<void> {

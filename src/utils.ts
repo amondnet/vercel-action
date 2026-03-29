@@ -100,6 +100,51 @@ export function buildCommentPrefix(deploymentName: string): string {
 }
 
 /**
+ * Escapes HTML special characters to prevent XSS in generated comments
+ */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
+ * Builds an HTML table comment for deployment notifications
+ */
+export function buildHtmlTableComment(
+  deploymentCommit: string,
+  deploymentUrl: string,
+  deploymentName: string,
+  aliasDomains: string[],
+  inspectUrl: string | null = null,
+): string {
+  const rows: string[] = []
+  const safeName = escapeHtml(deploymentName)
+  const safeUrl = escapeHtml(deploymentUrl)
+  const safeCommit = escapeHtml(deploymentCommit.substring(0, 7))
+
+  rows.push(`<tr><td><strong>Project:</strong></td><td><code>${safeName}</code></td></tr>`)
+  rows.push(`<tr><td><strong>Status:</strong></td><td>&nbsp;✅&nbsp; Deploy successful!</td></tr>`)
+  rows.push(`<tr><td><strong>Preview URL:</strong></td><td><a href='${safeUrl}'>${safeUrl}</a></td></tr>`)
+  rows.push(`<tr><td><strong>Latest Commit:</strong></td><td><code>${safeCommit}</code></td></tr>`)
+
+  for (const domain of aliasDomains) {
+    const safeAlias = escapeHtml(`https://${domain}`)
+    rows.push(`<tr><td><strong>Alias:</strong></td><td><a href='${safeAlias}'>${safeAlias}</a></td></tr>`)
+  }
+
+  if (inspectUrl) {
+    const safeInspect = escapeHtml(inspectUrl)
+    rows.push(`<tr><td><strong>Inspect:</strong></td><td><a href='${safeInspect}'>View deployment</a></td></tr>`)
+  }
+
+  return `<table>\n${rows.join('\n')}\n</table>`
+}
+
+/**
  * Builds the GitHub comment body for deployment notifications
  */
 export function buildCommentBody(
@@ -108,26 +153,36 @@ export function buildCommentBody(
   deploymentName: string,
   githubComment: boolean | string,
   aliasDomains: string[],
-  defaultTemplate: string,
+  _defaultTemplate: string,
+  inspectUrl: string | null = null,
 ): string | undefined {
   if (!githubComment) {
     return undefined
   }
   const prefix = `${buildCommentPrefix(deploymentName)}\n\n`
 
-  const rawGithubComment
-    = prefix
-      + (typeof githubComment === 'string'
-        ? githubComment
-        : defaultTemplate)
+  if (typeof githubComment === 'string') {
+    const rawGithubComment = prefix + githubComment
+    return rawGithubComment
+      .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
+      .replace(/\{\{deploymentName\}\}/g, deploymentName)
+      .replace(
+        /\{\{deploymentUrl\}\}/g,
+        joinDeploymentUrls(deploymentUrl, aliasDomains),
+      )
+  }
 
-  return rawGithubComment
-    .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
-    .replace(/\{\{deploymentName\}\}/g, deploymentName)
-    .replace(
-      /\{\{deploymentUrl\}\}/g,
-      joinDeploymentUrls(deploymentUrl, aliasDomains),
-    )
+  const htmlTable = buildHtmlTableComment(
+    deploymentCommit,
+    deploymentUrl,
+    deploymentName,
+    aliasDomains,
+    inspectUrl,
+  )
+
+  const footer = '\n\nDeployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)'
+
+  return prefix + htmlTable + footer
 }
 
 /**

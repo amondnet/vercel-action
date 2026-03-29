@@ -31841,10 +31841,10 @@ async function findPreviousComment(octokit, ctx, text) {
     core.info('previous comment not found');
     return null;
 }
-async function createCommentOnCommit(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnCommit(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName, inspectUrl = null) {
     try {
         const commentId = await findPreviousComment(octokit, ctx, (0, utils_1.buildCommentPrefix)(deploymentName));
-        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE, inspectUrl);
         if (!commentBody) {
             return;
         }
@@ -31869,10 +31869,10 @@ async function createCommentOnCommit(octokit, ctx, config, deploymentCommit, dep
             + 'Ensure the github-token has write permissions to the repository.');
     }
 }
-async function createCommentOnPullRequest(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName) {
+async function createCommentOnPullRequest(octokit, ctx, config, deploymentCommit, deploymentUrl, deploymentName, inspectUrl = null) {
     try {
         const commentId = await findPreviousComment(octokit, ctx, (0, utils_1.buildCommentPrefix)(deploymentName));
-        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE);
+        const commentBody = (0, utils_1.buildCommentBody)(deploymentCommit, deploymentUrl, deploymentName, config.githubComment, config.aliasDomains, DEFAULT_COMMENT_TEMPLATE, inspectUrl);
         if (!commentBody) {
             return;
         }
@@ -32059,7 +32059,13 @@ async function handleDeploymentOutputs(vercel, config, deploymentUrl) {
     else {
         core.warning('Deployment completed but no preview URL was returned');
     }
-    const deploymentName = config.vercelProjectName || await (0, vercel_1.vercelInspect)(vercel, deploymentUrl);
+    let deploymentName = config.vercelProjectName || null;
+    let inspectUrl = null;
+    if (deploymentUrl) {
+        const result = await (0, vercel_1.vercelInspect)(vercel, deploymentUrl);
+        deploymentName = deploymentName || result.name;
+        inspectUrl = result.inspectUrl;
+    }
     if (deploymentName) {
         core.info('set preview-name output');
         core.setOutput('preview-name', deploymentName);
@@ -32067,7 +32073,7 @@ async function handleDeploymentOutputs(vercel, config, deploymentUrl) {
     else {
         core.warning('Could not determine deployment name');
     }
-    return deploymentName;
+    return { deploymentName, inspectUrl };
 }
 async function handleAliasing(vercel, config, deploymentUrl) {
     if (config.aliasDomains.length === 0) {
@@ -32091,14 +32097,14 @@ function buildGitHubContext() {
         issueNumber: context.issue.number,
     };
 }
-async function handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName) {
+async function handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl) {
     if (ctx.issueNumber) {
         core.info('this is related issue or pull_request');
-        await (0, github_comments_1.createCommentOnPullRequest)(octokit, ctx, config, sha, deploymentUrl, deploymentName);
+        await (0, github_comments_1.createCommentOnPullRequest)(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl);
     }
     else if (ctx.eventName === 'push') {
         core.info('this is push event');
-        await (0, github_comments_1.createCommentOnCommit)(octokit, ctx, config, sha, deploymentUrl, deploymentName);
+        await (0, github_comments_1.createCommentOnCommit)(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl);
     }
 }
 async function run() {
@@ -32110,11 +32116,11 @@ async function run() {
     const { sha } = deploymentContext;
     const vercelClient = (0, vercel_1.createVercelClient)(config);
     const deploymentUrl = await (0, vercel_1.vercelDeploy)(vercelClient, config, deploymentContext);
-    const deploymentName = await handleDeploymentOutputs(vercelClient, config, deploymentUrl);
+    const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl);
     await handleAliasing(vercelClient, config, deploymentUrl);
     if (config.githubComment && octokit) {
         const ctx = buildGitHubContext();
-        await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '');
+        await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl);
     }
     else {
         core.info('comment : disabled');
@@ -32178,6 +32184,8 @@ exports.retry = retry;
 exports.addVercelMetadata = addVercelMetadata;
 exports.joinDeploymentUrls = joinDeploymentUrls;
 exports.buildCommentPrefix = buildCommentPrefix;
+exports.escapeHtml = escapeHtml;
+exports.buildHtmlTableComment = buildHtmlTableComment;
 exports.buildCommentBody = buildCommentBody;
 exports.getGithubCommentInput = getGithubCommentInput;
 const core = __importStar(__nccwpck_require__(1078));
@@ -32270,21 +32278,56 @@ function buildCommentPrefix(deploymentName) {
     return `Deploy preview for _${deploymentName}_ ready!`;
 }
 /**
+ * Escapes HTML special characters to prevent XSS in generated comments
+ */
+function escapeHtml(s) {
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+/**
+ * Builds an HTML table comment for deployment notifications
+ */
+function buildHtmlTableComment(deploymentCommit, deploymentUrl, deploymentName, aliasDomains, inspectUrl = null) {
+    const rows = [];
+    const safeName = escapeHtml(deploymentName);
+    const safeUrl = escapeHtml(deploymentUrl);
+    const safeCommit = escapeHtml(deploymentCommit.substring(0, 7));
+    rows.push(`<tr><td><strong>Project:</strong></td><td><code>${safeName}</code></td></tr>`);
+    rows.push(`<tr><td><strong>Status:</strong></td><td>&nbsp;✅&nbsp; Deploy successful!</td></tr>`);
+    rows.push(`<tr><td><strong>Preview URL:</strong></td><td><a href='${safeUrl}'>${safeUrl}</a></td></tr>`);
+    rows.push(`<tr><td><strong>Latest Commit:</strong></td><td><code>${safeCommit}</code></td></tr>`);
+    for (const domain of aliasDomains) {
+        const safeAlias = escapeHtml(`https://${domain}`);
+        rows.push(`<tr><td><strong>Alias:</strong></td><td><a href='${safeAlias}'>${safeAlias}</a></td></tr>`);
+    }
+    if (inspectUrl) {
+        const safeInspect = escapeHtml(inspectUrl);
+        rows.push(`<tr><td><strong>Inspect:</strong></td><td><a href='${safeInspect}'>View deployment</a></td></tr>`);
+    }
+    return `<table>\n${rows.join('\n')}\n</table>`;
+}
+/**
  * Builds the GitHub comment body for deployment notifications
  */
-function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName, githubComment, aliasDomains, defaultTemplate) {
+function buildCommentBody(deploymentCommit, deploymentUrl, deploymentName, githubComment, aliasDomains, _defaultTemplate, inspectUrl = null) {
     if (!githubComment) {
         return undefined;
     }
     const prefix = `${buildCommentPrefix(deploymentName)}\n\n`;
-    const rawGithubComment = prefix
-        + (typeof githubComment === 'string'
-            ? githubComment
-            : defaultTemplate);
-    return rawGithubComment
-        .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
-        .replace(/\{\{deploymentName\}\}/g, deploymentName)
-        .replace(/\{\{deploymentUrl\}\}/g, joinDeploymentUrls(deploymentUrl, aliasDomains));
+    if (typeof githubComment === 'string') {
+        const rawGithubComment = prefix + githubComment;
+        return rawGithubComment
+            .replace(/\{\{deploymentCommit\}\}/g, deploymentCommit)
+            .replace(/\{\{deploymentName\}\}/g, deploymentName)
+            .replace(/\{\{deploymentUrl\}\}/g, joinDeploymentUrls(deploymentUrl, aliasDomains));
+    }
+    const htmlTable = buildHtmlTableComment(deploymentCommit, deploymentUrl, deploymentName, aliasDomains, inspectUrl);
+    const footer = '\n\nDeployed with [vercel-action](https://github.com/marketplace/actions/vercel-action)';
+    return prefix + htmlTable + footer;
 }
 /**
  * Parses the github-comment input value
@@ -32458,14 +32501,17 @@ class VercelCliClient {
         catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             core.warning(`vercel inspect failed: ${message}`);
-            return null;
+            return { name: null, inspectUrl: null };
         }
-        const match = errorOutput.match(/^\s+name\s+(.+)$/m);
-        if (!match?.[1]) {
+        const nameMatch = errorOutput.match(/^\s+name\s+(.+)$/m);
+        const inspectUrlMatch = errorOutput.match(/^\s+inspectorUrl\s+(.+)$/m);
+        if (!nameMatch?.[1]) {
             core.debug(`Failed to extract project name from inspect output`);
-            return null;
         }
-        return match[1];
+        return {
+            name: nameMatch?.[1]?.trim() ?? null,
+            inspectUrl: inspectUrlMatch?.[1]?.trim() ?? null,
+        };
     }
     async assignAlias(deploymentUrl, domain) {
         const args = [this.config.vercelBin, '-t', this.config.vercelToken];
@@ -34467,7 +34513,7 @@ module.exports = parseParams
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","version":"41.1.4","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
+module.exports = JSON.parse('{"name":"vercel-action","version":"42.0.0","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
 
 /***/ })
 

@@ -1,4 +1,4 @@
-import type { ActionConfig, DeploymentContext, VercelClient } from './types';
+import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types';
 export declare class VercelApiClient implements VercelClient {
     private readonly http;
     private readonly baseUrl;
@@ -7,7 +7,7 @@ export declare class VercelApiClient implements VercelClient {
     constructor(config: ActionConfig, baseUrl?: string);
     private buildUrl;
     deploy(_config: ActionConfig, _deployContext: DeploymentContext): Promise<string>;
-    inspect(deploymentUrl: string): Promise<string | null>;
+    inspect(deploymentUrl: string): Promise<InspectResult>;
     assignAlias(deploymentUrl: string, domain: string): Promise<void>;
     private extractDeploymentId;
 }

@@ -47,16 +47,16 @@ describe('vercelApiClient (integration)', () => {
       const created = await createRes.json()
 
       const client = new VercelApiClient(createConfig(), process.env.EMULATE_VERCEL_URL)
-      const name = await client.inspect(created.id)
+      const result = await client.inspect(created.id)
 
-      expect(name).toBe(TEST_PROJECT)
+      expect(result.name).toBe(TEST_PROJECT)
     })
 
-    it('should return null for non-existent deployment', async () => {
+    it('should return null name for non-existent deployment', async () => {
       const client = new VercelApiClient(createConfig(), process.env.EMULATE_VERCEL_URL)
-      const name = await client.inspect('non-existent-id')
+      const result = await client.inspect('non-existent-id')
 
-      expect(name).toBeNull()
+      expect(result.name).toBeNull()
     })
   })
 

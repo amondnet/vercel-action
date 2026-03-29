@@ -31,9 +31,17 @@ export declare function joinDeploymentUrls(deploymentUrl: string, aliasDomains: 
  */
 export declare function buildCommentPrefix(deploymentName: string): string;
 /**
+ * Escapes HTML special characters to prevent XSS in generated comments
+ */
+export declare function escapeHtml(s: string): string;
+/**
+ * Builds an HTML table comment for deployment notifications
+ */
+export declare function buildHtmlTableComment(deploymentCommit: string, deploymentUrl: string, deploymentName: string, aliasDomains: string[], inspectUrl?: string | null): string;
+/**
  * Builds the GitHub comment body for deployment notifications
  */
-export declare function buildCommentBody(deploymentCommit: string, deploymentUrl: string, deploymentName: string, githubComment: boolean | string, aliasDomains: string[], defaultTemplate: string): string | undefined;
+export declare function buildCommentBody(deploymentCommit: string, deploymentUrl: string, deploymentName: string, githubComment: boolean | string, aliasDomains: string[], _defaultTemplate: string, inspectUrl?: string | null): string | undefined;
 /**
  * Parses the github-comment input value
  */
