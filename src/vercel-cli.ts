@@ -159,8 +159,8 @@ export class VercelCliClient implements VercelClient {
     }
 
     return {
-      name: nameMatch?.[1] ?? null,
-      inspectUrl: inspectUrlMatch?.[1] ?? null,
+      name: nameMatch?.[1]?.trim() ?? null,
+      inspectUrl: inspectUrlMatch?.[1]?.trim() ?? null,
     }
   }
 

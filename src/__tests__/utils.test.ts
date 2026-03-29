@@ -4,6 +4,7 @@ import {
   buildCommentBody,
   buildCommentPrefix,
   buildHtmlTableComment,
+  escapeHtml,
   getGithubCommentInput,
   isPullRequestType,
   joinDeploymentUrls,
@@ -186,6 +187,24 @@ describe('buildCommentPrefix', () => {
   })
 })
 
+describe('escapeHtml', () => {
+  it('escapes angle brackets', () => {
+    expect(escapeHtml('<script>')).toBe('&lt;script&gt;')
+  })
+
+  it('escapes quotes', () => {
+    expect(escapeHtml('\'"')).toBe('&#39;&quot;')
+  })
+
+  it('escapes ampersands', () => {
+    expect(escapeHtml('a&b')).toBe('a&amp;b')
+  })
+
+  it('leaves safe strings unchanged', () => {
+    expect(escapeHtml('https://example.vercel.app')).toBe('https://example.vercel.app')
+  })
+})
+
 describe('buildHtmlTableComment', () => {
   it('renders HTML table with all fields', () => {
     const result = buildHtmlTableComment('abc123def', 'https://example.vercel.app', 'my-app', [])
@@ -200,6 +219,14 @@ describe('buildHtmlTableComment', () => {
   it('omits alias rows when no aliases configured', () => {
     const result = buildHtmlTableComment('abc123', 'https://example.vercel.app', 'my-app', [])
     expect(result).not.toContain('Alias')
+  })
+
+  it('escapes HTML special characters in all fields', () => {
+    const result = buildHtmlTableComment('abc<123', 'https://example.com?x=\'><img>', 'app<xss>', [])
+    expect(result).not.toContain('<xss>')
+    expect(result).not.toContain('<img>')
+    expect(result).toContain('&lt;xss&gt;')
+    expect(result).toContain('&#39;&gt;&lt;img&gt;')
   })
 
   it('includes alias rows when configured', () => {

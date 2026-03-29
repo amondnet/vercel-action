@@ -100,6 +100,18 @@ export function buildCommentPrefix(deploymentName: string): string {
 }
 
 /**
+ * Escapes HTML special characters to prevent XSS in generated comments
+ */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
  * Builds an HTML table comment for deployment notifications
  */
 export function buildHtmlTableComment(
@@ -110,19 +122,23 @@ export function buildHtmlTableComment(
   inspectUrl: string | null = null,
 ): string {
   const rows: string[] = []
+  const safeName = escapeHtml(deploymentName)
+  const safeUrl = escapeHtml(deploymentUrl)
+  const safeCommit = escapeHtml(deploymentCommit.substring(0, 7))
 
-  rows.push(`<tr><td><strong>Project:</strong></td><td><code>${deploymentName}</code></td></tr>`)
+  rows.push(`<tr><td><strong>Project:</strong></td><td><code>${safeName}</code></td></tr>`)
   rows.push(`<tr><td><strong>Status:</strong></td><td>&nbsp;✅&nbsp; Deploy successful!</td></tr>`)
-  rows.push(`<tr><td><strong>Preview URL:</strong></td><td><a href='${deploymentUrl}'>${deploymentUrl}</a></td></tr>`)
-  rows.push(`<tr><td><strong>Latest Commit:</strong></td><td><code>${deploymentCommit.substring(0, 7)}</code></td></tr>`)
+  rows.push(`<tr><td><strong>Preview URL:</strong></td><td><a href='${safeUrl}'>${safeUrl}</a></td></tr>`)
+  rows.push(`<tr><td><strong>Latest Commit:</strong></td><td><code>${safeCommit}</code></td></tr>`)
 
   for (const domain of aliasDomains) {
-    const aliasUrl = `https://${domain}`
-    rows.push(`<tr><td><strong>Alias:</strong></td><td><a href='${aliasUrl}'>${aliasUrl}</a></td></tr>`)
+    const safeAlias = escapeHtml(`https://${domain}`)
+    rows.push(`<tr><td><strong>Alias:</strong></td><td><a href='${safeAlias}'>${safeAlias}</a></td></tr>`)
   }
 
   if (inspectUrl) {
-    rows.push(`<tr><td><strong>Inspect:</strong></td><td><a href='${inspectUrl}'>View deployment</a></td></tr>`)
+    const safeInspect = escapeHtml(inspectUrl)
+    rows.push(`<tr><td><strong>Inspect:</strong></td><td><a href='${safeInspect}'>View deployment</a></td></tr>`)
   }
 
   return `<table>\n${rows.join('\n')}\n</table>`
