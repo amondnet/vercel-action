@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { createGitHubDeployment, updateGitHubDeploymentStatus } from '../github-deployment'
 import { createOctokitClient, TEST_OWNER, TEST_REPO } from './helpers'
 
-describe('GitHub Deployment (integration)', () => {
+describe('createGitHubDeployment (integration)', () => {
   let ctx: GitHubContext
   let deploymentContext: DeploymentContext
   let commitSha: string
