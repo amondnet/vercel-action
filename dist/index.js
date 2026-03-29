@@ -32078,15 +32078,22 @@ const utils_1 = __nccwpck_require__(3924);
 const vercel_1 = __nccwpck_require__(3597);
 const { context } = github;
 async function getGitCommitMessage() {
+    let result;
     try {
-        const { stdout } = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true });
-        return stdout.trim();
+        result = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%B'], { silent: true, ignoreReturnCode: true });
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(`Failed to retrieve git commit message: ${message}. `
             + 'Ensure this action runs in a git repository with at least one commit.');
     }
+    if (result.exitCode !== 0) {
+        const detail = result.stderr.trim()
+            || `git exited with code ${result.exitCode}`;
+        throw new Error(`Failed to retrieve git commit message: ${detail}. `
+            + 'Ensure this action runs in a git repository with at least one commit.');
+    }
+    return result.stdout.trim();
 }
 function logContextDebug() {
     core.debug(`action : ${context.action}`);
