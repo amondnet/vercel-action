@@ -1,0 +1,43 @@
+src/__integration__/vercel-api.test.ts
+  747de583ad7f4ed5 50,52,55,57,59
+src/__tests__/utils.test.ts
+  747de583ad7f4ed5 6,189-224,242,244,246,249,256,265-280
+src/github-comments.ts
+  747de583ad7f4ed5 73,89,127,143
+src/vercel.ts
+  747de583ad7f4ed5 1,23
+src/__tests__/vercel.test.ts
+  747de583ad7f4ed5 261-262,265,271-272,275,278,280,289-301,341-342
+src/types.ts
+  747de583ad7f4ed5 44-48,51
+src/__tests__/github-comments.test.ts
+  747de583ad7f4ed5 87
+src/vercel-api.ts
+  747de583ad7f4ed5 1,40,50,55-58,63
+src/vercel-cli.ts
+  747de583ad7f4ed5 1,120,151,154-157,160-163
+src/index.ts
+  747de583ad7f4ed5 138,153-161,170,207,211,215,233,239
+src/utils.ts
+  747de583ad7f4ed5 103-130,141,148-167,169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "84d030e713310312be4890fcbb7bdc9ed3fac103",
+  "prompts": {
+    "747de583ad7f4ed5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "02f1891b-7444-4399-a057-d9f64072bcca",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 190,
+      "total_deletions": 59,
+      "accepted_lines": 188,
+      "overriden_lines": 0
+    }
+  }
+}
