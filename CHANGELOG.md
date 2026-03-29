@@ -1,5 +1,30 @@
 # Changelog
 
+## [42.0.0](https://github.com/amondnet/vercel-action/compare/v41.1.4...v42.0.0) (2026-03-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* @actions/github upgraded from v2 to v6
+
+### Bug Fixes
+
+* auto-retry deployment when personal account org ID causes scope error ([#298](https://github.com/amondnet/vercel-action/issues/298)) ([1b0001f](https://github.com/amondnet/vercel-action/commit/1b0001faddbd6f631a9ae467c70e3d36e8ebecc4))
+* clear VERCEL_ORG_ID and VERCEL_PROJECT_ID env vars on alias retry ([#312](https://github.com/amondnet/vercel-action/issues/312)) ([e34aeb6](https://github.com/amondnet/vercel-action/commit/e34aeb675588e9812975529addb3971bc7f4d3f7))
+* **example:** move express-basic-auth function to api/ directory ([#308](https://github.com/amondnet/vercel-action/issues/308)) ([1c7fbdd](https://github.com/amondnet/vercel-action/commit/1c7fbdd4551c032cc7186140489c18dc94530a2d))
+* **example:** update nextjs example dependencies to latest versions ([#313](https://github.com/amondnet/vercel-action/issues/313)) ([1043003](https://github.com/amondnet/vercel-action/commit/1043003e7fb6be077b6a3f95870df6a0b6121b94))
+* github ref randomly empty for release triggers ([#277](https://github.com/amondnet/vercel-action/issues/277)) ([9ef1deb](https://github.com/amondnet/vercel-action/commit/9ef1deba160a11eaa7bb9a256eadde16513c7d46))
+* handle inaccessible PR head repository gracefully ([f9aadd3](https://github.com/amondnet/vercel-action/commit/f9aadd3303aeb96f7003366b164cb06a2b54d69e))
+* require both vercel-org-id and vercel-project-id for deployment ([#304](https://github.com/amondnet/vercel-action/issues/304)) ([c5205ad](https://github.com/amondnet/vercel-action/commit/c5205ad240304b884ff8d3084aa791d3bcc93dd5))
+* resolve vercel CLI v41 scope error for personal accounts ([#297](https://github.com/amondnet/vercel-action/issues/297)) ([b591ac8](https://github.com/amondnet/vercel-action/commit/b591ac88b0a8142d0289a6e6cc52cad6d6b569c6))
+* retry alias command without --scope for personal accounts ([#310](https://github.com/amondnet/vercel-action/issues/310)) ([b1a533d](https://github.com/amondnet/vercel-action/commit/b1a533db34e3a4f0b79082d9037f49d2da0a8c45))
+* use correct commit SHA ([#278](https://github.com/amondnet/vercel-action/issues/278)) ([9f07672](https://github.com/amondnet/vercel-action/commit/9f07672661f866626bf48680190c656d3dd1cded))
+
+
+### Code Refactoring
+
+* migrate to TypeScript with Vitest and modern tooling ([#311](https://github.com/amondnet/vercel-action/issues/311)) ([feb50fe](https://github.com/amondnet/vercel-action/commit/feb50fe48df2033d3ca44a75722c1294487d2f78))
+
 ## [v25.0.0](https://github.com/amondnet/vercel-action/tree/v25.0.0) (2022-06-08)
 
 [Full Changelog](https://github.com/amondnet/vercel-action/compare/v20.0.2...v25.0.0)
