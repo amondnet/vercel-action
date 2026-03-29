@@ -9,6 +9,7 @@ import {
   isPullRequestType,
   joinDeploymentUrls,
   parseArgs,
+  parseKeyValueLines,
   retry,
   slugify,
 } from '../utils'
@@ -323,5 +324,41 @@ describe('getGithubCommentInput', () => {
 
   it('returns empty string as-is', () => {
     expect(getGithubCommentInput('')).toBe('')
+  })
+})
+
+describe('parseKeyValueLines', () => {
+  it('parses multiline KEY=VALUE pairs', () => {
+    expect(parseKeyValueLines('FOO=bar\nBAZ=qux')).toEqual({ FOO: 'bar', BAZ: 'qux' })
+  })
+
+  it('returns empty object for empty input', () => {
+    expect(parseKeyValueLines('')).toEqual({})
+  })
+
+  it('skips blank lines', () => {
+    expect(parseKeyValueLines('A=1\n\nB=2\n')).toEqual({ A: '1', B: '2' })
+  })
+
+  it('skips lines without equals sign', () => {
+    expect(parseKeyValueLines('A=1\ninvalid\nB=2')).toEqual({ A: '1', B: '2' })
+  })
+
+  it('handles values containing equals signs', () => {
+    expect(parseKeyValueLines('URL=https://example.com?a=1&b=2')).toEqual({
+      URL: 'https://example.com?a=1&b=2',
+    })
+  })
+
+  it('trims whitespace from keys and values', () => {
+    expect(parseKeyValueLines('  KEY  =  value  ')).toEqual({ KEY: 'value' })
+  })
+
+  it('handles empty values', () => {
+    expect(parseKeyValueLines('KEY=')).toEqual({ KEY: '' })
+  })
+
+  it('ignores lines with empty keys', () => {
+    expect(parseKeyValueLines('=value')).toEqual({})
   })
 })
