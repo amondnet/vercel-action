@@ -1,0 +1,39 @@
+src/__tests__/github-comments.test.ts
+  cc1137572caf1542 59-70
+src/__integration__/vercel-api.test.ts
+  cc1137572caf1542 19-30
+action.yml
+  cc1137572caf1542 61-108
+src/__tests__/vercel.test.ts
+  cc1137572caf1542 38-49
+src/types.ts
+  cc1137572caf1542 67-79
+src/config.ts
+  cc1137572caf1542 5,54-66
+src/__integration__/github-commit-comments.test.ts
+  cc1137572caf1542 18-29
+src/__integration__/github-pr-comments.test.ts
+  cc1137572caf1542 18-29
+src/utils.ts
+  cc1137572caf1542 69-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "499f467fbc1de05e785b151b145f04ab4d7db835",
+  "prompts": {
+    "cc1137572caf1542": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58a10960-d61c-401a-b460-8307ed135153",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 163,
+      "total_deletions": 1,
+      "accepted_lines": 164,
+      "overriden_lines": 0
+    }
+  }
+}
