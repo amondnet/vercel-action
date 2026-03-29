@@ -135,7 +135,7 @@ async function handleDeploymentOutputs(
   vercel: VercelClient,
   config: ActionConfig,
   deploymentUrl: string,
-): Promise<string | null> {
+): Promise<{ deploymentName: string | null, inspectUrl: string | null }> {
   if (deploymentUrl) {
     core.info('set preview-url output')
     if (config.aliasDomains.length > 0) {
@@ -150,7 +150,15 @@ async function handleDeploymentOutputs(
     core.warning('Deployment completed but no preview URL was returned')
   }
 
-  const deploymentName = config.vercelProjectName || await vercelInspect(vercel, deploymentUrl)
+  let deploymentName: string | null = config.vercelProjectName || null
+  let inspectUrl: string | null = null
+
+  if (!deploymentName) {
+    const result = await vercelInspect(vercel, deploymentUrl)
+    deploymentName = result.name
+    inspectUrl = result.inspectUrl
+  }
+
   if (deploymentName) {
     core.info('set preview-name output')
     core.setOutput('preview-name', deploymentName)
@@ -159,7 +167,7 @@ async function handleDeploymentOutputs(
     core.warning('Could not determine deployment name')
   }
 
-  return deploymentName
+  return { deploymentName, inspectUrl }
 }
 
 async function handleAliasing(vercel: VercelClient, config: ActionConfig, deploymentUrl: string): Promise<void> {
@@ -196,14 +204,15 @@ async function handleComments(
   sha: string,
   deploymentUrl: string,
   deploymentName: string,
+  inspectUrl: string | null,
 ): Promise<void> {
   if (ctx.issueNumber) {
     core.info('this is related issue or pull_request')
-    await createCommentOnPullRequest(octokit, ctx, config, sha, deploymentUrl, deploymentName)
+    await createCommentOnPullRequest(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl)
   }
   else if (ctx.eventName === 'push') {
     core.info('this is push event')
-    await createCommentOnCommit(octokit, ctx, config, sha, deploymentUrl, deploymentName)
+    await createCommentOnCommit(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl)
   }
 }
 
@@ -221,13 +230,13 @@ async function run(): Promise<void> {
   const vercelClient = createVercelClient(config)
   const deploymentUrl = await vercelDeploy(vercelClient, config, deploymentContext)
 
-  const deploymentName = await handleDeploymentOutputs(vercelClient, config, deploymentUrl)
+  const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl)
 
   await handleAliasing(vercelClient, config, deploymentUrl)
 
   if (config.githubComment && octokit) {
     const ctx = buildGitHubContext()
-    await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '')
+    await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl)
   }
   else {
     core.info('comment : disabled')

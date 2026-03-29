@@ -84,6 +84,7 @@ describe('createCommentOnCommit', () => {
     expect(mockUpdateCommitComment).not.toHaveBeenCalled()
     const body = mockCreateCommitComment.mock.calls[0][0].body
     expect(body).toContain('Deploy preview for _my-app_ ready!')
+    expect(body).toContain('<table>')
     expect(body).toContain('https://deploy.vercel.app')
   })
 

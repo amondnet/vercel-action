@@ -70,6 +70,7 @@ export async function createCommentOnCommit(
   deploymentCommit: string,
   deploymentUrl: string,
   deploymentName: string,
+  inspectUrl: string | null = null,
 ): Promise<void> {
   try {
     const commentId = await findPreviousComment(
@@ -85,6 +86,7 @@ export async function createCommentOnCommit(
       config.githubComment,
       config.aliasDomains,
       DEFAULT_COMMENT_TEMPLATE,
+      inspectUrl,
     )
 
     if (!commentBody) {
@@ -122,6 +124,7 @@ export async function createCommentOnPullRequest(
   deploymentCommit: string,
   deploymentUrl: string,
   deploymentName: string,
+  inspectUrl: string | null = null,
 ): Promise<void> {
   try {
     const commentId = await findPreviousComment(
@@ -137,6 +140,7 @@ export async function createCommentOnPullRequest(
       config.githubComment,
       config.aliasDomains,
       DEFAULT_COMMENT_TEMPLATE,
+      inspectUrl,
     )
 
     if (!commentBody) {

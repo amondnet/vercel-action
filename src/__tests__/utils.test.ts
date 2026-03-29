@@ -3,6 +3,7 @@ import {
   addVercelMetadata,
   buildCommentBody,
   buildCommentPrefix,
+  buildHtmlTableComment,
   getGithubCommentInput,
   isPullRequestType,
   joinDeploymentUrls,
@@ -185,6 +186,42 @@ describe('buildCommentPrefix', () => {
   })
 })
 
+describe('buildHtmlTableComment', () => {
+  it('renders HTML table with all fields', () => {
+    const result = buildHtmlTableComment('abc123def', 'https://example.vercel.app', 'my-app', [])
+    expect(result).toContain('<table>')
+    expect(result).toContain('</table>')
+    expect(result).toContain('<code>my-app</code>')
+    expect(result).toContain('Deploy successful!')
+    expect(result).toContain('href=\'https://example.vercel.app\'')
+    expect(result).toContain('<code>abc123d</code>')
+  })
+
+  it('omits alias rows when no aliases configured', () => {
+    const result = buildHtmlTableComment('abc123', 'https://example.vercel.app', 'my-app', [])
+    expect(result).not.toContain('Alias')
+  })
+
+  it('includes alias rows when configured', () => {
+    const result = buildHtmlTableComment('abc123', 'https://example.vercel.app', 'my-app', ['custom.com', 'alias.com'])
+    expect(result).toContain('https://custom.com')
+    expect(result).toContain('https://alias.com')
+    expect(result).toContain('Alias')
+  })
+
+  it('omits inspect row when no inspect URL', () => {
+    const result = buildHtmlTableComment('abc123', 'https://example.vercel.app', 'my-app', [])
+    expect(result).not.toContain('Inspect')
+  })
+
+  it('includes inspect row when URL provided', () => {
+    const result = buildHtmlTableComment('abc123', 'https://example.vercel.app', 'my-app', [], 'https://vercel.com/team/project/dpl_123')
+    expect(result).toContain('Inspect')
+    expect(result).toContain('href=\'https://vercel.com/team/project/dpl_123\'')
+    expect(result).toContain('View deployment')
+  })
+})
+
 describe('buildCommentBody', () => {
   const defaultTemplate = `✅ Preview
 {{deploymentUrl}}
@@ -202,20 +239,21 @@ Built with commit {{deploymentCommit}}.`
     expect(result).toContain('Custom: https://example.com')
   })
 
-  it('uses default template when githubComment is true', () => {
+  it('uses HTML table when githubComment is true', () => {
     const result = buildCommentBody('abc123', 'https://example.com', 'app', true, [], defaultTemplate)
-    expect(result).toContain('✅ Preview')
+    expect(result).toContain('<table>')
     expect(result).toContain('https://example.com')
+    expect(result).toContain('Deploy successful!')
   })
 
-  it('replaces all placeholders', () => {
+  it('includes all data in HTML table', () => {
     const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate)
     expect(result).toContain('abc123')
     expect(result).toContain('https://example.com')
     expect(result).toContain('my-app')
   })
 
-  it('includes alias domains in output', () => {
+  it('includes alias domains in HTML table', () => {
     const result = buildCommentBody('abc123', 'https://example.com', 'app', true, ['custom.com'], defaultTemplate)
     expect(result).toContain('https://custom.com')
   })
@@ -223,6 +261,23 @@ Built with commit {{deploymentCommit}}.`
   it('includes prefix with deployment name', () => {
     const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate)
     expect(result).toContain('Deploy preview for _my-app_ ready!')
+  })
+
+  it('includes footer branding link', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate)
+    expect(result).toContain('Deployed with [vercel-action]')
+    expect(result).toContain('github.com/marketplace/actions/vercel-action')
+  })
+
+  it('passes inspect URL to HTML table', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'my-app', true, [], defaultTemplate, 'https://vercel.com/inspect')
+    expect(result).toContain('Inspect')
+    expect(result).toContain('https://vercel.com/inspect')
+  })
+
+  it('custom template still uses variable substitution', () => {
+    const result = buildCommentBody('abc123', 'https://example.com', 'my-app', '{{deploymentName}}: {{deploymentUrl}}', [], defaultTemplate)
+    expect(result).toContain('my-app: https://example.com')
   })
 })
 

@@ -1,4 +1,4 @@
-import type { ActionConfig, DeploymentContext, VercelClient } from './types'
+import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
 import { HttpClient } from '@actions/http-client'
 
@@ -37,7 +37,7 @@ export class VercelApiClient implements VercelClient {
     )
   }
 
-  async inspect(deploymentUrl: string): Promise<string | null> {
+  async inspect(deploymentUrl: string): Promise<InspectResult> {
     const deploymentId = this.extractDeploymentId(deploymentUrl)
     const url = this.buildUrl(`/v13/deployments/${deploymentId}`)
 
@@ -47,17 +47,20 @@ export class VercelApiClient implements VercelClient {
 
       if (statusCode < 200 || statusCode >= 300) {
         core.warning(`Vercel inspect API returned status ${statusCode}`)
-        return null
+        return { name: null, inspectUrl: null }
       }
 
       const body = await response.readBody()
       const data = JSON.parse(body)
-      return data.name ?? null
+      return {
+        name: data.name ?? null,
+        inspectUrl: data.inspectorUrl ?? null,
+      }
     }
     catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       core.warning(`vercel inspect failed: ${message}`)
-      return null
+      return { name: null, inspectUrl: null }
     }
   }
 
