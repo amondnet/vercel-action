@@ -16,6 +16,18 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     vercelBin: '',
     aliasDomains: [],
     vercelScope: TEST_TEAM,
+    target: 'preview',
+    prebuilt: false,
+    force: false,
+    env: {},
+    buildEnv: {},
+    regions: [],
+    archive: '',
+    rootDirectory: '',
+    autoAssignCustomDomains: true,
+    customEnvironment: '',
+    isPublic: false,
+    withCache: false,
     ...overrides,
   }
 }

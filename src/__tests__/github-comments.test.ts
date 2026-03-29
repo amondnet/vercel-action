@@ -56,6 +56,18 @@ function createConfig(overrides: Record<string, unknown> = {}) {
     vercelProjectName: '',
     vercelBin: 'vercel@latest',
     aliasDomains: [] as string[],
+    target: 'preview',
+    prebuilt: false,
+    force: false,
+    env: {},
+    buildEnv: {},
+    regions: [],
+    archive: '',
+    rootDirectory: '',
+    autoAssignCustomDomains: true,
+    customEnvironment: '',
+    isPublic: false,
+    withCache: false,
     ...overrides,
   }
 }

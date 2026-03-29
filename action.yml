@@ -58,6 +58,54 @@ inputs:
     required: false
     description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
     default: ''
+  target:
+    required: false
+    description: 'Deployment target: "production" or "preview" (default: preview). Replaces --prod flag in vercel-args.'
+    default: 'preview'
+  prebuilt:
+    required: false
+    description: 'Deploy prebuilt output from .vercel/output (default: false). Replaces --prebuilt flag in vercel-args.'
+    default: 'false'
+  force:
+    required: false
+    description: 'Force new deployment, bypassing dedupe and build cache (default: false). Replaces --force flag in vercel-args.'
+    default: 'false'
+  env:
+    required: false
+    description: 'Environment variables for the deployment (KEY=VALUE per line). Replaces --env flags in vercel-args.'
+    default: ''
+  build-env:
+    required: false
+    description: 'Build-time environment variables (KEY=VALUE per line). Replaces --build-env flags in vercel-args.'
+    default: ''
+  regions:
+    required: false
+    description: 'Deployment regions, comma-separated (e.g. "iad1,sfo1").'
+    default: ''
+  archive:
+    required: false
+    description: 'Upload format: "tgz" for compressed archive, or empty for individual files.'
+    default: ''
+  root-directory:
+    required: false
+    description: 'Root directory of the project relative to the repository root.'
+    default: ''
+  auto-assign-custom-domains:
+    required: false
+    description: 'Automatically assign custom domains to this deployment (default: true).'
+    default: 'true'
+  custom-environment:
+    required: false
+    description: 'Custom environment slug or ID for the deployment.'
+    default: ''
+  public:
+    required: false
+    description: 'Make deployment source publicly accessible (default: false).'
+    default: 'false'
+  with-cache:
+    required: false
+    description: 'Retain build cache from previous deployments (default: false).'
+    default: 'false'
 
 outputs:
   preview-url:

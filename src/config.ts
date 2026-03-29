@@ -2,7 +2,7 @@ import type { ActionConfig, OctokitClient, PullRequestPayload } from './types'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import packageJSON from '../package.json'
-import { getGithubCommentInput, isPullRequestType, slugify } from './utils'
+import { getGithubCommentInput, isPullRequestType, parseKeyValueLines, slugify } from './utils'
 
 const PR_NUMBER_REGEXP = /\{\{\s*PR_NUMBER\s*\}\}/g
 const BRANCH_REGEXP = /\{\{\s*BRANCH\s*\}\}/g
@@ -51,6 +51,19 @@ export function getActionConfig(): ActionConfig {
     vercelProjectName: core.getInput('vercel-project-name'),
     vercelBin: getVercelBin(),
     aliasDomains: parseAliasDomains(),
+    // API-based deployment inputs
+    target: core.getInput('target') || 'preview',
+    prebuilt: core.getInput('prebuilt') === 'true',
+    force: core.getInput('force') === 'true',
+    env: parseKeyValueLines(core.getInput('env')),
+    buildEnv: parseKeyValueLines(core.getInput('build-env')),
+    regions: core.getInput('regions').split(',').map(r => r.trim()).filter(r => r !== ''),
+    archive: core.getInput('archive'),
+    rootDirectory: core.getInput('root-directory'),
+    autoAssignCustomDomains: core.getInput('auto-assign-custom-domains') !== 'false',
+    customEnvironment: core.getInput('custom-environment'),
+    isPublic: core.getInput('public') === 'true',
+    withCache: core.getInput('with-cache') === 'true',
   }
 }
 
