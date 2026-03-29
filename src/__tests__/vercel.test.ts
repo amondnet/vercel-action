@@ -2,7 +2,8 @@ import type { ActionConfig, DeploymentContext } from '../types'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { aliasDomainsToDeployment, vercelDeploy, vercelInspect } from '../vercel'
+import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspect } from '../vercel'
+import { VercelApiClient } from '../vercel-api'
 import { VercelCliClient } from '../vercel-cli'
 
 vi.mock('@actions/core', () => ({
@@ -472,5 +473,27 @@ describe('aliasDomainsToDeployment', () => {
     await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
 
     expect(core.info).toHaveBeenCalledWith('All alias domains configured successfully')
+  })
+})
+
+describe('createVercelClient', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns VercelCliClient when vercelArgs is non-empty', () => {
+    const config = createConfig({ vercelArgs: '--prod' })
+    const client = createVercelClient(config)
+
+    expect(client).toBeInstanceOf(VercelCliClient)
+    expect(core.info).toHaveBeenCalledWith('Using CLI-based deployment (vercel-args provided)')
+  })
+
+  it('returns VercelApiClient when vercelArgs is empty', () => {
+    const config = createConfig({ vercelArgs: '' })
+    const client = createVercelClient(config)
+
+    expect(client).toBeInstanceOf(VercelApiClient)
+    expect(core.info).toHaveBeenCalledWith('Using API-based deployment')
   })
 })
