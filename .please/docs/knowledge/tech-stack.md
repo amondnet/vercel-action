@@ -15,10 +15,12 @@
 | Package | Purpose |
 |---|---|
 | `@actions/core` | GitHub Actions toolkit (inputs, outputs, logging, secrets) |
-| `@actions/exec` | Shell command execution for Vercel CLI |
+| `@actions/exec` | Shell command execution for Vercel CLI (fallback) |
 | `@actions/github` | GitHub API client (Octokit) for PR/commit comments |
+| `@actions/http-client` (v2.2.3) | HTTP client for Vercel REST API (pinned to v2 for CJS/ncc compat) |
+| `@vercel/client` (v17.2.65) | Programmatic deployment API — file upload, hashing, status polling |
 | `axios` | HTTP requests for alias domain management |
-| `vercel` (v41.1.4) | Vercel CLI — deployment engine |
+| `vercel` (v50.0.0) | Vercel CLI — deployment engine (fallback when `vercel-args` provided) |
 | `common-tags` | Template literal tag functions for comment formatting |
 
 ## Dev Tooling
