@@ -1,0 +1,29 @@
+.please/docs/tracks/active/github-deployment-20260329/metadata.json
+  b0a06c9be3429b2d 1-10
+.please/docs/tracks/active/github-deployment-20260329/plan.md
+  b0a06c9be3429b2d 1-114
+.please/docs/tracks/index.md
+  b0a06c9be3429b2d 12
+.please/docs/tracks/active/github-deployment-20260329/spec.md
+  b0a06c9be3429b2d 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "805c12a65020a3238af85773b0ecd3d8ea4c70f9",
+  "prompts": {
+    "b0a06c9be3429b2d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c5c40c4-70e2-41ec-9924-eec1af9fe5e4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 197,
+      "total_deletions": 4,
+      "accepted_lines": 193,
+      "overriden_lines": 0
+    }
+  }
+}
