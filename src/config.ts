@@ -35,16 +35,28 @@ function parseAliasDomains(): string[] {
     })
 }
 
+export function resolveDeploymentEnvironment(explicitEnv: string, vercelArgs: string): string {
+  if (explicitEnv) {
+    return explicitEnv
+  }
+  return /(?:^|\s)--prod(?:uction)?(?:\s|$)/.test(vercelArgs) ? 'production' : 'preview'
+}
+
 export function getActionConfig(): ActionConfig {
   const vercelToken = core.getInput('vercel-token', { required: true })
   core.setSecret(vercelToken)
 
+  const vercelArgs = core.getInput('vercel-args')
+  const githubDeploymentEnvInput = core.getInput('github-deployment-environment')
+
   return {
     githubToken: core.getInput('github-token'),
     githubComment: getGithubCommentInput(core.getInput('github-comment')),
+    githubDeployment: core.getInput('github-deployment') === 'true',
+    githubDeploymentEnvironment: resolveDeploymentEnvironment(githubDeploymentEnvInput, vercelArgs),
     workingDirectory: core.getInput('working-directory'),
     vercelToken,
-    vercelArgs: core.getInput('vercel-args'),
+    vercelArgs,
     vercelOrgId: core.getInput('vercel-org-id'),
     vercelProjectId: core.getInput('vercel-project-id'),
     vercelScope: core.getInput('scope'),

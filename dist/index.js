@@ -31674,6 +31674,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveDeploymentEnvironment = resolveDeploymentEnvironment;
 exports.getActionConfig = getActionConfig;
 exports.createOctokitClient = createOctokitClient;
 exports.setVercelEnv = setVercelEnv;
@@ -31709,15 +31710,25 @@ function parseAliasDomains() {
         return url;
     });
 }
+function resolveDeploymentEnvironment(explicitEnv, vercelArgs) {
+    if (explicitEnv) {
+        return explicitEnv;
+    }
+    return /(?:^|\s)--prod(?:uction)?(?:\s|$)/.test(vercelArgs) ? 'production' : 'preview';
+}
 function getActionConfig() {
     const vercelToken = core.getInput('vercel-token', { required: true });
     core.setSecret(vercelToken);
+    const vercelArgs = core.getInput('vercel-args');
+    const githubDeploymentEnvInput = core.getInput('github-deployment-environment');
     return {
         githubToken: core.getInput('github-token'),
         githubComment: (0, utils_1.getGithubCommentInput)(core.getInput('github-comment')),
+        githubDeployment: core.getInput('github-deployment') === 'true',
+        githubDeploymentEnvironment: resolveDeploymentEnvironment(githubDeploymentEnvInput, vercelArgs),
         workingDirectory: core.getInput('working-directory'),
         vercelToken,
-        vercelArgs: core.getInput('vercel-args'),
+        vercelArgs,
         vercelOrgId: core.getInput('vercel-org-id'),
         vercelProjectId: core.getInput('vercel-project-id'),
         vercelScope: core.getInput('scope'),
@@ -31901,6 +31912,123 @@ async function createCommentOnPullRequest(octokit, ctx, config, deploymentCommit
 
 /***/ }),
 
+/***/ 1859:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createGitHubDeployment = createGitHubDeployment;
+exports.updateGitHubDeploymentStatus = updateGitHubDeploymentStatus;
+const core = __importStar(__nccwpck_require__(1078));
+async function createGitHubDeployment(octokit, ctx, deploymentContext, environment) {
+    if (!octokit) {
+        core.debug('GitHub token not provided — skipping GitHub Deployment creation');
+        return null;
+    }
+    try {
+        const isProduction = environment === 'production';
+        core.debug(`Creating GitHub Deployment for environment: ${environment}`);
+        const { data: deployment } = await octokit.rest.repos.createDeployment({
+            ...ctx.repo,
+            ref: deploymentContext.ref,
+            environment,
+            auto_merge: false,
+            required_contexts: [],
+            transient_environment: !isProduction,
+            production_environment: isProduction,
+        });
+        const deploymentId = deployment.id;
+        if (!deploymentId) {
+            const msg = deployment.message ?? 'unknown reason';
+            core.warning(`GitHub Deployment creation was rejected: ${msg}. `
+                + 'The Vercel deployment will continue without GitHub Deployment tracking.');
+            return null;
+        }
+        core.debug(`Created GitHub Deployment: ${deploymentId}`);
+        core.setOutput('deployment-id', deploymentId);
+        try {
+            await octokit.rest.repos.createDeploymentStatus({
+                ...ctx.repo,
+                deployment_id: deploymentId,
+                state: 'in_progress',
+                description: 'Deploying to Vercel...',
+            });
+        }
+        catch (statusError) {
+            const msg = statusError instanceof Error ? statusError.message : String(statusError);
+            core.warning(`GitHub Deployment ${deploymentId} was created but could not be set to "in_progress": ${msg}. `
+                + 'Deployment tracking will continue but the initial status may be inaccurate.');
+        }
+        return { deploymentId };
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        core.warning(`Failed to create GitHub Deployment: ${message}. `
+            + 'The Vercel deployment will continue without GitHub Deployment tracking.');
+        return null;
+    }
+}
+async function updateGitHubDeploymentStatus(octokit, ctx, deploymentId, state, options) {
+    if (!octokit) {
+        return;
+    }
+    try {
+        core.debug(`Updating GitHub Deployment ${deploymentId} status to: ${state}`);
+        await octokit.rest.repos.createDeploymentStatus({
+            ...ctx.repo,
+            deployment_id: deploymentId,
+            state,
+            environment_url: options.environmentUrl,
+            log_url: options.logUrl,
+            description: options.description?.slice(0, 140),
+            auto_inactive: true,
+        });
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const outcome = state === 'success' ? 'succeeded' : 'failed';
+        core.warning(`Failed to update GitHub Deployment status: ${message}. `
+            + `The deployment ${outcome} but the GitHub Deployment status was not updated.`);
+    }
+}
+
+
+/***/ }),
+
 /***/ 474:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -31945,6 +32073,7 @@ const core = __importStar(__nccwpck_require__(1078));
 const github = __importStar(__nccwpck_require__(9848));
 const config_1 = __nccwpck_require__(7296);
 const github_comments_1 = __nccwpck_require__(4019);
+const github_deployment_1 = __nccwpck_require__(1859);
 const utils_1 = __nccwpck_require__(3924);
 const vercel_1 = __nccwpck_require__(3597);
 const { context } = github;
@@ -32107,6 +32236,16 @@ async function handleComments(octokit, ctx, config, sha, deploymentUrl, deployme
         await (0, github_comments_1.createCommentOnCommit)(octokit, ctx, config, sha, deploymentUrl, deploymentName, inspectUrl);
     }
 }
+async function handleGitHubDeploymentSuccess(octokit, ctx, deployment, deploymentUrl, inspectUrl, aliasDomains) {
+    const environmentUrl = aliasDomains.length > 0
+        ? `https://${aliasDomains[0]}`
+        : deploymentUrl;
+    await (0, github_deployment_1.updateGitHubDeploymentStatus)(octokit, ctx, deployment.deploymentId, 'success', {
+        environmentUrl,
+        logUrl: inspectUrl ?? undefined,
+        description: 'Vercel deployment succeeded',
+    });
+}
 async function run() {
     logContextDebug();
     const config = (0, config_1.getActionConfig)();
@@ -32114,16 +32253,33 @@ async function run() {
     (0, config_1.setVercelEnv)(config);
     const deploymentContext = await getDeploymentContext(octokit);
     const { sha } = deploymentContext;
-    const vercelClient = (0, vercel_1.createVercelClient)(config);
-    const deploymentUrl = await (0, vercel_1.vercelDeploy)(vercelClient, config, deploymentContext);
-    const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl);
-    await handleAliasing(vercelClient, config, deploymentUrl);
-    if (config.githubComment && octokit) {
-        const ctx = buildGitHubContext();
-        await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl);
+    const ctx = buildGitHubContext();
+    let githubDeployment = null;
+    if (config.githubDeployment) {
+        githubDeployment = await (0, github_deployment_1.createGitHubDeployment)(octokit, ctx, deploymentContext, config.githubDeploymentEnvironment);
     }
-    else {
-        core.info('comment : disabled');
+    let deploymentUrl;
+    try {
+        const vercelClient = (0, vercel_1.createVercelClient)(config);
+        deploymentUrl = await (0, vercel_1.vercelDeploy)(vercelClient, config, deploymentContext);
+        const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl);
+        await handleAliasing(vercelClient, config, deploymentUrl);
+        if (githubDeployment) {
+            await handleGitHubDeploymentSuccess(octokit, ctx, githubDeployment, deploymentUrl, inspectUrl, config.aliasDomains);
+        }
+        if (config.githubComment && octokit) {
+            await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl);
+        }
+        else {
+            core.info('comment : disabled');
+        }
+    }
+    catch (error) {
+        if (githubDeployment) {
+            const message = error instanceof Error ? error.message : String(error);
+            await (0, github_deployment_1.updateGitHubDeploymentStatus)(octokit, ctx, githubDeployment.deploymentId, 'failure', { description: `Vercel deployment failed: ${message}` });
+        }
+        throw error;
     }
 }
 run().catch((error) => {
@@ -34513,7 +34669,7 @@ module.exports = parseParams
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"vercel-action","version":"42.0.0","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
+module.exports = JSON.parse('{"name":"vercel-action","version":"42.1.0","private":true,"packageManager":"pnpm@10.15.0","author":{"name":"Minsu Lee","email":"amond@amond.net","url":"https://amond.dev"},"license":"MIT","repository":{"type":"git","url":"https://github.com/amondnet/vercel-action"},"keywords":["GitHub","Actions","Vercel","Zeit","Now"],"main":"dist/index.js","engines":{"node":"24.x"},"scripts":{"lint":"eslint .","lint:fix":"eslint . --fix","typecheck":"tsc --noEmit","start":"node ./dist/index.js","build":"ncc build src/index.ts -o dist --source-map --license licenses.txt","test":"vitest run","test:unit":"vitest run --project unit","test:integration":"vitest run --project integration","test:watch":"vitest","test:coverage":"vitest run --coverage","all":"pnpm lint && pnpm typecheck && pnpm build && pnpm test","prepare":"husky"},"dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.0.3","@actions/github":"^6.0.0","@actions/http-client":"^4.0.0","@octokit/webhooks":"latest","axios":"^1.6.8","common-tags":"^1.8.0","vercel":"^50.0.0"},"devDependencies":{"@antfu/eslint-config":"^3.0.0","@commitlint/cli":"^19.8.1","@commitlint/config-conventional":"^19.8.1","@octokit/rest":"^22.0.1","@types/common-tags":"^1.8.4","@types/node":"^24.0.0","@vercel/ncc":"^0.36.0","@vitest/coverage-v8":"^3.0.0","emulate":"^0.2.0","eslint":"^9.9.0","husky":"^9.1.7","typescript":"^5.7.0","vitest":"^3.0.0","yaml":"^2.8.3"}}');
 
 /***/ })
 

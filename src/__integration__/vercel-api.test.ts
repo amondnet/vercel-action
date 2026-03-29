@@ -7,6 +7,8 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   return {
     githubToken: '',
     githubComment: false,
+    githubDeployment: false,
+    githubDeploymentEnvironment: 'preview',
     workingDirectory: '',
     vercelToken: VERCEL_TOKEN,
     vercelArgs: '',
