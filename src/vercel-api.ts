@@ -1,8 +1,96 @@
 import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
 import * as core from '@actions/core'
 import { HttpClient } from '@actions/http-client'
+import { createDeployment } from '@vercel/client'
+import * as github from '@actions/github'
 
 const DEFAULT_BASE_URL = 'https://api.vercel.com'
+
+function buildGitMetadata(deployContext: DeploymentContext) {
+  const { context } = github
+  return {
+    commitSha: deployContext.sha,
+    commitMessage: deployContext.commit,
+    commitRef: deployContext.ref.replace('refs/heads/', ''),
+    commitAuthorName: context.actor,
+    remoteUrl: `https://github.com/${deployContext.commitOrg}/${deployContext.commitRepo}`,
+  }
+}
+
+function buildClientOptions(config: ActionConfig): Record<string, unknown> {
+  const options: Record<string, unknown> = {
+    token: config.vercelToken,
+    path: config.workingDirectory || process.cwd(),
+    debug: core.isDebug(),
+  }
+
+  if (config.vercelScope) {
+    options.teamId = config.vercelScope
+  }
+  if (config.force) {
+    options.force = true
+  }
+  if (config.prebuilt) {
+    options.prebuilt = true
+  }
+  if (config.archive) {
+    options.archive = config.archive
+  }
+  if (config.rootDirectory) {
+    options.rootDirectory = config.rootDirectory
+  }
+  if (config.withCache) {
+    options.withCache = true
+  }
+  if (config.vercelProjectName) {
+    options.projectName = config.vercelProjectName
+  }
+
+  return options
+}
+
+function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentContext): Record<string, unknown> {
+  const options: Record<string, unknown> = {
+    meta: {
+      githubCommitSha: deployContext.sha,
+      githubCommitAuthorName: github.context.actor,
+      githubCommitAuthorLogin: github.context.actor,
+      githubDeployment: '1',
+      githubOrg: github.context.repo.owner,
+      githubRepo: github.context.repo.repo,
+      githubCommitOrg: deployContext.commitOrg,
+      githubCommitRepo: deployContext.commitRepo,
+      githubCommitMessage: deployContext.commit.replace(/[\r\n]+/g, ' ').replace(/"/g, ''),
+      githubCommitRef: deployContext.ref.replace('refs/heads/', ''),
+    },
+    gitMetadata: buildGitMetadata(deployContext),
+    autoAssignCustomDomains: config.autoAssignCustomDomains,
+  }
+
+  if (config.target === 'production') {
+    options.target = 'production'
+  }
+  if (Object.keys(config.env).length > 0) {
+    options.env = config.env
+  }
+  if (Object.keys(config.buildEnv).length > 0) {
+    options.build = { env: config.buildEnv }
+  }
+  if (config.regions.length > 0) {
+    options.regions = config.regions
+  }
+  if (config.isPublic) {
+    options.public = true
+  }
+  if (config.customEnvironment) {
+    options.customEnvironmentSlugOrId = config.customEnvironment
+  }
+  if (config.vercelProjectName) {
+    options.name = config.vercelProjectName
+  }
+
+  return options
+}
 
 export class VercelApiClient implements VercelClient {
   private readonly http: HttpClient
@@ -30,11 +118,61 @@ export class VercelApiClient implements VercelClient {
     return url.toString()
   }
 
-  async deploy(_config: ActionConfig, _deployContext: DeploymentContext): Promise<string> {
-    throw new Error(
-      'VercelApiClient.deploy() is not yet implemented. '
-      + 'Use VercelCliClient for deployments.',
-    )
+  async deploy(config: ActionConfig, deployContext: DeploymentContext): Promise<string> {
+    const clientOptions = buildClientOptions(config)
+    const deploymentOptions = buildDeploymentOptions(config, deployContext)
+
+    core.info('Starting API-based deployment...')
+
+    let deploymentUrl = ''
+
+    for await (const event of createDeployment(clientOptions as any, deploymentOptions as any)) {
+      switch (event.type) {
+        case 'hashes-calculated':
+          core.info(`Files hashed: ${Object.keys(event.payload).length} files`)
+          break
+        case 'file-count':
+          core.info(`Files to upload: ${event.payload.total}, missing: ${event.payload.missing?.length ?? 0}`)
+          break
+        case 'file-uploaded':
+          core.debug(`Uploaded: ${event.payload}`)
+          break
+        case 'created': {
+          const url = event.payload?.url
+          if (url) {
+            deploymentUrl = url.startsWith('https://') ? url : `https://${url}`
+          }
+          core.info(`Deployment created: ${deploymentUrl}`)
+          break
+        }
+        case 'building':
+          core.info('Building deployment...')
+          break
+        case 'ready':
+          core.info('Deployment is ready!')
+          if (event.payload?.url && !deploymentUrl) {
+            const url = event.payload.url
+            deploymentUrl = url.startsWith('https://') ? url : `https://${url}`
+          }
+          break
+        case 'alias-assigned':
+          core.info(`Alias assigned: ${event.payload?.alias}`)
+          break
+        case 'warning':
+          core.warning(`Deployment warning: ${JSON.stringify(event.payload)}`)
+          break
+        case 'error':
+          throw new Error(`Deployment failed: ${JSON.stringify(event.payload)}`)
+        default:
+          core.debug(`Deployment event: ${event.type}`)
+      }
+    }
+
+    if (!deploymentUrl) {
+      throw new Error('Deployment completed but no URL was returned')
+    }
+
+    return deploymentUrl
   }
 
   async inspect(deploymentUrl: string): Promise<InspectResult> {
