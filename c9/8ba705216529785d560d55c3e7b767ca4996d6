@@ -1,0 +1,25 @@
+src/__tests__/vercel.test.ts
+  cc1137572caf1542 5-6,478-499
+src/vercel.ts
+  cc1137572caf1542 4,10-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "c98ba705216529785d560d55c3e7b767ca4996d6",
+  "prompts": {
+    "cc1137572caf1542": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58a10960-d61c-401a-b460-8307ed135153",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 31,
+      "total_deletions": 2,
+      "accepted_lines": 32,
+      "overriden_lines": 0
+    }
+  }
+}
