@@ -1,0 +1,23 @@
+README.md
+  cc1137572caf1542 51,57-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "ccfd0dcc08e37dc3d200c6bdb8d4fa917ea030fa",
+  "prompts": {
+    "cc1137572caf1542": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58a10960-d61c-401a-b460-8307ed135153",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 20,
+      "total_deletions": 1,
+      "accepted_lines": 20,
+      "overriden_lines": 0
+    }
+  }
+}
