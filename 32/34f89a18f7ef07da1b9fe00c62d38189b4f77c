@@ -1,0 +1,23 @@
+.please/docs/knowledge/product.md
+  b0a06c9be3429b2d 17-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "3234f89a18f7ef07da1b9fe00c62d38189b4f77c",
+  "prompts": {
+    "b0a06c9be3429b2d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c5c40c4-70e2-41ec-9924-eec1af9fe5e4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 3,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
