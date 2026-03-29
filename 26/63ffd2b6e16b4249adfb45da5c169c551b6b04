@@ -1,0 +1,29 @@
+.please/docs/tracks/index.md
+  747de583ad7f4ed5 11
+.please/docs/tracks/active/improve-github-comment-20260329/metadata.json
+  747de583ad7f4ed5 1-10
+.please/docs/tracks/active/improve-github-comment-20260329/plan.md
+  747de583ad7f4ed5 1-91
+.please/docs/tracks/active/improve-github-comment-20260329/spec.md
+  747de583ad7f4ed5 1-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "2663ffd2b6e16b4249adfb45da5c169c551b6b04",
+  "prompts": {
+    "747de583ad7f4ed5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "02f1891b-7444-4399-a057-d9f64072bcca",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 157,
+      "total_deletions": 4,
+      "accepted_lines": 153,
+      "overriden_lines": 0
+    }
+  }
+}
