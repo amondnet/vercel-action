@@ -44,6 +44,7 @@
     "@actions/github": "^6.0.0",
     "@actions/http-client": "^4.0.0",
     "@octokit/webhooks": "latest",
+    "@vercel/client": "17.2.65",
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",
     "vercel": "^50.0.0"
