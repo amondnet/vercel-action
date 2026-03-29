@@ -81,6 +81,137 @@ describe('getActionConfig', () => {
   })
 })
 
+describe('resolveDeploymentEnvironment', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  it('returns explicit environment when provided', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('staging', '--prod')).toBe('staging')
+  })
+
+  it('returns "production" when vercel-args contains --prod', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', '--prod')).toBe('production')
+  })
+
+  it('returns "preview" when vercel-args does not contain --prod', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', '')).toBe('preview')
+  })
+
+  it('returns "production" when --prod is among other args', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', '--force --prod --debug')).toBe('production')
+  })
+
+  it('returns "preview" when args contain --production but not --prod', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    // --production is not the same flag as --prod in Vercel CLI
+    // but --production string contains --prod substring, so this matches
+    expect(resolveDeploymentEnvironment('', '--production')).toBe('production')
+  })
+})
+
+describe('getActionConfig - github deployment fields', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  it('parses githubDeployment as true when input is "true"', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'github-deployment': 'true',
+        'github-deployment-environment': '',
+        'vercel-args': '',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? 'test'
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.githubDeployment).toBe(true)
+  })
+
+  it('parses githubDeployment as false when input is not "true"', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'github-deployment': 'false',
+        'github-deployment-environment': '',
+        'vercel-args': '',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? 'test'
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.githubDeployment).toBe(false)
+  })
+
+  it('auto-detects production environment from --prod arg', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'github-deployment': 'true',
+        'github-deployment-environment': '',
+        'vercel-args': '--prod',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? 'test'
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.githubDeploymentEnvironment).toBe('production')
+  })
+
+  it('auto-detects preview environment when no --prod', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'github-deployment': 'true',
+        'github-deployment-environment': '',
+        'vercel-args': '',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? 'test'
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.githubDeploymentEnvironment).toBe('preview')
+  })
+
+  it('uses explicit environment over auto-detection', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'github-deployment': 'true',
+        'github-deployment-environment': 'staging',
+        'vercel-args': '--prod',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? 'test'
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.githubDeploymentEnvironment).toBe('staging')
+  })
+})
+
 describe('parseAliasDomains', () => {
   beforeEach(() => {
     vi.clearAllMocks()

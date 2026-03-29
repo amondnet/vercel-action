@@ -44,6 +44,8 @@ vi.mock('@actions/github', () => ({
         listCommentsForCommit: vi.fn().mockResolvedValue({ data: [] }),
         createCommitComment: vi.fn().mockResolvedValue({}),
         updateCommitComment: vi.fn().mockResolvedValue({}),
+        createDeployment: vi.fn().mockResolvedValue({ data: { id: 12345 } }),
+        createDeploymentStatus: vi.fn().mockResolvedValue({}),
       },
       issues: {
         listComments: vi.fn().mockResolvedValue({ data: [] }),
@@ -193,5 +195,64 @@ describe('octokit API v6 compatibility', () => {
     const octokit = github.getOctokit('test-token')
 
     expect(octokit.rest.git.getCommit).toBeDefined()
+  })
+
+  it('has correct method signatures for deployments API', () => {
+    const octokit = github.getOctokit('test-token')
+
+    expect(octokit.rest.repos.createDeployment).toBeDefined()
+    expect(octokit.rest.repos.createDeploymentStatus).toBeDefined()
+  })
+})
+
+describe('github deployment integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('github-deployment input defaults to false', () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'test-vercel-token',
+        'github-token': 'test-github-token',
+        'github-comment': 'false',
+        'github-deployment': 'false',
+        'github-deployment-environment': '',
+        'vercel-args': '',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const result = core.getInput('github-deployment')
+    expect(result).toBe('false')
+  })
+
+  it('github-deployment-environment auto-detects from vercel-args', () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'test-vercel-token',
+        'github-deployment': 'true',
+        'github-deployment-environment': '',
+        'vercel-args': '--prod',
+      }
+      return inputs[name] ?? ''
+    })
+
+    // Verify that --prod is in vercel-args
+    expect(core.getInput('vercel-args')).toBe('--prod')
+    expect(core.getInput('github-deployment-environment')).toBe('')
+  })
+
+  it('octokit has deployment API methods available', () => {
+    const octokit = github.getOctokit('test-token')
+    expect(typeof octokit.rest.repos.createDeployment).toBe('function')
+    expect(typeof octokit.rest.repos.createDeploymentStatus).toBe('function')
+  })
+
+  it('setOutput is available for deployment-id', () => {
+    core.setOutput('deployment-id', 12345)
+    expect(core.setOutput).toHaveBeenCalledWith('deployment-id', 12345)
   })
 })

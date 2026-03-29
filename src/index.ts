@@ -1,9 +1,10 @@
-import type { ActionConfig, DeploymentContext, GitHubContext, OctokitClient, PullRequestPayload, ReleasePayload, VercelClient } from './types'
+import type { ActionConfig, DeploymentContext, GitHubContext, GitHubDeploymentResult, OctokitClient, PullRequestPayload, ReleasePayload, VercelClient } from './types'
 import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
 import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
+import { createGitHubDeployment, updateGitHubDeploymentStatus } from './github-deployment'
 import { isPullRequestType } from './utils'
 import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspect } from './vercel'
 
@@ -216,6 +217,31 @@ async function handleComments(
   }
 }
 
+async function handleGitHubDeploymentSuccess(
+  octokit: OctokitClient | undefined,
+  ctx: GitHubContext,
+  deployment: GitHubDeploymentResult,
+  deploymentUrl: string,
+  inspectUrl: string | null,
+  aliasDomains: string[],
+): Promise<void> {
+  const environmentUrl = aliasDomains.length > 0
+    ? `https://${aliasDomains[0]}`
+    : deploymentUrl
+
+  await updateGitHubDeploymentStatus(
+    octokit,
+    ctx,
+    deployment.deploymentId,
+    'success',
+    {
+      environmentUrl,
+      logUrl: inspectUrl ?? undefined,
+      description: 'Vercel deployment succeeded',
+    },
+  )
+}
+
 async function run(): Promise<void> {
   logContextDebug()
 
@@ -226,20 +252,50 @@ async function run(): Promise<void> {
 
   const deploymentContext = await getDeploymentContext(octokit)
   const { sha } = deploymentContext
+  const ctx = buildGitHubContext()
 
-  const vercelClient = createVercelClient(config)
-  const deploymentUrl = await vercelDeploy(vercelClient, config, deploymentContext)
-
-  const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl)
-
-  await handleAliasing(vercelClient, config, deploymentUrl)
-
-  if (config.githubComment && octokit) {
-    const ctx = buildGitHubContext()
-    await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl)
+  let githubDeployment: GitHubDeploymentResult | null = null
+  if (config.githubDeployment) {
+    githubDeployment = await createGitHubDeployment(
+      octokit,
+      ctx,
+      deploymentContext,
+      config.githubDeploymentEnvironment,
+    )
   }
-  else {
-    core.info('comment : disabled')
+
+  let deploymentUrl: string
+  try {
+    const vercelClient = createVercelClient(config)
+    deploymentUrl = await vercelDeploy(vercelClient, config, deploymentContext)
+
+    const { deploymentName, inspectUrl } = await handleDeploymentOutputs(vercelClient, config, deploymentUrl)
+
+    await handleAliasing(vercelClient, config, deploymentUrl)
+
+    if (githubDeployment) {
+      await handleGitHubDeploymentSuccess(octokit, ctx, githubDeployment, deploymentUrl, inspectUrl, config.aliasDomains)
+    }
+
+    if (config.githubComment && octokit) {
+      await handleComments(octokit, ctx, config, sha, deploymentUrl, deploymentName ?? '', inspectUrl)
+    }
+    else {
+      core.info('comment : disabled')
+    }
+  }
+  catch (error) {
+    if (githubDeployment) {
+      const message = error instanceof Error ? error.message : String(error)
+      await updateGitHubDeploymentStatus(
+        octokit,
+        ctx,
+        githubDeployment.deploymentId,
+        'failure',
+        { description: `Vercel deployment failed: ${message}` },
+      )
+    }
+    throw error
   }
 }
 
