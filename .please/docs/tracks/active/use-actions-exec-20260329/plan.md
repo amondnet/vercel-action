@@ -28,8 +28,15 @@ Replace `execSync(cmd).toString().trim()` with `await exec.getExecOutput(cmd, ar
 
 ## Tasks
 
-- [ ] T001 Replace execSync with getExecOutput in getGitCommitMessage (file: src/index.ts)
-- [ ] T002 Update test mocks for @actions/exec.getExecOutput (file: src/__tests__/index.test.ts, depends on T001)
+- [x] T001 Replace execSync with getExecOutput in getGitCommitMessage (file: src/index.ts)
+- [x] T002 Update test mocks for @actions/exec.getExecOutput (file: src/__tests__/index.test.ts, depends on T001)
+
+## Progress
+
+- [x] (2026-03-29 16:55 KST) T001 Replace execSync with getExecOutput in getGitCommitMessage
+  Evidence: `pnpm test` → 117 tests passed, `grep child_process src/` → no matches
+- [x] (2026-03-29 16:55 KST) T002 Update test mocks for @actions/exec.getExecOutput
+  Evidence: `pnpm test` → 117 tests passed, `pnpm run lint` → 0 errors
 
 ## Key Files
 
