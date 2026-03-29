@@ -49,13 +49,32 @@ This action make a Vercel deployment with github actions.
 | github-deployment                | <ul><li>- [ ] </li></ol> |  false  | if you want to create a [GitHub Deployment](https://docs.github.com/en/rest/deployments/deployments), set `true`.                                                      |
 | github-deployment-environment    | <ul><li>- [ ] </li></ol> |         | The environment for the GitHub deployment (e.g., `production`, `staging`, `preview`). If not specified, auto-detects: `production` when `vercel-args` contains `--prod`, otherwise `preview`. |
 | vercel-project-id                | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-org-id                    | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
-| vercel-args                      | <ul><li>- [ ] </li></ol> |         | This is optional args for `vercel` cli. Example: `--prod`                                            |
+| vercel-org-id                    | <ul><li>- [x] </li></ol> |         | Vercel team ID (also used as `teamId` for API deployments). See [How can I use GitHub Actions with Vercel](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel) |
+| vercel-args                      | <ul><li>- [ ] </li></ol> |         | ⚠️ **Deprecated.** Use the new API inputs below instead. When provided, falls back to CLI-based deployment. |
 | working-directory                | <ul><li>- [ ] </li></ol> |         | the working directory                                                                             |
-| scope                            | <ul><li>- [ ] </li></ol> |         | If you are working in a team scope, you should set this value to your `team ID`.
+| scope                            | <ul><li>- [ ] </li></ol> |         | ⚠️ **Deprecated.** Team slug for CLI `--scope` flag. For API deployments, use `vercel-org-id` instead.
 | alias-domains                    | <ul><li>- [ ] </li></ol> |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.
 | vercel-project-name              | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
 | vercel-version                   | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
+
+### API Deployment Inputs (New)
+
+These inputs use the `@vercel/client` API directly instead of the CLI. They are used when `vercel-args` is **not** provided.
+
+| Name                       | Required | Default   | Description                                                        |
+|----------------------------|:--------:|-----------|--------------------------------------------------------------------|
+| target                     |    No    | `preview` | Deployment target: `production` or `preview`                       |
+| prebuilt                   |    No    | `false`   | Deploy prebuilt output from `.vercel/output`                       |
+| force                      |    No    | `false`   | Force new deployment, bypassing dedupe and build cache             |
+| env                        |    No    |           | Environment variables (`KEY=VALUE` per line)                       |
+| build-env                  |    No    |           | Build-time environment variables (`KEY=VALUE` per line)            |
+| regions                    |    No    |           | Deployment regions, comma-separated (e.g. `iad1,sfo1`)            |
+| archive                    |    No    |           | Upload format: `tgz` for compressed archive                       |
+| root-directory             |    No    |           | Root directory of the project relative to the repository root      |
+| auto-assign-custom-domains |    No    | `true`    | Automatically assign custom domains to this deployment             |
+| custom-environment         |    No    |           | Custom environment slug or ID                                      |
+| public                     |    No    | `false`   | Make deployment source publicly accessible                         |
+| with-cache                 |    No    | `false`   | Retain build cache from previous deployments                       |
 ## Outputs
 
 ### `preview-url`
