@@ -360,6 +360,119 @@ describe('parseAliasDomains', () => {
   })
 })
 
+describe('API deployment inputs', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  it('parses all new API inputs with defaults', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.target).toBe('preview')
+    expect(config.prebuilt).toBe(false)
+    expect(config.force).toBe(false)
+    expect(config.env).toEqual({})
+    expect(config.buildEnv).toEqual({})
+    expect(config.regions).toEqual([])
+    expect(config.archive).toBe('')
+    expect(config.rootDirectory).toBe('')
+    expect(config.autoAssignCustomDomains).toBe(true)
+    expect(config.customEnvironment).toBe('')
+    expect(config.isPublic).toBe(false)
+    expect(config.withCache).toBe(false)
+  })
+
+  it('parses production target', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      if (name === 'target')
+        return 'production'
+      if (name === 'vercel-token')
+        return 'v-token'
+      if (name === 'alias-domains' || name === 'vercel-version')
+        return ''
+      return ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.target).toBe('production')
+  })
+
+  it('parses boolean inputs correctly', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'prebuilt': 'true',
+        'force': 'true',
+        'auto-assign-custom-domains': 'false',
+        'public': 'true',
+        'with-cache': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.prebuilt).toBe(true)
+    expect(config.force).toBe(true)
+    expect(config.autoAssignCustomDomains).toBe(false)
+    expect(config.isPublic).toBe(true)
+    expect(config.withCache).toBe(true)
+  })
+
+  it('parses multiline env variables', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      if (name === 'env')
+        return 'NODE_ENV=production\nAPI_URL=https://api.example.com'
+      if (name === 'vercel-token')
+        return 'v-token'
+      if (name === 'alias-domains' || name === 'vercel-version')
+        return ''
+      return ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.env).toEqual({
+      NODE_ENV: 'production',
+      API_URL: 'https://api.example.com',
+    })
+  })
+
+  it('parses comma-separated regions', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      if (name === 'regions')
+        return 'iad1, sfo1, cdg1'
+      if (name === 'vercel-token')
+        return 'v-token'
+      if (name === 'alias-domains' || name === 'vercel-version')
+        return ''
+      return ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.regions).toEqual(['iad1', 'sfo1', 'cdg1'])
+  })
+})
+
 describe('createOctokitClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()
