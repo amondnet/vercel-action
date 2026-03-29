@@ -1,0 +1,29 @@
+.github/workflows/example-express-basic-auth.yml
+  a835f5c204f4a123 13-41,49,51-58,66
+.github/workflows/example-static.yml
+  a835f5c204f4a123 14-42,50,55-59,61-62,70
+.github/workflows/example-angular.yml
+  a835f5c204f4a123 13-15,19,25-27,31-37,39-46,54-55,59-67,75-76
+.github/workflows/example-scope.yml
+  a835f5c204f4a123 13-41,49,52-59,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "f8072778440cc3f4c5c6ab58e27ed98d5445b159",
+  "prompts": {
+    "a835f5c204f4a123": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5998525c-a344-420d-9cf8-5c760089f1ec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 152,
+      "total_deletions": 31,
+      "accepted_lines": 152,
+      "overriden_lines": 0
+    }
+  }
+}
