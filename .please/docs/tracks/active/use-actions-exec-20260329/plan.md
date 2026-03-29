@@ -65,6 +65,23 @@ Replace `execSync(cmd).toString().trim()` with `await exec.getExecOutput(cmd, ar
 - [ ] SC-3: `getGitCommitMessage()` produces identical output
 - [ ] SC-4: Error handling preserves same error message format
 
+## Outcomes & Retrospective
+
+### What Was Shipped
+Replaced `execSync` from `node:child_process` with `@actions/exec.getExecOutput()` in `getGitCommitMessage()`, making all command execution consistent across the codebase.
+
+### What Went Well
+- Minimal change scope — only 2 files modified with net reduction in code
+- `getExecOutput` was already available in the installed version (1.1.1)
+- Caller was already async, so no ripple effects
+- Clean review with zero issues
+
+### What Could Improve
+- Nothing notable — this was a well-scoped refactor
+
+### Tech Debt Created
+- None
+
 ## Decision Log
 
 - Decision: Use `getExecOutput` over manual `exec` with listeners
