@@ -32059,9 +32059,13 @@ async function handleDeploymentOutputs(vercel, config, deploymentUrl) {
     else {
         core.warning('Deployment completed but no preview URL was returned');
     }
-    const result = await (0, vercel_1.vercelInspect)(vercel, deploymentUrl);
-    const deploymentName = config.vercelProjectName || result.name;
-    const inspectUrl = result.inspectUrl;
+    let deploymentName = config.vercelProjectName || null;
+    let inspectUrl = null;
+    if (deploymentUrl) {
+        const result = await (0, vercel_1.vercelInspect)(vercel, deploymentUrl);
+        deploymentName = deploymentName || result.name;
+        inspectUrl = result.inspectUrl;
+    }
     if (deploymentName) {
         core.info('set preview-name output');
         core.setOutput('preview-name', deploymentName);

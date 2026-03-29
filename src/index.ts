@@ -150,9 +150,14 @@ async function handleDeploymentOutputs(
     core.warning('Deployment completed but no preview URL was returned')
   }
 
-  const result = await vercelInspect(vercel, deploymentUrl)
-  const deploymentName: string | null = config.vercelProjectName || result.name
-  const inspectUrl: string | null = result.inspectUrl
+  let deploymentName: string | null = config.vercelProjectName || null
+  let inspectUrl: string | null = null
+
+  if (deploymentUrl) {
+    const result = await vercelInspect(vercel, deploymentUrl)
+    deploymentName = deploymentName || result.name
+    inspectUrl = result.inspectUrl
+  }
 
   if (deploymentName) {
     core.info('set preview-name output')
