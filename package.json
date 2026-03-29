@@ -29,7 +29,7 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "start": "node ./dist/index.js",
-    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt --transpile-only",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
