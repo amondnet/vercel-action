@@ -14,9 +14,10 @@ Provide the most reliable and feature-rich GitHub Action for automating Vercel d
 
 1. **Vercel Deployment** — Execute Vercel CLI deployments (preview and production) from GitHub Actions
 2. **PR & Commit Comments** — Automatically comment deployment URLs on pull requests and commits
-3. **Alias Domains** — Assign custom domains to deployments with template variables (PR number, branch name)
-4. **Backward Compatibility** — Maintain support for legacy "zeit-" prefixed inputs
-5. **Flexible Configuration** — Support working directories, team scopes, custom CLI arguments, and project name overrides
+3. **GitHub Deployments** — Create GitHub Deployment records with environment tracking, status updates, and auto-deactivation
+4. **Alias Domains** — Assign custom domains to deployments with template variables (PR number, branch name)
+5. **Backward Compatibility** — Maintain support for legacy "zeit-" prefixed inputs
+6. **Flexible Configuration** — Support working directories, team scopes, custom CLI arguments, and project name overrides
 
 ## Success Metrics
 
