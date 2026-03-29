@@ -1,0 +1,25 @@
+.please/docs/tracks/active/api-based-deployment-20260329/metadata.json
+  cc1137572caf1542 4,6
+.please/docs/tracks/index.md
+  cc1137572caf1542 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "f1e38994fcd7d3d714e870e4008f68aec6632095",
+  "prompts": {
+    "cc1137572caf1542": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58a10960-d61c-401a-b460-8307ed135153",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
