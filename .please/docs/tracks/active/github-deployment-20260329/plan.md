@@ -34,15 +34,15 @@ Alternative considered: embedding deployment logic directly in `index.ts`. Rejec
 
 ## Tasks
 
-- [ ] T001 Add GitHub Deployment types to types.ts (file: src/types.ts)
-- [ ] T002 Add GitHub Deployment config parsing to config.ts (file: src/config.ts, depends on T001)
-- [ ] T003 Add action.yml inputs and outputs (file: action.yml, depends on T001)
-- [ ] T004 [P] Create github-deployment module (file: src/github-deployment.ts, depends on T001)
-- [ ] T005 Integrate GitHub Deployment into run() flow (file: src/index.ts, depends on T002, T003, T004)
-- [ ] T006 [P] Add unit tests for github-deployment module (file: src/__tests__/github-deployment.test.ts, depends on T004)
-- [ ] T007 Add unit tests for config changes (file: src/__tests__/config.test.ts, depends on T002)
-- [ ] T008 Add unit tests for index integration (file: src/__tests__/index.test.ts, depends on T005)
-- [ ] T009 Build dist bundle (file: dist/index.js, depends on T005)
+- [x] T001 Add GitHub Deployment types to types.ts (file: src/types.ts)
+- [x] T002 Add GitHub Deployment config parsing to config.ts (file: src/config.ts, depends on T001)
+- [x] T003 Add action.yml inputs and outputs (file: action.yml, depends on T001)
+- [x] T004 [P] Create github-deployment module (file: src/github-deployment.ts, depends on T001)
+- [x] T005 Integrate GitHub Deployment into run() flow (file: src/index.ts, depends on T002, T003, T004)
+- [x] T006 [P] Add unit tests for github-deployment module (file: src/__tests__/github-deployment.test.ts, depends on T004)
+- [x] T007 Add unit tests for config changes (file: src/__tests__/config.test.ts, depends on T002)
+- [x] T008 Add unit tests for index integration (file: src/__tests__/index.test.ts, depends on T005)
+- [x] T009 Build dist bundle (file: dist/index.js, depends on T005)
 
 ## Key Files
 
@@ -112,3 +112,19 @@ Alternative considered: embedding deployment logic directly in `index.ts`. Rejec
 - Decision: Use auto_inactive parameter instead of transient_environment
   Rationale: auto_inactive is simpler — GitHub handles deactivation of previous deployments automatically without marking the environment as transient
   Date/Author: 2026-03-29 / Claude
+
+## Progress
+
+- [x] (2026-03-29 18:25 KST) T001 Add GitHub Deployment types to types.ts
+- [x] (2026-03-29 18:25 KST) T002 Add GitHub Deployment config parsing to config.ts
+- [x] (2026-03-29 18:25 KST) T003 Add action.yml inputs and outputs
+- [x] (2026-03-29 18:26 KST) T004 Create github-deployment module
+  Evidence: `pnpm test -- github-deployment` → 10 tests passed
+- [x] (2026-03-29 18:27 KST) T005 Integrate GitHub Deployment into run() flow
+- [x] (2026-03-29 18:26 KST) T006 Add unit tests for github-deployment module
+- [x] (2026-03-29 18:28 KST) T007 Add unit tests for config changes
+  Evidence: `pnpm test -- config` → 25 tests passed (10 new)
+- [x] (2026-03-29 18:28 KST) T008 Add unit tests for index integration
+  Evidence: `pnpm test -- index` → 17 tests passed (5 new)
+- [x] (2026-03-29 18:29 KST) T009 Build dist bundle
+  Evidence: `pnpm run build` → dist/index.js (1248kB), dist/github-deployment.d.ts created
