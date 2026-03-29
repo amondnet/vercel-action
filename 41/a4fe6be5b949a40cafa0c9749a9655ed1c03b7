@@ -1,0 +1,31 @@
+src/__tests__/github-deployment.test.ts
+  b0a06c9be3429b2d 1-235
+action.yml
+  b0a06c9be3429b2d 22-25,71-72
+src/github-deployment.ts
+  b0a06c9be3429b2d 1-88
+src/types.ts
+  b0a06c9be3429b2d 58-59,70-72
+src/config.ts
+  b0a06c9be3429b2d 38-44,49-50,55-56,59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "41a4fe6be5b949a40cafa0c9749a9655ed1c03b7",
+  "prompts": {
+    "b0a06c9be3429b2d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c5c40c4-70e2-41ec-9924-eec1af9fe5e4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>",
+      "messages": [],
+      "total_additions": 348,
+      "total_deletions": 1,
+      "accepted_lines": 348,
+      "overriden_lines": 0
+    }
+  }
+}
