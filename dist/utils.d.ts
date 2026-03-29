@@ -19,6 +19,14 @@ export declare function parseArgs(s: string): string[];
  */
 export declare function retry<T>(fn: () => Promise<T>, retries: number): Promise<T>;
 /**
+ * Parses multiline KEY=VALUE pairs into a Record
+ *
+ * @example
+ * parseKeyValueLines('FOO=bar\nBAZ=qux')
+ * // => { FOO: 'bar', BAZ: 'qux' }
+ */
+export declare function parseKeyValueLines(input: string): Record<string, string>;
+/**
  * Adds Vercel metadata arguments if not already provided by user
  */
 export declare function addVercelMetadata(key: string, value: string | number, providedArgs: string[]): string[];
