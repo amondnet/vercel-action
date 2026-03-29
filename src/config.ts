@@ -39,7 +39,7 @@ export function resolveDeploymentEnvironment(explicitEnv: string, vercelArgs: st
   if (explicitEnv) {
     return explicitEnv
   }
-  return vercelArgs.includes('--prod') ? 'production' : 'preview'
+  return /(?:^|\s)--prod(?:uction)?(?:\s|$)/.test(vercelArgs) ? 'production' : 'preview'
 }
 
 export function getActionConfig(): ActionConfig {

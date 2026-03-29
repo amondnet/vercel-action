@@ -125,6 +125,40 @@ describe('createGitHubDeployment', () => {
     expect(core.setOutput).toHaveBeenCalledWith('deployment-id', 99999)
   })
 
+  it('returns null with warning when API returns 202 message instead of deployment', async () => {
+    mockCreateDeployment.mockResolvedValue({ data: { message: 'Auto-merge disabled' } })
+
+    const result = await createGitHubDeployment(
+      createMockOctokit(),
+      createGitHubContext(),
+      createDeploymentContext(),
+      'production',
+    )
+
+    expect(result).toBeNull()
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('Auto-merge disabled'),
+    )
+    expect(core.setOutput).not.toHaveBeenCalled()
+  })
+
+  it('still returns deploymentId when in_progress status update fails', async () => {
+    mockCreateDeployment.mockResolvedValue({ data: { id: 12345 } })
+    mockCreateDeploymentStatus.mockRejectedValue(new Error('Status update failed'))
+
+    const result = await createGitHubDeployment(
+      createMockOctokit(),
+      createGitHubContext(),
+      createDeploymentContext(),
+      'production',
+    )
+
+    expect(result).toEqual({ deploymentId: 12345 })
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('could not be set to "in_progress"'),
+    )
+  })
+
   it('returns null when octokit is undefined', async () => {
     const result = await createGitHubDeployment(
       undefined,
@@ -217,7 +251,7 @@ describe('updateGitHubDeploymentStatus', () => {
     expect(mockCreateDeploymentStatus).not.toHaveBeenCalled()
   })
 
-  it('logs warning on API error without throwing', async () => {
+  it('logs warning with "succeeded" on success path API error', async () => {
     mockCreateDeploymentStatus.mockRejectedValue(new Error('Network error'))
 
     await updateGitHubDeploymentStatus(
@@ -229,7 +263,23 @@ describe('updateGitHubDeploymentStatus', () => {
     )
 
     expect(core.warning).toHaveBeenCalledWith(
-      expect.stringContaining('Network error'),
+      expect.stringContaining('succeeded'),
+    )
+  })
+
+  it('logs warning with "failed" on failure path API error', async () => {
+    mockCreateDeploymentStatus.mockRejectedValue(new Error('Network error'))
+
+    await updateGitHubDeploymentStatus(
+      createMockOctokit(),
+      createGitHubContext(),
+      12345,
+      'failure',
+      {},
+    )
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('failed'),
     )
   })
 })
