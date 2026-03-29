@@ -153,7 +153,7 @@ export function buildCommentBody(
   deploymentName: string,
   githubComment: boolean | string,
   aliasDomains: string[],
-  defaultTemplate: string,
+  _defaultTemplate: string,
   inspectUrl: string | null = null,
 ): string | undefined {
   if (!githubComment) {
