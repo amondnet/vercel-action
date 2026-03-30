@@ -62,7 +62,7 @@ export interface ActionConfig {
     vercelProjectName: string;
     vercelBin: string;
     aliasDomains: string[];
-    target: string;
+    target: 'production' | 'preview';
     prebuilt: boolean;
     force: boolean;
     env: Record<string, string>;

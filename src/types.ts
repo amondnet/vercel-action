@@ -67,7 +67,7 @@ export interface ActionConfig {
   vercelBin: string
   aliasDomains: string[]
   // API-based deployment inputs (mapped to @vercel/client options)
-  target: string
+  target: 'production' | 'preview'
   prebuilt: boolean
   force: boolean
   env: Record<string, string>

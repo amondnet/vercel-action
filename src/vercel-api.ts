@@ -18,13 +18,16 @@ function buildGitMetadata(deployContext: DeploymentContext) {
   }
 }
 
-function buildClientOptions(config: ActionConfig): VercelClientOptions {
+function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClientOptions {
   const options: VercelClientOptions = {
     token: config.vercelToken,
     path: config.workingDirectory || process.cwd(),
     debug: core.isDebug(),
   }
 
+  if (apiUrl && apiUrl !== DEFAULT_BASE_URL) {
+    options.apiUrl = apiUrl
+  }
   if (config.vercelScope) {
     options.teamId = config.vercelScope
   }
@@ -120,7 +123,7 @@ export class VercelApiClient implements VercelClient {
   }
 
   async deploy(config: ActionConfig, deployContext: DeploymentContext): Promise<string> {
-    const clientOptions = buildClientOptions(config)
+    const clientOptions = buildClientOptions(config, this.baseUrl)
     const deploymentOptions = buildDeploymentOptions(config, deployContext)
 
     core.info('Starting API-based deployment...')

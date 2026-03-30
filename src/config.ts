@@ -7,6 +7,23 @@ import { getGithubCommentInput, isPullRequestType, parseKeyValueLines, slugify }
 const PR_NUMBER_REGEXP = /\{\{\s*PR_NUMBER\s*\}\}/g
 const BRANCH_REGEXP = /\{\{\s*BRANCH\s*\}\}/g
 
+function maskSecretValues(env: Record<string, string>): Record<string, string> {
+  for (const value of Object.values(env)) {
+    if (value) {
+      core.setSecret(value)
+    }
+  }
+  return env
+}
+
+function parseTarget(input: string): 'production' | 'preview' {
+  const value = input || 'preview'
+  if (value !== 'production' && value !== 'preview') {
+    throw new Error(`Invalid target "${value}". Must be "production" or "preview".`)
+  }
+  return value
+}
+
 function getVercelBin(): string {
   const input = core.getInput('vercel-version')
   const fallback = packageJSON.dependencies.vercel
@@ -64,11 +81,11 @@ export function getActionConfig(): ActionConfig {
     vercelBin: getVercelBin(),
     aliasDomains: parseAliasDomains(),
     // API-based deployment inputs
-    target: core.getInput('target') || 'preview',
+    target: parseTarget(core.getInput('target')),
     prebuilt: core.getInput('prebuilt') === 'true',
     force: core.getInput('force') === 'true',
-    env: parseKeyValueLines(core.getInput('env')),
-    buildEnv: parseKeyValueLines(core.getInput('build-env')),
+    env: maskSecretValues(parseKeyValueLines(core.getInput('env'))),
+    buildEnv: maskSecretValues(parseKeyValueLines(core.getInput('build-env'))),
     regions: core.getInput('regions').split(',').map(r => r.trim()).filter(r => r !== ''),
     archive: core.getInput('archive'),
     rootDirectory: core.getInput('root-directory'),
