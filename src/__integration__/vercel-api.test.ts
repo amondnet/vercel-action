@@ -42,9 +42,13 @@ describe('vercelApiClient (integration)', () => {
     // Resolve the team uid from the emulator via GET /v2/teams/:slug
     // This mirrors real usage where vercel-org-id comes from .vercel/project.json orgId
     const teamRes = await vercelFetch(`/v2/teams/${TEST_TEAM}`)
-    if (teamRes.ok) {
-      const data = await teamRes.json()
-      teamUid = data.team?.id ?? ''
+    if (!teamRes.ok) {
+      throw new Error(`Failed to resolve team "${TEST_TEAM}": ${teamRes.status} ${teamRes.statusText}`)
+    }
+    const data = await teamRes.json()
+    teamUid = data.team?.id
+    if (!teamUid) {
+      throw new Error(`Team "${TEST_TEAM}" resolved but has no id`)
     }
 
     // Probe whether the alias endpoint is available in this emulator version
@@ -139,7 +143,10 @@ describe('vercelApiClient (integration)', () => {
         expect(message).not.toContain('not yet implemented')
         // Known emulator limitations — not real failures
         const emulatorErrors = [
-          'fetch', 'ECONNREFUSED', 'network', 'socket',
+          'fetch',
+          'ECONNREFUSED',
+          'network',
+          'socket',
           'ERR_INVALID_PROTOCOL', // agent/protocol mismatch in emulator
         ]
         const isEmulatorError = emulatorErrors.some(e => message.includes(e))
