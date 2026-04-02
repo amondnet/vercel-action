@@ -1,5 +1,6 @@
 import type { DeploymentOptions, VercelClientOptions } from '@vercel/client'
 import type { ActionConfig, DeploymentContext, InspectResult, VercelClient } from './types'
+import path from 'node:path'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { HttpClient } from '@actions/http-client'
@@ -38,6 +39,7 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
   }
   if (config.prebuilt) {
     options.prebuilt = true
+    options.vercelOutputDir = path.join(options.path, '.vercel', 'output')
   }
   if (config.archive === 'tgz') {
     options.archive = 'tgz'
