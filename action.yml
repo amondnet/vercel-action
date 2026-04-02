@@ -31,7 +31,7 @@ inputs:
     description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   vercel-org-id:
     required: false
-    description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
+    description: 'Vercel team ID (also used as teamId for API deployments). Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   vercel-project-name:
     required: false
     description: "The name of the project; if absent we'll use the `vercel inspect` command to determine."
@@ -40,7 +40,8 @@ inputs:
     description: vercel-cli package version
   scope:
     required: false
-    description: 'If you are work in team scope, you should set this value to your team id.'
+    description: 'Team slug for Vercel CLI --scope flag. For API deployments, use vercel-org-id instead.'
+    deprecationMessage: 'Use "vercel-org-id" for team identification. The "scope" input is only used for CLI-based deployments (when vercel-args is provided).'
   zeit-token:
     description: zeit.co token
     required: false

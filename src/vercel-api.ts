@@ -28,8 +28,8 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
   if (apiUrl && apiUrl !== DEFAULT_BASE_URL) {
     options.apiUrl = apiUrl
   }
-  if (config.vercelScope) {
-    options.teamId = config.vercelScope
+  if (config.vercelOrgId) {
+    options.teamId = config.vercelOrgId
   }
   if (config.force) {
     options.force = true
@@ -104,7 +104,7 @@ export class VercelApiClient implements VercelClient {
 
   constructor(config: ActionConfig, baseUrl?: string) {
     this.token = config.vercelToken
-    this.teamId = config.vercelScope
+    this.teamId = config.vercelOrgId || undefined
     this.baseUrl = baseUrl ?? DEFAULT_BASE_URL
     this.http = new HttpClient('vercel-action', [], {
       headers: {
@@ -117,7 +117,7 @@ export class VercelApiClient implements VercelClient {
   private buildUrl(path: string): string {
     const url = new URL(path, this.baseUrl)
     if (this.teamId) {
-      url.searchParams.set('slug', this.teamId)
+      url.searchParams.set('teamId', this.teamId)
     }
     return url.toString()
   }

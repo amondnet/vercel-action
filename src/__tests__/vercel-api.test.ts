@@ -171,7 +171,7 @@ describe('vercelApiClient.deploy', () => {
     const config = createConfig({
       vercelToken: 'my-token',
       workingDirectory: '/my/project',
-      vercelScope: 'my-team',
+      vercelOrgId: 'team_abc123',
       force: true,
       prebuilt: true,
       archive: 'tgz',
@@ -184,7 +184,7 @@ describe('vercelApiClient.deploy', () => {
     const callArgs = mockCreateDeployment.mock.calls[0][0]
     expect(callArgs.token).toBe('my-token')
     expect(callArgs.path).toBe('/my/project')
-    expect(callArgs.teamId).toBe('my-team')
+    expect(callArgs.teamId).toBe('team_abc123')
     expect(callArgs.force).toBe(true)
     expect(callArgs.prebuilt).toBe(true)
     expect(callArgs.archive).toBe('tgz')
