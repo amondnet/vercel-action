@@ -207,6 +207,27 @@ describe('vercelDeploy', () => {
     )
   })
 
+  it('retry does not pass --scope when vercelOrgId triggered personal account error', async () => {
+    let callCount = 0
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      callCount++
+      if (callCount === 1) {
+        options?.listeners?.stderr?.(
+          Buffer.from('You cannot set your Personal Account as the scope'),
+        )
+        return 1
+      }
+      options?.listeners?.stdout?.(Buffer.from('https://retry-deploy.vercel.app\n'))
+      return 0
+    })
+
+    const cfg = createConfig({ vercelOrgId: 'team_abc123', vercelProjectId: 'proj-123' })
+    await vercelDeploy(createClient(cfg), cfg, createDeployContext())
+
+    const retryArgs = vi.mocked(exec.exec).mock.calls[1][1] as string[]
+    expect(retryArgs).not.toContain('--scope')
+  })
+
   it('throws on personal account scope error without project ID', async () => {
     vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
       options?.listeners?.stderr?.(

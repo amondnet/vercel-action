@@ -108,7 +108,7 @@ export class VercelCliClient implements VercelClient {
 
         output = ''
         errorOutput = ''
-        const retryConfig: ActionConfig = { ...config, vercelScope: undefined }
+        const retryConfig: ActionConfig = { ...config, vercelScope: undefined, vercelOrgId: '' }
         const retryArgs = buildDeployArgs(retryConfig, deployContext)
 
         exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)
