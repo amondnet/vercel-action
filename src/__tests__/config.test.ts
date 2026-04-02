@@ -67,7 +67,7 @@ describe('getActionConfig', () => {
 
   it('uses package.json vercel version as fallback', async () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
-      if (name === 'vercel-version' || name === 'alias-domains' || name === 'target')
+      if (name === 'vercel-version' || name === 'alias-domains' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -223,7 +223,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return '{{BRANCH}}.example.com'
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -256,7 +256,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return 'pr-{{PR_NUMBER}}.example.com'
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -289,7 +289,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return '{{BRANCH}}.example.com'
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -308,7 +308,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return 'a.example.com\nb.example.com'
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -327,7 +327,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return 'a.com\n\nb.com\n'
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
@@ -346,7 +346,7 @@ describe('parseAliasDomains', () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       if (name === 'alias-domains')
         return ''
-      if (name === 'vercel-version' || name === 'target')
+      if (name === 'vercel-version' || name === 'target' || name === 'archive')
         return ''
       return 'test'
     })
