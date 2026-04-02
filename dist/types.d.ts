@@ -62,6 +62,19 @@ export interface ActionConfig {
     vercelProjectName: string;
     vercelBin: string;
     aliasDomains: string[];
+    target: 'production' | 'preview';
+    prebuilt: boolean;
+    vercelOutputDir: string;
+    force: boolean;
+    env: Record<string, string>;
+    buildEnv: Record<string, string>;
+    regions: string[];
+    archive: '' | 'tgz';
+    rootDirectory: string;
+    autoAssignCustomDomains: boolean;
+    customEnvironment: string;
+    isPublic: boolean;
+    withCache: boolean;
 }
 export interface GitHubDeploymentResult {
     deploymentId: number;

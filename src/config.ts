@@ -2,10 +2,34 @@ import type { ActionConfig, OctokitClient, PullRequestPayload } from './types'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import packageJSON from '../package.json'
-import { getGithubCommentInput, isPullRequestType, slugify } from './utils'
+import { getGithubCommentInput, isPullRequestType, parseKeyValueLines, slugify } from './utils'
 
 const PR_NUMBER_REGEXP = /\{\{\s*PR_NUMBER\s*\}\}/g
 const BRANCH_REGEXP = /\{\{\s*BRANCH\s*\}\}/g
+
+function maskSecretValues(env: Record<string, string>): Record<string, string> {
+  for (const value of Object.values(env)) {
+    if (value) {
+      core.setSecret(value)
+    }
+  }
+  return env
+}
+
+function parseTarget(input: string): 'production' | 'preview' {
+  const value = input || 'preview'
+  if (value !== 'production' && value !== 'preview') {
+    throw new Error(`Invalid target "${value}". Must be "production" or "preview".`)
+  }
+  return value
+}
+
+function parseArchive(input: string): '' | 'tgz' {
+  if (input !== '' && input !== 'tgz') {
+    throw new Error(`Invalid archive "${input}". Must be "" or "tgz".`)
+  }
+  return input
+}
 
 function getVercelBin(): string {
   const input = core.getInput('vercel-version')
@@ -63,6 +87,20 @@ export function getActionConfig(): ActionConfig {
     vercelProjectName: core.getInput('vercel-project-name'),
     vercelBin: getVercelBin(),
     aliasDomains: parseAliasDomains(),
+    // API-based deployment inputs
+    target: parseTarget(core.getInput('target')),
+    prebuilt: core.getInput('prebuilt') === 'true',
+    vercelOutputDir: core.getInput('vercel-output-dir'),
+    force: core.getInput('force') === 'true',
+    env: maskSecretValues(parseKeyValueLines(core.getInput('env'))),
+    buildEnv: maskSecretValues(parseKeyValueLines(core.getInput('build-env'))),
+    regions: core.getInput('regions').split(',').map(r => r.trim()).filter(r => r !== ''),
+    archive: parseArchive(core.getInput('archive')),
+    rootDirectory: core.getInput('root-directory'),
+    autoAssignCustomDomains: core.getInput('auto-assign-custom-domains') !== 'false',
+    customEnvironment: core.getInput('custom-environment'),
+    isPublic: core.getInput('public') === 'true',
+    withCache: core.getInput('with-cache') === 'true',
   }
 }
 

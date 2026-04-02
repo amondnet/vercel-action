@@ -1,0 +1,10 @@
+{
+  "track_id": "api-based-deployment-20260329",
+  "type": "refactor",
+  "status": "in_progress",
+  "created_at": "2026-03-29T18:46:08+09:00",
+  "updated_at": "2026-03-29T19:05:00+09:00",
+  "issue": "#323",
+  "pr": "#325",
+  "project": ""
+}

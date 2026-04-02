@@ -46,5 +46,6 @@ export default antfu({
     'regexp/no-super-linear-backtracking': 'off',
     'ts/explicit-function-return-type': 'off',
     'ts/no-explicit-any': 'warn',
+    'test/prefer-lowercase-title': 'off',
   },
 })

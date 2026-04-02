@@ -31,7 +31,7 @@ inputs:
     description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   vercel-org-id:
     required: false
-    description: 'Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
+    description: 'Vercel team ID (also used as teamId for API deployments). Vercel CLI 17+, ❗️  The `name` property in vercel.json is deprecated (https://zeit.ink/5F)'
   vercel-project-name:
     required: false
     description: "The name of the project; if absent we'll use the `vercel inspect` command to determine."
@@ -40,7 +40,8 @@ inputs:
     description: vercel-cli package version
   scope:
     required: false
-    description: 'If you are work in team scope, you should set this value to your team id.'
+    description: 'Team slug for Vercel CLI --scope flag. For API deployments, use vercel-org-id instead.'
+    deprecationMessage: 'Use "vercel-org-id" for team identification. The "scope" input is only used for CLI-based deployments (when vercel-args is provided).'
   zeit-token:
     description: zeit.co token
     required: false
@@ -62,6 +63,58 @@ inputs:
     required: false
     description: 'You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`'
     default: ''
+  target:
+    required: false
+    description: 'Deployment target: "production" or "preview" (default: preview). Replaces --prod flag in vercel-args.'
+    default: preview
+  prebuilt:
+    required: false
+    description: 'Deploy prebuilt output (default: false). Replaces --prebuilt flag in vercel-args.'
+    default: 'false'
+  vercel-output-dir:
+    required: false
+    description: 'Path to the prebuilt output directory. Defaults to {working-directory}/.vercel/output when prebuilt is true.'
+    default: ''
+  force:
+    required: false
+    description: 'Force new deployment, bypassing dedupe and build cache (default: false). Replaces --force flag in vercel-args.'
+    default: 'false'
+  env:
+    required: false
+    description: Environment variables for the deployment (KEY=VALUE per line). Replaces --env flags in vercel-args.
+    default: ''
+  build-env:
+    required: false
+    description: Build-time environment variables (KEY=VALUE per line). Replaces --build-env flags in vercel-args.
+    default: ''
+  regions:
+    required: false
+    description: 'Deployment regions, comma-separated (e.g. "iad1,sfo1").'
+    default: ''
+  archive:
+    required: false
+    description: 'Upload format: "tgz" for compressed archive, or empty for individual files.'
+    default: ''
+  root-directory:
+    required: false
+    description: Root directory of the project relative to the repository root.
+    default: ''
+  auto-assign-custom-domains:
+    required: false
+    description: 'Automatically assign custom domains to this deployment (default: true).'
+    default: 'true'
+  custom-environment:
+    required: false
+    description: Custom environment slug or ID for the deployment.
+    default: ''
+  public:
+    required: false
+    description: 'Make deployment source publicly accessible (default: false).'
+    default: 'false'
+  with-cache:
+    required: false
+    description: 'Retain build cache from previous deployments (default: false).'
+    default: 'false'
 
 outputs:
   preview-url:
