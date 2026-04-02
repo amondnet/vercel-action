@@ -192,7 +192,7 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -248,7 +248,7 @@ jobs:
       #  your build commands
       # - run: |
       #    ng build --prod
-      - uses: amondnet/vercel-action@v25 # deploy
+      - uses: amondnet/vercel-action@v42 # deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -309,7 +309,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -340,7 +340,7 @@ jobs:
       deployments: write
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         id: vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -360,12 +360,93 @@ The deployment lifecycle:
 
 > **Note:** GitHub Deployment errors are non-blocking. If the GitHub API call fails, the Vercel deployment will still proceed normally.
 
+## Migration to API-based Deployment (v42.2.0+)
+
+Starting with v42.2.0, this action uses the `@vercel/client` API by default instead of the Vercel CLI. This is **not a breaking change** — existing workflows using `vercel-args` will continue to work via CLI fallback.
+
+### What changed
+
+| Before (CLI via `vercel-args`)  | After (API inputs)          |
+|---------------------------------|-----------------------------|
+| `vercel-args: --prod`           | `target: production`        |
+| `vercel-args: --prebuilt`       | `prebuilt: true`            |
+| `vercel-args: --force`          | `force: true`               |
+| `vercel-args: --public`         | `public: true`              |
+| `vercel-args: --with-cache`     | `with-cache: true`          |
+| `vercel-args: --archive=tgz`    | `archive: tgz`              |
+| `vercel-args: --regions iad1`   | `regions: iad1`             |
+| `vercel-args: --env KEY=VAL`    | `env: KEY=VAL` (multiline)  |
+| `vercel-args: --build-env K=V`  | `build-env: K=V` (multiline)|
+| `scope: my-team`                | `vercel-org-id: team_xxx`   |
+
+### Migration steps
+
+1. **Remove `vercel-args`** and replace with equivalent API inputs:
+
+   ```yaml
+   # Before
+   - uses: amondnet/vercel-action@v42
+     with:
+       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+       vercel-args: --prod --force
+
+   # After
+   - uses: amondnet/vercel-action@v42
+     with:
+       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+       target: production
+       force: true
+   ```
+
+2. **Replace `scope`** with `vercel-org-id` (your team ID):
+
+   ```yaml
+   # Before
+   scope: my-team-slug
+
+   # After
+   vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}  # team_xxxxx
+   ```
+
+3. **Prebuilt deployments** — use the `prebuilt` input:
+
+   ```yaml
+   - uses: amondnet/vercel-action@v42
+     with:
+       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+       prebuilt: true
+       target: production
+   ```
+
+### Keeping CLI mode
+
+If you prefer to stay on CLI-based deployment, simply keep using `vercel-args`. The action will automatically use the CLI client when `vercel-args` is provided:
+
+```yaml
+- uses: amondnet/vercel-action@v42
+  with:
+    vercel-args: --prod --force  # CLI fallback
+```
+
+### Deprecated inputs
+
+| Input          | Status       | Replacement                |
+|----------------|--------------|----------------------------|
+| `vercel-args`  | Deprecated   | Use API inputs (`target`, `prebuilt`, `force`, etc.) |
+| `scope`        | Deprecated   | Use `vercel-org-id`        |
+
 ## Migration from v2
 
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
    ```yaml
    - name: Vercel Action
-     uses: amondnet/vercel-action@v25
+     uses: amondnet/vercel-action@v42
    ```
 2. Change input values.
     - `zeit-token` -> `vercel-token`

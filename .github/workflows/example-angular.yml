@@ -10,43 +10,67 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
           version: 10.15.0
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: pnpm
 
-      - name: build
-        run: |
-          cd example/angular
-          pnpm install --frozen-lockfile
-          pnpm exec ng build --prod
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: example/angular
         env:
           NODE_OPTIONS: --openssl-legacy-provider
 
+      - name: Pull Vercel environment
+        run: pnpm exec vercel pull --yes --token=${VERCEL_TOKEN}
+        working-directory: example/angular
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (preview)
+        if: github.event_name == 'pull_request_target'
+        run: pnpm exec vercel build
+        working-directory: example/angular
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
+          NODE_OPTIONS: --openssl-legacy-provider
       - uses: ./
         id: vercel-action-staging
         if: github.event_name == 'pull_request_target'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
-          working-directory: example/angular/dist/angular
+          vercel-args: --prebuilt
+          working-directory: example/angular
           alias-domains: |
             staging.angular.vercel-action.amond.dev
             pr-{{PR_NUMBER}}.angular.vercel-action.amond.dev
+
+      - name: Build (production)
+        if: github.event_name == 'push'
+        run: pnpm exec vercel build --prod
+        working-directory: example/angular
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
+          NODE_OPTIONS: --openssl-legacy-provider
       - uses: ./
         id: vercel-action-production
         if: github.event_name == 'push'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ANGULAR }}
-          working-directory: example/angular/dist/angular
-          vercel-args: '--prod '
+          vercel-args: --prod --prebuilt
+          working-directory: example/angular
