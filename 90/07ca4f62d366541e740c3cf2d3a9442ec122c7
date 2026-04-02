@@ -1,0 +1,23 @@
+README.md
+  feda606e4298f737 195,251,312,343,388,396,418,432,449
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.4",
+  "base_commit_sha": "9007ca4f62d366541e740c3cf2d3a9442ec122c7",
+  "prompts": {
+    "feda606e4298f737": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "aba7c870-a8c6-499c-8943-e1e23e48ed30",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 9,
+      "accepted_lines": 9,
+      "overriden_lines": 0
+    }
+  }
+}
