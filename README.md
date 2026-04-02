@@ -64,7 +64,8 @@ These inputs use the `@vercel/client` API directly instead of the CLI. They are 
 | Name                       | Required | Default   | Description                                                        |
 |----------------------------|:--------:|-----------|--------------------------------------------------------------------|
 | target                     |    No    | `preview` | Deployment target: `production` or `preview`                       |
-| prebuilt                   |    No    | `false`   | Deploy prebuilt output from `.vercel/output`                       |
+| prebuilt                   |    No    | `false`   | Deploy prebuilt output (requires `vercel build` step before)       |
+| vercel-output-dir          |    No    |           | Custom path to prebuilt output. Defaults to `{working-directory}/.vercel/output` |
 | force                      |    No    | `false`   | Force new deployment, bypassing dedupe and build cache             |
 | env                        |    No    |           | Environment variables (`KEY=VALUE` per line)                       |
 | build-env                  |    No    |           | Build-time environment variables (`KEY=VALUE` per line)            |
