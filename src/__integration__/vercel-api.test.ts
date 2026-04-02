@@ -12,7 +12,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     workingDirectory: '',
     vercelToken: VERCEL_TOKEN,
     vercelArgs: '',
-    vercelOrgId: '',
+    vercelOrgId: TEST_TEAM,
     vercelProjectId: '',
     vercelProjectName: '',
     vercelBin: '',

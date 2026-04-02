@@ -25,9 +25,11 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
     debug: core.isDebug(),
   }
 
-  if (apiUrl && apiUrl !== DEFAULT_BASE_URL) {
-    options.apiUrl = apiUrl
-  }
+  // Always set apiUrl explicitly — @vercel/client uses it to select the
+  // correct http/https agent for file uploads. When omitted, the agent
+  // defaults to http even though the URL defaults to https://api.vercel.com,
+  // causing ERR_INVALID_PROTOCOL errors.
+  options.apiUrl = apiUrl ?? DEFAULT_BASE_URL
   if (config.vercelOrgId) {
     options.teamId = config.vercelOrgId
   }
