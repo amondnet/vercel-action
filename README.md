@@ -167,6 +167,41 @@ export const config: VercelConfig = {
 
 See [Build Command docs](https://vercel.com/docs/deployments/configure-a-build#build-command) and [Programmatic Configuration](https://vercel.com/docs/project-configuration/vercel-ts) for more details.
 
+#### Method 3 - Prebuilt deployments (recommended)
+
+You can build your project locally (or in GitHub Actions) using `vercel build` and upload only the build artifacts to Vercel — without giving Vercel access to the source code. This uses the [Build Output API](https://vercel.com/docs/build-output-api/v3) specification.
+
+```yaml
+name: deploy website
+on: [pull_request]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          prebuilt: true
+```
+
+See [Vercel's official GitHub Actions example](https://github.com/vercel/examples/tree/main/ci-cd/github-actions) for more details.
+
 ### Project Linking
 
 You should link a project via [Vercel CLI](https://vercel.com/download) in locally.
