@@ -192,7 +192,7 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -248,7 +248,7 @@ jobs:
       #  your build commands
       # - run: |
       #    ng build --prod
-      - uses: amondnet/vercel-action@v25 # deploy
+      - uses: amondnet/vercel-action@v42 # deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -309,7 +309,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -340,7 +340,7 @@ jobs:
       deployments: write
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         id: vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -385,7 +385,7 @@ Starting with v42.2.0, this action uses the `@vercel/client` API by default inst
 
    ```yaml
    # Before
-   - uses: amondnet/vercel-action@v25
+   - uses: amondnet/vercel-action@v42
      with:
        vercel-token: ${{ secrets.VERCEL_TOKEN }}
        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -393,7 +393,7 @@ Starting with v42.2.0, this action uses the `@vercel/client` API by default inst
        vercel-args: --prod --force
 
    # After
-   - uses: amondnet/vercel-action@v25
+   - uses: amondnet/vercel-action@v42
      with:
        vercel-token: ${{ secrets.VERCEL_TOKEN }}
        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -415,7 +415,7 @@ Starting with v42.2.0, this action uses the `@vercel/client` API by default inst
 3. **Prebuilt deployments** — use the `prebuilt` input:
 
    ```yaml
-   - uses: amondnet/vercel-action@v25
+   - uses: amondnet/vercel-action@v42
      with:
        vercel-token: ${{ secrets.VERCEL_TOKEN }}
        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -429,7 +429,7 @@ Starting with v42.2.0, this action uses the `@vercel/client` API by default inst
 If you prefer to stay on CLI-based deployment, simply keep using `vercel-args`. The action will automatically use the CLI client when `vercel-args` is provided:
 
 ```yaml
-- uses: amondnet/vercel-action@v25
+- uses: amondnet/vercel-action@v42
   with:
     vercel-args: --prod --force  # CLI fallback
 ```
@@ -446,7 +446,7 @@ If you prefer to stay on CLI-based deployment, simply keep using `vercel-args`. 
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
    ```yaml
    - name: Vercel Action
-     uses: amondnet/vercel-action@v25
+     uses: amondnet/vercel-action@v42
    ```
 2. Change input values.
     - `zeit-token` -> `vercel-token`
