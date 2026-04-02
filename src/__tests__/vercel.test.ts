@@ -332,6 +332,33 @@ describe('vercelInspect', () => {
     expect(args).toContain('my-team')
   })
 
+  it('uses vercelOrgId as scope when vercelScope is not set', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+
+    await vercelInspect(
+      createClient(createConfig({ vercelOrgId: 'team_abc123' })),
+      'https://deploy.vercel.app',
+    )
+
+    const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
+    expect(args).toContain('--scope')
+    expect(args).toContain('team_abc123')
+  })
+
+  it('prefers vercelScope over vercelOrgId for scope', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+
+    await vercelInspect(
+      createClient(createConfig({ vercelScope: 'my-team', vercelOrgId: 'team_abc123' })),
+      'https://deploy.vercel.app',
+    )
+
+    const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
+    expect(args).toContain('--scope')
+    expect(args).toContain('my-team')
+    expect(args).not.toContain('team_abc123')
+  })
+
   it('extracts name with varying whitespace', async () => {
     vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
       options?.listeners?.stderr?.(Buffer.from('    name    my-project-name\n'))
@@ -380,6 +407,17 @@ describe('aliasDomainsToDeployment', () => {
     const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
     expect(args).toContain('--scope')
     expect(args).toContain('my-team')
+  })
+
+  it('uses vercelOrgId as scope when vercelScope is not set', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+
+    const cfg = createConfig({ aliasDomains: ['a.com'], vercelOrgId: 'team_abc123' })
+    await aliasDomainsToDeployment(createClient(cfg), cfg, 'https://deploy.vercel.app')
+
+    const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
+    expect(args).toContain('--scope')
+    expect(args).toContain('team_abc123')
   })
 
   it('retries on general failure', async () => {
