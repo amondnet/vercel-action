@@ -446,6 +446,7 @@ These inputs are only available with API-based deployment (when `vercel-args` is
 - `auto-assign-custom-domains` — Automatically assign custom domains (default: `true`)
 - `custom-environment` — Custom environment slug or ID
 - `with-cache` — Retain build cache from previous deployments
+- `vercel-output-dir` — Directory containing prebuilt output (only relevant when `prebuilt: true`)
 
 ### Deprecated Inputs
 
