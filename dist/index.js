@@ -32585,6 +32585,9 @@ class VercelCliClient {
     constructor(config) {
         this.config = config;
     }
+    get effectiveScope() {
+        return this.config.vercelScope || this.config.vercelOrgId || undefined;
+    }
     async deploy(config, deployContext) {
         let output = '';
         let errorOutput = '';
@@ -32647,9 +32650,10 @@ class VercelCliClient {
             options.cwd = this.config.workingDirectory;
         }
         const args = [this.config.vercelBin, 'inspect', deploymentUrl, '-t', this.config.vercelToken];
-        if (this.config.vercelScope) {
+        const scope = this.effectiveScope;
+        if (scope) {
             core.info('using scope');
-            args.push('--scope', this.config.vercelScope);
+            args.push('--scope', scope);
         }
         try {
             await exec.exec('npx', args, options);
@@ -32671,9 +32675,10 @@ class VercelCliClient {
     }
     async assignAlias(deploymentUrl, domain) {
         const args = [this.config.vercelBin, '-t', this.config.vercelToken];
-        if (this.config.vercelScope) {
+        const scope = this.effectiveScope;
+        if (scope) {
             core.info('using scope');
-            args.push('--scope', this.config.vercelScope);
+            args.push('--scope', scope);
         }
         args.push('alias', deploymentUrl, domain);
         let aliasOutput = '';

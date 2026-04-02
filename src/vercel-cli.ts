@@ -44,9 +44,10 @@ function buildDeployArgs(
     ...addVercelMetadata('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
   ]
 
-  if (config.vercelScope) {
-    core.info('using scope')
-    args.push('--scope', config.vercelScope)
+  const effectiveScope = config.vercelScope || config.vercelOrgId || undefined
+  if (effectiveScope) {
+    core.info(`using scope: ${effectiveScope}`)
+    args.push('--scope', effectiveScope)
   }
 
   return args
@@ -57,6 +58,10 @@ export class VercelCliClient implements VercelClient {
 
   constructor(config: ActionConfig) {
     this.config = config
+  }
+
+  private get effectiveScope(): string | undefined {
+    return this.config.vercelScope || this.config.vercelOrgId || undefined
   }
 
   async deploy(config: ActionConfig, deployContext: DeploymentContext): Promise<string> {
@@ -103,7 +108,7 @@ export class VercelCliClient implements VercelClient {
 
         output = ''
         errorOutput = ''
-        const retryConfig: ActionConfig = { ...config, vercelScope: undefined }
+        const retryConfig: ActionConfig = { ...config, vercelScope: undefined, vercelOrgId: '' }
         const retryArgs = buildDeployArgs(retryConfig, deployContext)
 
         exitCode = await exec.exec('npx', [config.vercelBin, ...retryArgs], options)
@@ -137,9 +142,10 @@ export class VercelCliClient implements VercelClient {
 
     const args = [this.config.vercelBin, 'inspect', deploymentUrl, '-t', this.config.vercelToken]
 
-    if (this.config.vercelScope) {
-      core.info('using scope')
-      args.push('--scope', this.config.vercelScope)
+    const scope = this.effectiveScope
+    if (scope) {
+      core.info(`using scope: ${scope}`)
+      args.push('--scope', scope)
     }
 
     try {
@@ -166,9 +172,10 @@ export class VercelCliClient implements VercelClient {
 
   async assignAlias(deploymentUrl: string, domain: string): Promise<void> {
     const args = [this.config.vercelBin, '-t', this.config.vercelToken]
-    if (this.config.vercelScope) {
-      core.info('using scope')
-      args.push('--scope', this.config.vercelScope)
+    const scope = this.effectiveScope
+    if (scope) {
+      core.info(`using scope: ${scope}`)
+      args.push('--scope', scope)
     }
     args.push('alias', deploymentUrl, domain)
 
