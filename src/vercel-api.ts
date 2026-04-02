@@ -51,6 +51,7 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
   if (config.vercelProjectName) {
     options.projectName = config.vercelProjectName
   }
+  options.skipAutoDetectionConfirmation = true
 
   return options
 }
