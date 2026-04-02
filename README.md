@@ -192,7 +192,7 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -248,7 +248,7 @@ jobs:
       #  your build commands
       # - run: |
       #    ng build --prod
-      - uses: amondnet/vercel-action@v25 # deploy
+      - uses: amondnet/vercel-action@v42 # deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -309,7 +309,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
@@ -340,7 +340,7 @@ jobs:
       deployments: write
     steps:
       - uses: actions/checkout@v2
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         id: vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -362,7 +362,7 @@ The deployment lifecycle:
 
 ## Migration to API-based Deployment
 
-Starting from v25, the default deployment method has changed from **CLI-based** (`vercel` CLI exec) to **API-based** (`@vercel/client` programmatic API). This provides faster deployments, typed inputs, and eliminates the need for CLI installation at runtime.
+Starting from v42, the default deployment method has changed from **CLI-based** (`vercel` CLI exec) to **API-based** (`@vercel/client` programmatic API). This provides faster deployments, typed inputs, and eliminates the need for CLI installation at runtime.
 
 ### What Changed
 
@@ -384,7 +384,7 @@ Starting from v25, the default deployment method has changed from **CLI-based** 
 **Before (CLI-based):**
 
 ```yaml
-- uses: amondnet/vercel-action@v25
+- uses: amondnet/vercel-action@v42
   with:
     vercel-token: ${{ secrets.VERCEL_TOKEN }}
     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -396,7 +396,7 @@ Starting from v25, the default deployment method has changed from **CLI-based** 
 **After (API-based):**
 
 ```yaml
-- uses: amondnet/vercel-action@v25
+- uses: amondnet/vercel-action@v42
   with:
     vercel-token: ${{ secrets.VERCEL_TOKEN }}
     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -411,7 +411,7 @@ Starting from v25, the default deployment method has changed from **CLI-based** 
 **Before (CLI prebuilt):**
 
 ```yaml
-- uses: amondnet/vercel-action@v25
+- uses: amondnet/vercel-action@v42
   with:
     vercel-token: ${{ secrets.VERCEL_TOKEN }}
     vercel-org-id: ${{ secrets.ORG_ID }}
@@ -422,7 +422,7 @@ Starting from v25, the default deployment method has changed from **CLI-based** 
 **After (API prebuilt):**
 
 ```yaml
-- uses: amondnet/vercel-action@v25
+- uses: amondnet/vercel-action@v42
   with:
     vercel-token: ${{ secrets.VERCEL_TOKEN }}
     vercel-org-id: ${{ secrets.ORG_ID }}
@@ -459,7 +459,7 @@ These inputs are only available with API-based deployment (when `vercel-args` is
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
    ```yaml
    - name: Vercel Action
-     uses: amondnet/vercel-action@v25
+     uses: amondnet/vercel-action@v42
    ```
 2. Change input values.
     - `zeit-token` -> `vercel-token`
