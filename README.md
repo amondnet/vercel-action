@@ -360,6 +360,100 @@ The deployment lifecycle:
 
 > **Note:** GitHub Deployment errors are non-blocking. If the GitHub API call fails, the Vercel deployment will still proceed normally.
 
+## Migration to API-based Deployment
+
+Starting from v25, the default deployment method has changed from **CLI-based** (`vercel` CLI exec) to **API-based** (`@vercel/client` programmatic API). This provides faster deployments, typed inputs, and eliminates the need for CLI installation at runtime.
+
+### What Changed
+
+| Before (CLI-based) | After (API-based) |
+|---|---|
+| `vercel-args: --prod` | `target: production` |
+| `vercel-args: --prebuilt` | `prebuilt: true` |
+| `vercel-args: --force` | `force: true` |
+| `vercel-args: --public` | `public: true` |
+| `vercel-args: --env KEY=VALUE` | `env: KEY=VALUE` (multiline) |
+| `vercel-args: --build-env KEY=VALUE` | `build-env: KEY=VALUE` (multiline) |
+| `vercel-args: --regions iad1,sfo1` | `regions: iad1,sfo1` |
+| `vercel-args: --archive=tgz` | `archive: tgz` |
+| `vercel-args: --root-directory ./app` | `root-directory: ./app` |
+| `scope: my-team` | `vercel-org-id: team_xxx` |
+
+### Migration Examples
+
+**Before (CLI-based):**
+
+```yaml
+- uses: amondnet/vercel-action@v25
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    vercel-args: --prod --force --env API_URL=https://api.example.com
+```
+
+**After (API-based):**
+
+```yaml
+- uses: amondnet/vercel-action@v25
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    target: production
+    force: true
+    env: |
+      API_URL=https://api.example.com
+```
+
+**Before (CLI prebuilt):**
+
+```yaml
+- uses: amondnet/vercel-action@v25
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    vercel-args: --prebuilt
+```
+
+**After (API prebuilt):**
+
+```yaml
+- uses: amondnet/vercel-action@v25
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    prebuilt: true
+```
+
+### Routing Logic
+
+The action automatically selects the deployment method:
+
+- **`vercel-args` is empty (default)** → API-based deployment using `@vercel/client`
+- **`vercel-args` is provided** → CLI-based deployment using `vercel` CLI (backward compatible)
+
+No changes are required if you are already using `vercel-args`. Your existing workflows will continue to work as before. To migrate, simply remove `vercel-args` and use the new typed inputs instead.
+
+### New API-only Inputs
+
+These inputs are only available with API-based deployment (when `vercel-args` is not set):
+
+- `auto-assign-custom-domains` — Automatically assign custom domains (default: `true`)
+- `custom-environment` — Custom environment slug or ID
+- `with-cache` — Retain build cache from previous deployments
+
+### Deprecated Inputs
+
+| Input | Replacement | Notes |
+|---|---|---|
+| `vercel-args` | Use individual typed inputs | Falls back to CLI when provided |
+| `scope` | `vercel-org-id` | Only used for CLI-based deployments |
+
 ## Migration from v2
 
 1. Change action name in `workflows` from `now-deployment` to `vercel-action`
