@@ -1,0 +1,48 @@
+README.md
+  a01c77175688a50c 76
+src/__integration__/vercel-api.test.ts
+  a01c77175688a50c 107-108,112,119,125-128
+src/types.ts
+  a01c77175688a50c 74
+eslint.config.mjs
+  e78249281c8c06ba 49
+src/__tests__/config.test.ts
+  a01c77175688a50c 231
+src/config.ts
+  a01c77175688a50c 27-33,85
+src/vercel-api.ts
+  a01c77175688a50c 14,148,150-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.3",
+  "base_commit_sha": "3b647c63b1ad70c878ff99059c6678a45c56bd51",
+  "prompts": {
+    "a01c77175688a50c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "34a77bc4-3776-4532-92c5-251ebc1e401a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 25,
+      "total_deletions": 7,
+      "accepted_lines": 24,
+      "overriden_lines": 0
+    },
+    "e78249281c8c06ba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fb543379-05b7-4127-a21e-f7d6880a67d2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
