@@ -44,9 +44,10 @@ function buildDeployArgs(
     ...addVercelMetadata('githubCommitRef', ref.replace('refs/heads/', ''), providedArgs),
   ]
 
-  if (config.vercelScope) {
-    core.info('using scope')
-    args.push('--scope', config.vercelScope)
+  const effectiveScope = config.vercelScope || config.vercelOrgId || undefined
+  if (effectiveScope) {
+    core.info(`using scope: ${effectiveScope}`)
+    args.push('--scope', effectiveScope)
   }
 
   return args
@@ -143,7 +144,7 @@ export class VercelCliClient implements VercelClient {
 
     const scope = this.effectiveScope
     if (scope) {
-      core.info('using scope')
+      core.info(`using scope: ${scope}`)
       args.push('--scope', scope)
     }
 
@@ -173,7 +174,7 @@ export class VercelCliClient implements VercelClient {
     const args = [this.config.vercelBin, '-t', this.config.vercelToken]
     const scope = this.effectiveScope
     if (scope) {
-      core.info('using scope')
+      core.info(`using scope: ${scope}`)
       args.push('--scope', scope)
     }
     args.push('alias', deploymentUrl, domain)

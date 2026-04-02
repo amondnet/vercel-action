@@ -359,6 +359,15 @@ describe('vercelInspect', () => {
     expect(args).not.toContain('team_abc123')
   })
 
+  it('does not include scope when neither vercelScope nor vercelOrgId is set', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+
+    await vercelInspect(createClient(createConfig({})), 'https://deploy.vercel.app')
+
+    const args = vi.mocked(exec.exec).mock.calls[0][1] as string[]
+    expect(args).not.toContain('--scope')
+  })
+
   it('extracts name with varying whitespace', async () => {
     vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
       options?.listeners?.stderr?.(Buffer.from('    name    my-project-name\n'))
