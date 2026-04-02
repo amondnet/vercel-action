@@ -11,7 +11,7 @@ function buildGitMetadata(deployContext: DeploymentContext) {
   const { context } = github
   return {
     commitSha: deployContext.sha,
-    commitMessage: deployContext.commit,
+    commitMessage: deployContext.commit.replace(/[\r\n]+/g, ' ').replace(/"/g, ''),
     commitRef: deployContext.ref.replace('refs/heads/', ''),
     commitAuthorName: context.actor,
     remoteUrl: `https://github.com/${deployContext.commitOrg}/${deployContext.commitRepo}`,
@@ -145,8 +145,11 @@ export class VercelApiClient implements VercelClient {
           const url = event.payload?.url
           if (url) {
             deploymentUrl = url.startsWith('https://') ? url : `https://${url}`
+            core.info(`Deployment created: ${deploymentUrl}`)
           }
-          core.info(`Deployment created: ${deploymentUrl}`)
+          else {
+            core.info('Deployment created (no URL provided yet)')
+          }
           break
         }
         case 'building':

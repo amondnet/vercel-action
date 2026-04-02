@@ -75,6 +75,7 @@ These inputs use the `@vercel/client` API directly instead of the CLI. They are 
 | custom-environment         |    No    |           | Custom environment slug or ID                                      |
 | public                     |    No    | `false`   | Make deployment source publicly accessible                         |
 | with-cache                 |    No    | `false`   | Retain build cache from previous deployments                       |
+
 ## Outputs
 
 ### `preview-url`

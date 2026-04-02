@@ -24,6 +24,13 @@ function parseTarget(input: string): 'production' | 'preview' {
   return value
 }
 
+function parseArchive(input: string): '' | 'tgz' {
+  if (input !== '' && input !== 'tgz') {
+    throw new Error(`Invalid archive "${input}". Must be "" or "tgz".`)
+  }
+  return input
+}
+
 function getVercelBin(): string {
   const input = core.getInput('vercel-version')
   const fallback = packageJSON.dependencies.vercel
@@ -87,7 +94,7 @@ export function getActionConfig(): ActionConfig {
     env: maskSecretValues(parseKeyValueLines(core.getInput('env'))),
     buildEnv: maskSecretValues(parseKeyValueLines(core.getInput('build-env'))),
     regions: core.getInput('regions').split(',').map(r => r.trim()).filter(r => r !== ''),
-    archive: core.getInput('archive'),
+    archive: parseArchive(core.getInput('archive')),
     rootDirectory: core.getInput('root-directory'),
     autoAssignCustomDomains: core.getInput('auto-assign-custom-domains') !== 'false',
     customEnvironment: core.getInput('custom-environment'),

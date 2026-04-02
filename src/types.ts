@@ -73,7 +73,7 @@ export interface ActionConfig {
   env: Record<string, string>
   buildEnv: Record<string, string>
   regions: string[]
-  archive: string
+  archive: '' | 'tgz'
   rootDirectory: string
   autoAssignCustomDomains: boolean
   customEnvironment: string

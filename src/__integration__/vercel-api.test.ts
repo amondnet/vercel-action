@@ -106,21 +106,28 @@ describe('vercelApiClient (integration)', () => {
       // which may not be compatible with the emulator. This test verifies that
       // deploy() no longer throws "not yet implemented" and instead attempts
       // a real deployment.
+      expect.hasAssertions()
+
       const client = new VercelApiClient(createConfig(), process.env.EMULATE_VERCEL_URL)
 
       try {
-        await client.deploy(createConfig(), {
+        const url = await client.deploy(createConfig(), {
           ref: 'main',
           sha: 'abc',
           commit: 'test',
           commitOrg: 'org',
           commitRepo: 'repo',
         })
+        expect(url).toBeTruthy()
       }
       catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         // Should NOT be "not yet implemented" anymore
         expect(message).not.toContain('not yet implemented')
+        // Re-throw truly unexpected errors
+        if (!message.includes('not yet implemented') && !message.includes('fetch') && !message.includes('ECONNREFUSED') && !message.includes('network') && !message.includes('socket')) {
+          throw error
+        }
       }
     })
   })
