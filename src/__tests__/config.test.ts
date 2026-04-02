@@ -126,8 +126,9 @@ describe('getActionConfig - github deployment fields', () => {
         'vercel-args': '',
         'alias-domains': '',
         'vercel-version': '',
+        'vercel-token': 'test-token',
       }
-      return inputs[name] ?? 'test'
+      return inputs[name] ?? ''
     })
 
     const { getActionConfig } = await import('../config')
@@ -144,8 +145,9 @@ describe('getActionConfig - github deployment fields', () => {
         'vercel-args': '',
         'alias-domains': '',
         'vercel-version': '',
+        'vercel-token': 'test-token',
       }
-      return inputs[name] ?? 'test'
+      return inputs[name] ?? ''
     })
 
     const { getActionConfig } = await import('../config')
@@ -162,8 +164,9 @@ describe('getActionConfig - github deployment fields', () => {
         'vercel-args': '--prod',
         'alias-domains': '',
         'vercel-version': '',
+        'vercel-token': 'test-token',
       }
-      return inputs[name] ?? 'test'
+      return inputs[name] ?? ''
     })
 
     const { getActionConfig } = await import('../config')
@@ -180,8 +183,9 @@ describe('getActionConfig - github deployment fields', () => {
         'vercel-args': '',
         'alias-domains': '',
         'vercel-version': '',
+        'vercel-token': 'test-token',
       }
-      return inputs[name] ?? 'test'
+      return inputs[name] ?? ''
     })
 
     const { getActionConfig } = await import('../config')
@@ -198,8 +202,9 @@ describe('getActionConfig - github deployment fields', () => {
         'vercel-args': '--prod',
         'alias-domains': '',
         'vercel-version': '',
+        'vercel-token': 'test-token',
       }
-      return inputs[name] ?? 'test'
+      return inputs[name] ?? ''
     })
 
     const { getActionConfig } = await import('../config')
