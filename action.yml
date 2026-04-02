@@ -69,8 +69,12 @@ inputs:
     default: preview
   prebuilt:
     required: false
-    description: 'Deploy prebuilt output from .vercel/output (default: false). Replaces --prebuilt flag in vercel-args.'
+    description: 'Deploy prebuilt output (default: false). Replaces --prebuilt flag in vercel-args.'
     default: 'false'
+  vercel-output-dir:
+    required: false
+    description: 'Path to the prebuilt output directory. Defaults to {working-directory}/.vercel/output when prebuilt is true.'
+    default: ''
   force:
     required: false
     description: 'Force new deployment, bypassing dedupe and build cache (default: false). Replaces --force flag in vercel-args.'

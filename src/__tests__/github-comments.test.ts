@@ -58,6 +58,7 @@ function createConfig(overrides: Record<string, unknown> = {}) {
     aliasDomains: [] as string[],
     target: 'preview',
     prebuilt: false,
+    vercelOutputDir: '',
     force: false,
     env: {},
     buildEnv: {},

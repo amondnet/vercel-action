@@ -39,7 +39,8 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
   }
   if (config.prebuilt) {
     options.prebuilt = true
-    options.vercelOutputDir = path.join(options.path, '.vercel', 'output')
+    const basePath = config.workingDirectory || process.cwd()
+    options.vercelOutputDir = config.vercelOutputDir || path.join(basePath, '.vercel', 'output')
   }
   if (config.archive === 'tgz') {
     options.archive = 'tgz'

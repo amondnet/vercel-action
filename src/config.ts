@@ -90,6 +90,7 @@ export function getActionConfig(): ActionConfig {
     // API-based deployment inputs
     target: parseTarget(core.getInput('target')),
     prebuilt: core.getInput('prebuilt') === 'true',
+    vercelOutputDir: core.getInput('vercel-output-dir'),
     force: core.getInput('force') === 'true',
     env: maskSecretValues(parseKeyValueLines(core.getInput('env'))),
     buildEnv: maskSecretValues(parseKeyValueLines(core.getInput('build-env'))),

@@ -38,6 +38,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     aliasDomains: [],
     target: 'preview',
     prebuilt: false,
+    vercelOutputDir: '',
     force: false,
     env: {},
     buildEnv: {},

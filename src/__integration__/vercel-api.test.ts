@@ -20,6 +20,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     vercelScope: TEST_TEAM,
     target: 'preview',
     prebuilt: false,
+    vercelOutputDir: '',
     force: false,
     env: {},
     buildEnv: {},
