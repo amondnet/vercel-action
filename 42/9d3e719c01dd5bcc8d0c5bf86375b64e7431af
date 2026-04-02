@@ -1,0 +1,23 @@
+src/__tests__/config.test.ts
+  a01c77175688a50c 70,96,129,162,181,200,219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.3",
+  "base_commit_sha": "429d3e719c01dd5bcc8d0c5bf86375b64e7431af",
+  "prompts": {
+    "a01c77175688a50c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "34a77bc4-3776-4532-92c5-251ebc1e401a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 7,
+      "total_deletions": 7,
+      "accepted_lines": 7,
+      "overriden_lines": 0
+    }
+  }
+}
