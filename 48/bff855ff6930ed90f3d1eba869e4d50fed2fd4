@@ -1,0 +1,23 @@
+README.md
+  435a2f591457914a 195,251,312,343,365,387,399,414,425,462
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.4",
+  "base_commit_sha": "48bff855ff6930ed90f3d1eba869e4d50fed2fd4",
+  "prompts": {
+    "435a2f591457914a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "347d811f-81db-4297-81b3-73b1a8ece7ff",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 10,
+      "total_deletions": 10,
+      "accepted_lines": 10,
+      "overriden_lines": 0
+    }
+  }
+}
