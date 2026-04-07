@@ -99,6 +99,10 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     options.name = config.vercelProjectName
   }
   if (config.vercelProjectId) {
+    // The Vercel REST API accepts `project` in the deployment body to target a
+    // specific project by ID, but @vercel/client's DeploymentOptions type doesn't
+    // declare it. Cast to include the field — it passes through via object spread
+    // in the POST body. See: #330
     ;(options as DeploymentOptions & { project: string }).project = config.vercelProjectId
   }
 
