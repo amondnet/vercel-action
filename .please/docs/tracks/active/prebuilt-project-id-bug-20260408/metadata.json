@@ -1,0 +1,10 @@
+{
+  "track_id": "prebuilt-project-id-bug-20260408",
+  "type": "bugfix",
+  "status": "planned",
+  "created_at": "2026-04-08T03:59:00+09:00",
+  "updated_at": "2026-04-08T04:05:00+09:00",
+  "issue": "#330",
+  "pr": "",
+  "project": ""
+}
