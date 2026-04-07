@@ -1,0 +1,27 @@
+src/__tests__/vercel-api.test.ts
+  390c6131ba26f6be 262-314
+.please/docs/tracks/active/prebuilt-project-id-bug-20260408/plan.md
+  390c6131ba26f6be 68-70
+src/vercel-api.ts
+  390c6131ba26f6be 101-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "f14edd77967fc4f327f6e098fc4cf1966fa71d8f",
+  "prompts": {
+    "390c6131ba26f6be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da5868a5-a9a3-4784-8053-34412b44169b",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 60,
+      "total_deletions": 4,
+      "accepted_lines": 59,
+      "overriden_lines": 0
+    }
+  }
+}
