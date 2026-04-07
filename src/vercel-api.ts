@@ -54,6 +54,12 @@ function buildClientOptions(config: ActionConfig, apiUrl?: string): VercelClient
   if (config.vercelProjectName) {
     options.projectName = config.vercelProjectName
   }
+  else if (config.vercelProjectId) {
+    // Fall back to vercelProjectId as projectName when vercelProjectName is absent.
+    // This ensures the client library has a valid project identifier for operations
+    // such as file uploads in prebuilt deployments. See: #330
+    options.projectName = config.vercelProjectId
+  }
   options.skipAutoDetectionConfirmation = true
 
   return options
@@ -101,9 +107,9 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
   if (config.vercelProjectId) {
     // The Vercel REST API accepts `project` in the deployment body to target a
     // specific project by ID, but @vercel/client's DeploymentOptions type doesn't
-    // declare it. Cast to include the field — it passes through via object spread
-    // in the POST body. See: #330
-    ;(options as DeploymentOptions & { project: string }).project = config.vercelProjectId
+    // declare it. Object.assign adds the field without explicit type casting.
+    // It passes through via object spread in the POST body. See: #330
+    Object.assign(options, { project: config.vercelProjectId })
   }
 
   return options
