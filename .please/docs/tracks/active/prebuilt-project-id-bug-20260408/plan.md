@@ -65,9 +65,9 @@ Fix the bug where API-based deployment ignores `vercel-project-id`, causing depl
 
 | Task | Status | Notes |
 |------|--------|-------|
-| T-1  | TODO   |       |
-| T-2  | TODO   |       |
-| T-3  | TODO   |       |
+| T-1  | DONE | Added `project` field to `buildDeploymentOptions()` |
+| T-2  | DONE | Added 3 unit tests for project ID passthrough |
+| T-3  | DONE | All 14 unit tests pass, lint clean |
 
 ## Decision Log
 

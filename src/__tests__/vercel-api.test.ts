@@ -259,6 +259,59 @@ describe('vercelApiClient.deploy', () => {
     expect(core.warning).toHaveBeenCalledWith(expect.stringContaining('No files found'))
   })
 
+  it('passes project ID in deployment options when vercelProjectId is set', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      vercelProjectId: 'prj_abc123',
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.project).toBe('prj_abc123')
+  })
+
+  it('omits project field when vercelProjectId is empty', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      vercelProjectId: '',
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.project).toBeUndefined()
+  })
+
+  it('passes project ID alongside vercelProjectName', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      vercelProjectId: 'prj_abc123',
+      vercelProjectName: 'my-project',
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.project).toBe('prj_abc123')
+    expect(deployOpts.name).toBe('my-project')
+  })
+
   it('uses cwd when workingDirectory is empty', async () => {
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
       { type: 'created', payload: { url: 'https://test.vercel.app' } },

@@ -98,6 +98,9 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
   if (config.vercelProjectName) {
     options.name = config.vercelProjectName
   }
+  if (config.vercelProjectId) {
+    ;(options as DeploymentOptions & { project: string }).project = config.vercelProjectId
+  }
 
   return options
 }
