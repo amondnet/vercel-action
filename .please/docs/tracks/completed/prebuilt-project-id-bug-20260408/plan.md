@@ -79,3 +79,22 @@ Fix the bug where API-based deployment ignores `vercel-project-id`, causing depl
 
 - `@vercel/client@17.2.65` `DeploymentOptions` type is missing the `project` field that the Vercel REST API accepts
 - `core.exportVariable()` only affects subsequent workflow steps, not the current Node.js process
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+- Bug fix: `project` field added to `buildDeploymentOptions()` so API-based deployments correctly target the project specified by `vercel-project-id`
+- 3 unit tests covering the fix
+
+### What Went Well
+- Root cause was clearly identified in the issue report, making investigation fast
+- Minimal, surgical fix — only 4 lines of production code changed
+- TDD approach confirmed the fix with immediate test feedback
+
+### What Could Improve
+- The `@vercel/client` `DeploymentOptions` type is incomplete — consider contributing a type fix upstream
+- Integration test for `vercel-api.ts` has a pre-existing failure due to missing `GITHUB_REPOSITORY` env
+
+### Tech Debt Created
+- Type cast needed because `@vercel/client@17.2.65` doesn't declare `project` in `DeploymentOptions`
+- Pre-existing: `createConfig()` test helper is missing `githubDeployment` and `githubDeploymentEnvironment` fields
