@@ -1,0 +1,31 @@
+.please/docs/tracks/active/prebuilt-project-id-bug-20260408/spec.md
+  390c6131ba26f6be 1-51
+.please/docs/tracks/active/prebuilt-project-id-bug-20260408/investigation.md
+  390c6131ba26f6be 1-53
+.please/docs/tracks/active/prebuilt-project-id-bug-20260408/plan.md
+  390c6131ba26f6be 1-81
+.please/docs/tracks.jsonl
+  390c6131ba26f6be 1
+.please/docs/tracks/active/prebuilt-project-id-bug-20260408/metadata.json
+  390c6131ba26f6be 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "250dd7d377b901990b96b4fee492db647aa9bb66",
+  "prompts": {
+    "390c6131ba26f6be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da5868a5-a9a3-4784-8053-34412b44169b",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 199,
+      "total_deletions": 3,
+      "accepted_lines": 196,
+      "overriden_lines": 0
+    }
+  }
+}
