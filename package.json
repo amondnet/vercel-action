@@ -45,7 +45,7 @@
     "@actions/http-client": "^2.2.3",
     "@octokit/webhooks": "latest",
     "@vercel/client": "17.2.65",
-    "axios": "^1.6.8",
+    "axios": "^1.15.0",
     "common-tags": "^1.8.0",
     "vercel": "^50.0.0"
   },
