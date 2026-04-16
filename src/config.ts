@@ -101,6 +101,8 @@ export function getActionConfig(): ActionConfig {
     customEnvironment: core.getInput('custom-environment'),
     isPublic: core.getInput('public') === 'true',
     withCache: core.getInput('with-cache') === 'true',
+    gitUserEmail: core.getInput('git-user-email'),
+    gitUserName: core.getInput('git-user-name'),
   }
 }
 

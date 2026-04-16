@@ -46,6 +46,8 @@ describe('getActionConfig', () => {
         'vercel-project-name': 'my-project',
         'vercel-version': '31.0.0',
         'alias-domains': '',
+        'git-user-email': 'k9p3xq@example.test',
+        'git-user-name': 'Mira Halverson',
       }
       return inputs[name] ?? ''
     })
@@ -63,6 +65,8 @@ describe('getActionConfig', () => {
     expect(config.vercelScope).toBe('my-team')
     expect(config.vercelProjectName).toBe('my-project')
     expect(config.vercelBin).toBe('vercel@31.0.0')
+    expect(config.gitUserEmail).toBe('k9p3xq@example.test')
+    expect(config.gitUserName).toBe('Mira Halverson')
   })
 
   it('uses package.json vercel version as fallback', async () => {
@@ -394,6 +398,8 @@ describe('api deployment inputs', () => {
     expect(config.customEnvironment).toBe('')
     expect(config.isPublic).toBe(false)
     expect(config.withCache).toBe(false)
+    expect(config.gitUserEmail).toBe('')
+    expect(config.gitUserName).toBe('')
   })
 
   it('parses production target', async () => {

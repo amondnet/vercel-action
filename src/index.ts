@@ -3,6 +3,7 @@ import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
+import { configureGitAuthor } from './git-config'
 import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
 import { createGitHubDeployment, updateGitHubDeploymentStatus } from './github-deployment'
 import { isPullRequestType } from './utils'
@@ -249,6 +250,7 @@ async function run(): Promise<void> {
   const octokit = createOctokitClient(config.githubToken)
 
   setVercelEnv(config)
+  configureGitAuthor(config)
 
   const deploymentContext = await getDeploymentContext(octokit)
   const { sha } = deploymentContext

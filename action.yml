@@ -115,6 +115,14 @@ inputs:
     required: false
     description: 'Retain build cache from previous deployments (default: false).'
     default: 'false'
+  git-user-email:
+    required: false
+    description: 'Git user.email to set on HEAD commit before CLI deploy. When set together with git-user-name, the action runs `git config` and `git commit --amend --no-edit --reset-author` so Vercel attributes the deploy to a recognized identity. CLI deployments only.'
+    default: ''
+  git-user-name:
+    required: false
+    description: Git user.name to set on HEAD commit before CLI deploy. See git-user-email.
+    default: ''
 
 outputs:
   preview-url:

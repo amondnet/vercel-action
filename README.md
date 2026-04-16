@@ -57,6 +57,28 @@ This action make a Vercel deployment with github actions.
 | vercel-project-name              | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
 | vercel-version                   | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
 
+### Git Author Inputs (CLI deployments only)
+
+Vercel's CLI reads the HEAD commit's author when creating a deployment. If your CI runner produces a HEAD commit whose author isn't a Vercel-recognized identity, the deploy can fail or be misattributed. Set both `git-user-email` and `git-user-name` to have the action run `git config` and `git commit --amend --no-edit --reset-author` before deploying. These inputs only take effect when `vercel-args` is provided (CLI path); they are ignored for API-based deployments.
+
+| Name             | Required | Default | Description                                                                          |
+|------------------|:--------:|---------|--------------------------------------------------------------------------------------|
+| git-user-email   |    No    |         | Git `user.email` to set on the HEAD commit before the CLI deploy. Requires `git-user-name`. |
+| git-user-name    |    No    |         | Git `user.name` to set on the HEAD commit before the CLI deploy. Requires `git-user-email`. |
+
+```yaml
+- uses: amondnet/vercel-action@v42
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    vercel-args: --prod
+    git-user-email: ci-bot@example.com
+    git-user-name: CI Bot
+```
+
+If only one of the two is set, the action logs a warning and skips the rewrite to avoid a half-configured author.
+
 ### API Deployment Inputs (New)
 
 These inputs use the `@vercel/client` API directly instead of the CLI. They are used when `vercel-args` is **not** provided.

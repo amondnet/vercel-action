@@ -80,6 +80,8 @@ export interface ActionConfig {
   customEnvironment: string
   isPublic: boolean
   withCache: boolean
+  gitUserEmail: string
+  gitUserName: string
 }
 
 export interface GitHubDeploymentResult {
