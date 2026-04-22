@@ -285,78 +285,38 @@ describe('vercelApiClient.deploy', () => {
     expect(callArgs.path).toBe(process.cwd())
   })
 
-  it('passes projectSettings when rootDirectory is set', async () => {
+  it.each([
+    {
+      name: 'both rootDirectory and sourceFilesOutsideRootDirectory set',
+      overrides: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: true },
+      expected: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: true },
+    },
+    {
+      name: 'empty when neither is set',
+      overrides: { rootDirectory: '', sourceFilesOutsideRootDirectory: false },
+      expected: {},
+    },
+    {
+      name: 'sourceFilesOutsideRootDirectory independently of rootDirectory',
+      overrides: { rootDirectory: '', sourceFilesOutsideRootDirectory: true },
+      expected: { sourceFilesOutsideRootDirectory: true },
+    },
+    {
+      name: 'rootDirectory without sourceFilesOutsideRootDirectory',
+      overrides: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: false },
+      expected: { rootDirectory: 'apps/web' },
+    },
+  ])('passes projectSettings: $name', async ({ overrides, expected }) => {
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
       { type: 'created', payload: { url: 'https://test.vercel.app' } },
       { type: 'ready', payload: {} },
     ]))
 
-    const config = createConfig({
-      rootDirectory: 'apps/web',
-      sourceFilesOutsideRootDirectory: true,
-    })
-
+    const config = createConfig(overrides)
     const client = new VercelApiClient(config)
     await client.deploy(config, createDeployContext())
 
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.projectSettings).toEqual({
-      rootDirectory: 'apps/web',
-      sourceFilesOutsideRootDirectory: true,
-    })
-  })
-
-  it('sets empty projectSettings when rootDirectory and sourceFilesOutsideRootDirectory are unset', async () => {
-    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
-      { type: 'created', payload: { url: 'https://test.vercel.app' } },
-      { type: 'ready', payload: {} },
-    ]))
-
-    const config = createConfig({ rootDirectory: '', sourceFilesOutsideRootDirectory: false })
-    const client = new VercelApiClient(config)
-    await client.deploy(config, createDeployContext())
-
-    const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.projectSettings).toEqual({})
-  })
-
-  it('passes sourceFilesOutsideRootDirectory independently of rootDirectory', async () => {
-    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
-      { type: 'created', payload: { url: 'https://test.vercel.app' } },
-      { type: 'ready', payload: {} },
-    ]))
-
-    const config = createConfig({
-      rootDirectory: '',
-      sourceFilesOutsideRootDirectory: true,
-    })
-
-    const client = new VercelApiClient(config)
-    await client.deploy(config, createDeployContext())
-
-    const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.projectSettings).toEqual({
-      sourceFilesOutsideRootDirectory: true,
-    })
-  })
-
-  it('passes rootDirectory without sourceFilesOutsideRootDirectory when disabled', async () => {
-    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
-      { type: 'created', payload: { url: 'https://test.vercel.app' } },
-      { type: 'ready', payload: {} },
-    ]))
-
-    const config = createConfig({
-      rootDirectory: 'apps/web',
-      sourceFilesOutsideRootDirectory: false,
-    })
-
-    const client = new VercelApiClient(config)
-    await client.deploy(config, createDeployContext())
-
-    const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.projectSettings).toEqual({
-      rootDirectory: 'apps/web',
-    })
+    expect(deployOpts.projectSettings).toEqual(expected)
   })
 })
