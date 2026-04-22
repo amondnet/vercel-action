@@ -116,12 +116,10 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     // hashing, but Vercel's build server needs it in projectSettings to know
     // which directory to build from. Without this, Vercel falls back to the
     // repo root and may fail to detect the correct package manager.
-    Object.assign(options, {
-      projectSettings: {
-        rootDirectory: config.rootDirectory,
-        sourceFilesOutsideRootDirectory: config.sourceFilesOutsideRootDirectory,
-      },
-    })
+    options.projectSettings = {
+      rootDirectory: config.rootDirectory,
+      sourceFilesOutsideRootDirectory: true,
+    }
   }
 
   return options
