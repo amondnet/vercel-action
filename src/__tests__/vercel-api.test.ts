@@ -1,6 +1,6 @@
-import type { ActionConfig, DeploymentContext } from '../types'
 import * as core from '@actions/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createConfig, createDeployContext } from './helpers'
 import { VercelApiClient } from '../vercel-api'
 
 vi.mock('@actions/core', () => ({
@@ -28,48 +28,6 @@ vi.mock('@actions/http-client', () => ({
     post: vi.fn(),
   })),
 }))
-
-function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
-  return {
-    githubToken: '',
-    githubComment: false,
-    workingDirectory: '/test/path',
-    vercelToken: 'test-token',
-    vercelArgs: '',
-    vercelOrgId: '',
-    vercelProjectId: '',
-    vercelScope: '',
-    vercelProjectName: '',
-    vercelBin: 'vercel@latest',
-    aliasDomains: [],
-    target: 'preview',
-    prebuilt: false,
-    vercelOutputDir: '',
-    force: false,
-    env: {},
-    buildEnv: {},
-    regions: [],
-    archive: '',
-    rootDirectory: '',
-    sourceFilesOutsideRootDirectory: false,
-    autoAssignCustomDomains: true,
-    customEnvironment: '',
-    isPublic: false,
-    withCache: false,
-    ...overrides,
-  }
-}
-
-function createDeployContext(overrides: Partial<DeploymentContext> = {}): DeploymentContext {
-  return {
-    ref: 'refs/heads/main',
-    sha: 'abc123',
-    commit: 'test commit',
-    commitOrg: 'test-owner',
-    commitRepo: 'test-repo',
-    ...overrides,
-  }
-}
 
 async function* fakeDeploymentEvents(events: Array<{ type: string, payload: unknown }>) {
   for (const event of events) {
