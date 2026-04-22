@@ -51,7 +51,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     regions: [],
     archive: '',
     rootDirectory: '',
-    sourceFilesOutsideRootDirectory: false,
+    sourceFilesOutsideRootDirectory: true,
     autoAssignCustomDomains: true,
     customEnvironment: '',
     isPublic: false,
