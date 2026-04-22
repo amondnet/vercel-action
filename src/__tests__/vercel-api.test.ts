@@ -51,7 +51,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     regions: [],
     archive: '',
     rootDirectory: '',
-    sourceFilesOutsideRootDirectory: true,
+    sourceFilesOutsideRootDirectory: false,
     autoAssignCustomDomains: true,
     customEnvironment: '',
     isPublic: false,
@@ -348,21 +348,41 @@ describe('vercelApiClient.deploy', () => {
     })
   })
 
-  it('omits projectSettings when rootDirectory is empty', async () => {
+  it('sets empty projectSettings when rootDirectory and sourceFilesOutsideRootDirectory are unset', async () => {
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
       { type: 'created', payload: { url: 'https://test.vercel.app' } },
       { type: 'ready', payload: {} },
     ]))
 
-    const config = createConfig({ rootDirectory: '' })
+    const config = createConfig({ rootDirectory: '', sourceFilesOutsideRootDirectory: false })
     const client = new VercelApiClient(config)
     await client.deploy(config, createDeployContext())
 
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.projectSettings).toBeUndefined()
+    expect(deployOpts.projectSettings).toEqual({})
   })
 
-  it('passes sourceFilesOutsideRootDirectory as false when disabled', async () => {
+  it('passes sourceFilesOutsideRootDirectory independently of rootDirectory', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      rootDirectory: '',
+      sourceFilesOutsideRootDirectory: true,
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings).toEqual({
+      sourceFilesOutsideRootDirectory: true,
+    })
+  })
+
+  it('passes rootDirectory without sourceFilesOutsideRootDirectory when disabled', async () => {
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
       { type: 'created', payload: { url: 'https://test.vercel.app' } },
       { type: 'ready', payload: {} },
@@ -379,7 +399,6 @@ describe('vercelApiClient.deploy', () => {
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
     expect(deployOpts.projectSettings).toEqual({
       rootDirectory: 'apps/web',
-      sourceFilesOutsideRootDirectory: false,
     })
   })
 })

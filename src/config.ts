@@ -97,7 +97,7 @@ export function getActionConfig(): ActionConfig {
     regions: core.getInput('regions').split(',').map(r => r.trim()).filter(r => r !== ''),
     archive: parseArchive(core.getInput('archive')),
     rootDirectory: core.getInput('root-directory'),
-    sourceFilesOutsideRootDirectory: core.getInput('source-files-outside-root-directory') !== 'false',
+    sourceFilesOutsideRootDirectory: core.getInput('source-files-outside-root-directory') === 'true',
     autoAssignCustomDomains: core.getInput('auto-assign-custom-domains') !== 'false',
     customEnvironment: core.getInput('custom-environment'),
     isPublic: core.getInput('public') === 'true',
