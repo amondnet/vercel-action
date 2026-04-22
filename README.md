@@ -71,7 +71,8 @@ These inputs use the `@vercel/client` API directly instead of the CLI. They are 
 | build-env                  |    No    |           | Build-time environment variables (`KEY=VALUE` per line)            |
 | regions                    |    No    |           | Deployment regions, comma-separated (e.g. `iad1,sfo1`)            |
 | archive                    |    No    |           | Upload format: `tgz` for compressed archive                       |
-| root-directory             |    No    |           | Root directory of the project relative to the repository root      |
+| root-directory             |    No    |           | Root directory of the project relative to the repository root. When set, Vercel builds from this directory instead of the repo root. |
+| source-files-outside-root-directory |    No    | `false`   | Set to `true` when source files exist outside the root directory (e.g. monorepos with shared packages). Tells Vercel to look for dependencies beyond the root directory. |
 | auto-assign-custom-domains |    No    | `true`    | Automatically assign custom domains to this deployment             |
 | custom-environment         |    No    |           | Custom environment slug or ID                                      |
 | public                     |    No    | `false`   | Make deployment source publicly accessible                         |
@@ -447,6 +448,22 @@ These inputs are only available with API-based deployment (when `vercel-args` is
 - `custom-environment` — Custom environment slug or ID
 - `with-cache` — Retain build cache from previous deployments
 - `vercel-output-dir` — Directory containing prebuilt output (only relevant when `prebuilt: true`)
+- `source-files-outside-root-directory` — Enable monorepo support (default: `false`)
+
+### Monorepo Example
+
+For monorepos, use `root-directory` to tell Vercel which app to build and `source-files-outside-root-directory` to allow Vercel to resolve dependencies outside the root directory (e.g. shared packages):
+
+```yaml
+- uses: amondnet/vercel-action@v42
+  with:
+    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    vercel-org-id: ${{ secrets.ORG_ID }}
+    vercel-project-id: ${{ secrets.PROJECT_ID }}
+    root-directory: apps/web
+    source-files-outside-root-directory: true
+    target: production
+```
 
 ### Deprecated Inputs
 
