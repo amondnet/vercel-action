@@ -51,6 +51,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     regions: [],
     archive: '',
     rootDirectory: '',
+    sourceFilesOutsideRootDirectory: false,
     autoAssignCustomDomains: true,
     customEnvironment: '',
     isPublic: false,
@@ -324,5 +325,61 @@ describe('vercelApiClient.deploy', () => {
 
     const callArgs = mockCreateDeployment.mock.calls[0][0]
     expect(callArgs.path).toBe(process.cwd())
+  })
+
+  it('passes projectSettings when rootDirectory is set', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      rootDirectory: 'apps/web',
+      sourceFilesOutsideRootDirectory: true,
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings).toEqual({
+      rootDirectory: 'apps/web',
+      sourceFilesOutsideRootDirectory: true,
+    })
+  })
+
+  it('omits projectSettings when rootDirectory is empty', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ rootDirectory: '' })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings).toBeUndefined()
+  })
+
+  it('passes sourceFilesOutsideRootDirectory as false when disabled', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      rootDirectory: 'apps/web',
+      sourceFilesOutsideRootDirectory: false,
+    })
+
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings).toEqual({
+      rootDirectory: 'apps/web',
+      sourceFilesOutsideRootDirectory: false,
+    })
   })
 })

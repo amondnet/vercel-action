@@ -115,6 +115,10 @@ inputs:
     required: false
     description: 'Retain build cache from previous deployments (default: false).'
     default: 'false'
+  source-files-outside-root-directory:
+    required: false
+    description: 'Indicates if there are source files outside of the root directory, typically used for monorepos (default: true).'
+    default: 'true'
 
 outputs:
   preview-url:

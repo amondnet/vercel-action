@@ -111,6 +111,18 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     // It passes through via object spread in the POST body. See: #330
     Object.assign(options, { project: config.vercelProjectId })
   }
+  if (config.rootDirectory) {
+    // For monorepos: the rootDirectory in clientOptions only affects local file
+    // hashing, but Vercel's build server needs it in projectSettings to know
+    // which directory to build from. Without this, Vercel falls back to the
+    // repo root and may fail to detect the correct package manager.
+    Object.assign(options, {
+      projectSettings: {
+        rootDirectory: config.rootDirectory,
+        sourceFilesOutsideRootDirectory: config.sourceFilesOutsideRootDirectory,
+      },
+    })
+  }
 
   return options
 }
