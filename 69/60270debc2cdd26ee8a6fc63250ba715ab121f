@@ -1,0 +1,30 @@
+.github/workflows/ci.yml
+  72664aaa67d60b41 19,54,77,100,123
+.github/workflows/check-dist.yml
+  72664aaa67d60b41 29
+.github/workflows/example-angular.yml
+  72664aaa67d60b41 13
+.github/workflows/example-nextjs.yml
+  72664aaa67d60b41 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "6960270debc2cdd26ee8a6fc63250ba715ab121f",
+  "prompts": {
+    "72664aaa67d60b41": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6fd2eed0-f606-4a53-ab33-a1c905acec70",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 8,
+      "total_deletions": 8,
+      "accepted_lines": 8,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/88513442c7cc6bd87ddf5db2ce0fd7b630e3d2de2175043672007a05f404b909"
+    }
+  }
+}
