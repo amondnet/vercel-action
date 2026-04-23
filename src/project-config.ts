@@ -20,6 +20,21 @@ function resolveWorkingDir(workingDirectory: string): string {
   return workingDirectory || process.cwd()
 }
 
+// Keys that must not pass through to `nowConfig`.
+//   - `images`: the Vercel API rejects it; it is consumed locally by `vc build`.
+//     Mirrors vercel@50.0.0 CLI at packages/cli/src/commands/deploy/index.ts:512-517.
+//   - prototype-pollution gadgets: a crafted vercel.json could otherwise smuggle
+//     them into downstream merge paths in @vercel/client. The rest spread we
+//     previously used is CreateDataProperty-safe, but code we do not control
+//     (e.g. request serializers) may forward the object via [[Set]].
+const STRIPPED_NOW_CONFIG_KEYS = new Set(['images', '__proto__', 'constructor', 'prototype'])
+
+function sanitizeNowConfig(vercelJson: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(vercelJson).filter(([key]) => !STRIPPED_NOW_CONFIG_KEYS.has(key)),
+  )
+}
+
 export function readNodeVersion(workingDirectory: string): string | undefined {
   const filePath = path.join(resolveWorkingDir(workingDirectory), 'package.json')
 
@@ -71,11 +86,7 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
   const result: ProjectConfig = {}
 
   if (vercelJson) {
-    // Strip `images` — the Vercel API rejects it; it is consumed locally by
-    // `vc build`. Mirrors vercel@50.0.0 CLI deploy at
-    // packages/cli/src/commands/deploy/index.ts:512-517.
-    const { images: _images, ...rest } = vercelJson
-    result.nowConfig = rest
+    result.nowConfig = sanitizeNowConfig(vercelJson)
   }
 
   const projectSettings: ProjectSettings = {}

@@ -1,5 +1,5 @@
 import type { ActionConfig } from '../types'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -84,6 +84,17 @@ describe('readVercelJson', () => {
     const result = readVercelJson('')
 
     expect(result === null || typeof result === 'object').toBe(true)
+  })
+
+  it('re-throws non-ENOENT fs errors (locks the contract with EISDIR)', () => {
+    // Only ENOENT is treated as "config absent". Other fs errors must surface
+    // so a misconfigured path is not silently turned into a deployment that
+    // omits the user's buildCommand (the #336 regression pattern).
+    // Use a directory at the vercel.json location to trigger EISDIR — a real,
+    // reproducible, non-ENOENT fs error.
+    mkdirSync(path.join(tmpDir, 'vercel.json'))
+
+    expect(() => readVercelJson(tmpDir)).toThrow()
   })
 })
 
@@ -219,5 +230,23 @@ describe('buildProjectConfig', () => {
     writeFileSync(path.join(tmpDir, 'vercel.json'), '{invalid')
 
     expect(() => buildProjectConfig(createConfig({ workingDirectory: tmpDir }))).toThrow()
+  })
+
+  it('strips __proto__ and constructor keys from nowConfig', () => {
+    // Crafted vercel.json with prototype-pollution gadgets. Must not reach
+    // downstream consumers that might forward the object via [[Set]].
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      '{"buildCommand":"build","__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}',
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.nowConfig).toEqual({ buildCommand: 'build' })
+    expect(result.nowConfig).not.toHaveProperty('__proto__', expect.any(Object))
+    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('__proto__')
+    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('constructor')
+    // sanity: Object.prototype was not mutated in the process
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
   })
 })
