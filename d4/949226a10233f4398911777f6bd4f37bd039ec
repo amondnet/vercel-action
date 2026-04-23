@@ -1,0 +1,26 @@
+.please/docs/tracks/active/relative-working-dir-20260423/metadata.json
+  9b4d0cb7ec62f60a 4,6
+.please/docs/tracks.jsonl
+  9b4d0cb7ec62f60a 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "d4949226a10233f4398911777f6bd4f37bd039ec",
+  "prompts": {
+    "9b4d0cb7ec62f60a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc5480b4-3b1a-4aa0-973b-6e12e87b3fdc",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 3,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/1ba8ff4756d92a666e1f96be1f79ebb4713a02faa7552d62320386d4be0f1ccb"
+    }
+  }
+}
