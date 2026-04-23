@@ -1,4 +1,5 @@
 import type { ActionConfig, DeploymentContext } from '../types'
+import path from 'node:path'
 import * as core from '@actions/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { VercelApiClient } from '../vercel-api'
@@ -324,5 +325,39 @@ describe('vercelApiClient.deploy', () => {
 
     const callArgs = mockCreateDeployment.mock.calls[0][0]
     expect(callArgs.path).toBe(process.cwd())
+  })
+
+  it('forwards an absolute path to @vercel/client to avoid the v42.2.0 regression', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: '/github/workspace/public' })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const callArgs = mockCreateDeployment.mock.calls[0][0]
+    expect(path.isAbsolute(callArgs.path)).toBe(true)
+    expect(callArgs.path).toBe('/github/workspace/public')
+  })
+
+  it('derives an absolute vercelOutputDir for prebuilt deployments', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({
+      workingDirectory: '/github/workspace/app',
+      prebuilt: true,
+      vercelOutputDir: '',
+    })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const callArgs = mockCreateDeployment.mock.calls[0][0]
+    expect(path.isAbsolute(callArgs.vercelOutputDir)).toBe(true)
+    expect(callArgs.vercelOutputDir).toBe(path.join('/github/workspace/app', '.vercel', 'output'))
   })
 })

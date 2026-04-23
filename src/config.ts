@@ -1,4 +1,5 @@
 import type { ActionConfig, OctokitClient, PullRequestPayload } from './types'
+import path from 'node:path'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import packageJSON from '../package.json'
@@ -29,6 +30,17 @@ function parseArchive(input: string): '' | 'tgz' {
     throw new Error(`Invalid archive "${input}". Must be "" or "tgz".`)
   }
   return input
+}
+
+function parseWorkingDirectory(input: string): string {
+  if (!input) {
+    return ''
+  }
+  if (path.isAbsolute(input)) {
+    return input
+  }
+  const base = process.env.GITHUB_WORKSPACE || process.cwd()
+  return path.resolve(base, input)
 }
 
 function getVercelBin(): string {
@@ -78,7 +90,7 @@ export function getActionConfig(): ActionConfig {
     githubComment: getGithubCommentInput(core.getInput('github-comment')),
     githubDeployment: core.getInput('github-deployment') === 'true',
     githubDeploymentEnvironment: resolveDeploymentEnvironment(githubDeploymentEnvInput, vercelArgs),
-    workingDirectory: core.getInput('working-directory'),
+    workingDirectory: parseWorkingDirectory(core.getInput('working-directory')),
     vercelToken,
     vercelArgs,
     vercelOrgId: core.getInput('vercel-org-id'),

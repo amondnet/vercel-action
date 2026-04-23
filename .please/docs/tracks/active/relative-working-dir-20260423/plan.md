@@ -39,13 +39,13 @@ Fix the regression introduced in v42.2.0 where a relative `working-directory` in
 
 ## Tasks
 
-- [ ] T001 Add failing unit tests for `parseWorkingDirectory` via `getActionConfig` in `src/__tests__/config.test.ts` covering: relative input + `GITHUB_WORKSPACE` set, relative input + `GITHUB_WORKSPACE` unset (fallback to `process.cwd()`), relative input + empty `GITHUB_WORKSPACE` (fallback to `process.cwd()`), absolute input pass-through, empty input stays empty, nested relative (`apps/web/public`), parent-traversal (`../sibling`) (file: src/__tests__/config.test.ts)
-- [ ] T002 Implement `parseWorkingDirectory()` helper in `src/config.ts` and call it from `getActionConfig()`; verify T001 tests pass (file: src/config.ts) (depends on T001)
-- [ ] T003 [P] Add regression test in `src/__tests__/vercel-api.test.ts` asserting `buildClientOptions` path is absolute for typical API-mode config, and that prebuilt mode derives an absolute `vercelOutputDir` from a non-empty `workingDirectory`; keep the existing `'uses cwd when workingDirectory is empty'` test passing (file: src/__tests__/vercel-api.test.ts) (depends on T002)
-- [ ] T004 [P] Add CLI-mode parity test in `src/__tests__/vercel.test.ts` verifying `exec.cwd` receives the absolute `workingDirectory` after normalization (file: src/__tests__/vercel.test.ts) (depends on T002)
-- [ ] T005 Run full validation: `pnpm run lint`, `pnpm test`, confirm >80% coverage on changed lines (file: n/a) (depends on T003, T004)
-- [ ] T006 Rebuild `dist/` via `pnpm run build` and commit the updated bundle (file: dist/index.js) (depends on T005)
-- [ ] T007 Commit with conventional message `fix: resolve relative working-directory to absolute path for API deployments` referencing `#341`; ensure commit contains src + tests + dist (file: git commit) (depends on T006)
+- [x] T001 Add failing unit tests for `parseWorkingDirectory` via `getActionConfig` in `src/__tests__/config.test.ts` covering: relative input + `GITHUB_WORKSPACE` set, relative input + `GITHUB_WORKSPACE` unset (fallback to `process.cwd()`), relative input + empty `GITHUB_WORKSPACE` (fallback to `process.cwd()`), absolute input pass-through, empty input stays empty, nested relative (`apps/web/public`), parent-traversal (`../sibling`) (file: src/__tests__/config.test.ts)
+- [x] T002 Implement `parseWorkingDirectory()` helper in `src/config.ts` and call it from `getActionConfig()`; verify T001 tests pass (file: src/config.ts) (depends on T001)
+- [x] T003 [P] Add regression test in `src/__tests__/vercel-api.test.ts` asserting `buildClientOptions` path is absolute for typical API-mode config, and that prebuilt mode derives an absolute `vercelOutputDir` from a non-empty `workingDirectory`; keep the existing `'uses cwd when workingDirectory is empty'` test passing (file: src/__tests__/vercel-api.test.ts) (depends on T002)
+- [x] T004 [P] Add CLI-mode parity test in `src/__tests__/vercel.test.ts` verifying `exec.cwd` receives the absolute `workingDirectory` after normalization (file: src/__tests__/vercel.test.ts) (depends on T002)
+- [x] T005 Run full validation: `pnpm run lint`, `pnpm test`, confirm >80% coverage on changed lines (file: n/a) (depends on T003, T004)
+- [x] T006 Rebuild `dist/` via `pnpm run build` and commit the updated bundle (file: dist/index.js) (depends on T005)
+- [~] T007 Commit with conventional message `fix: resolve relative working-directory to absolute path for API deployments` referencing `#341`; ensure commit contains src + tests + dist (file: git commit) (depends on T006)
 
 ## Dependencies
 
@@ -99,7 +99,12 @@ Files explicitly NOT changed:
 
 ## Progress
 
-_Tasks will be marked complete here with timestamps as `/please:implement` runs them._
+- 2026-04-23T13:12Z — T001 done: 7 new tests in `config.test.ts` (5 red, 2 trivially pass) — RED confirmed.
+- 2026-04-23T13:13Z — T002 done: `parseWorkingDirectory()` added; all 37 config tests pass — GREEN.
+- 2026-04-23T13:14Z — T003 done: 2 regression tests added to `vercel-api.test.ts`; 16 tests pass.
+- 2026-04-23T13:15Z — T004 done: CLI parity test added to `vercel.test.ts`; 31 tests pass.
+- 2026-04-23T13:17Z — T005 done: `pnpm run lint` (0 errors, 20 pre-existing warnings), `pnpm test` (204/204 pass with `GITHUB_REPOSITORY` set).
+- 2026-04-23T13:18Z — T006 done: `dist/index.js` rebuilt via `pnpm run build`.
 
 ## Decision Log
 

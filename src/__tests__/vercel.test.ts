@@ -1,4 +1,5 @@
 import type { ActionConfig, DeploymentContext } from '../types'
+import path from 'node:path'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -169,6 +170,20 @@ describe('vercelDeploy', () => {
 
     const options = vi.mocked(exec.exec).mock.calls[0][2]
     expect(options?.cwd).toBe('/custom/dir')
+  })
+
+  it('forwards an absolute cwd to exec, matching the normalized API-mode value', async () => {
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options) => {
+      options?.listeners?.stdout?.(Buffer.from('https://deploy.vercel.app\n'))
+      return 0
+    })
+
+    const cfg = createConfig({ workingDirectory: '/github/workspace/public' })
+    await vercelDeploy(createClient(cfg), cfg, createDeployContext())
+
+    const options = vi.mocked(exec.exec).mock.calls[0][2]
+    expect(options?.cwd).toBe('/github/workspace/public')
+    expect(path.isAbsolute(options?.cwd as string)).toBe(true)
   })
 
   it('includes scope when provided', async () => {
