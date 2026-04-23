@@ -101,3 +101,33 @@ Manual verification after T006 before marking the track done:
 - `@vercel/client` DOES preserve POSIX file mode (mode is read via `fs.lstat` and sent in the `PreparedFile` manifest at `packages/client/src/utils/index.ts:413`). The initial executable-bit-loss hypothesis was wrong; confirmed by reading the pinned version of `@vercel/client@17.2.65` via `ask src`.
 - `nowConfig` is accepted by the Vercel REST API but is not in the `DeploymentOptions` TypeScript type. It must be passed using the same `Object.assign` escape hatch as `project` (already used in `src/vercel-api.ts:112`).
 - Multiple sibling v42.2.0 issues (#341, #342, #343, #345) share the same root cause of CLI↔API parity gaps. Fixing this track should reduce the surface of some of those, but each is tracked separately.
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+
+- `src/project-config.ts` — new module with `readVercelJson()`, `readNodeVersion()`, `buildProjectConfig()`.
+- `src/vercel-api.ts` — `buildDeploymentOptions()` now forwards `nowConfig` + `projectSettings` to `@vercel/client.createDeployment`, restoring CLI parity.
+- `images` field stripped from `nowConfig`; malformed `vercel.json` fails fast.
+- 16 new unit tests (200/200 green) + 2 new integration tests against `emulate.dev` (17/17 green).
+- `dist/index.js` rebuilt (+112 lines, proportional to src).
+- `README.md` API Deployment Inputs section updated with v42.3.0 note referencing #336.
+- PR #350 opened against `master`, linked to #336.
+
+### What Went Well
+
+- Root-cause investigation pinpointed the exact CLI reference (`vercel@50.0.0/packages/cli/src/commands/deploy/index.ts:494-571`) before writing any code. The fix became a straight port.
+- Isolating filesystem I/O in a new module kept `src/vercel-api.ts` under the 300 LOC guideline and made the new logic unit-testable without mocking the HTTP client.
+- TDD against a tmp-directory fixture caught the `images`-stripping requirement and the relative-path resolution case early.
+- Emulator integration tests use the same flakiness-tolerant pattern as the existing suite, so no new infra was needed.
+
+### What Could Improve
+
+- The initial hypothesis (executable-bit loss) was wrong; a faster way to verify pinned dependency behavior up-front would have saved one investigation pass. `ask src npm:<pkg>@<version>` worked but was the second tool reached for, not the first.
+- `nowConfig` not being in the `DeploymentOptions` TypeScript type required the same `Object.assign` escape hatch already used for `project`. Worth tracking upstream: a PR to `@vercel/client` types would remove the cast for this repo and every downstream consumer.
+- No contract test between this repo and `@vercel/client`'s accepted POST body shape — if the Vercel API drops `nowConfig` support, only a live deploy would catch it. Acceptable for now (deploys go through CI on every merge), but something to revisit if this gets brittle.
+
+### Tech Debt Created
+
+- None introduced by this track. One pre-existing item is surfaced: the `Object.assign` escape hatch for fields missing from `DeploymentOptions` (`project`, now `nowConfig`) would read cleaner as a typed `ExtendedDeploymentOptions` interface once we're willing to own that abstraction. Not blocking.
+- Sibling v42.2.0 regressions (#341, #342, #343, #345) remain open. This track does not regress them and reduces the shared root-cause surface, but each needs its own investigation + fix.
