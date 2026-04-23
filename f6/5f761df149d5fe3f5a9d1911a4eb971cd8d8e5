@@ -1,0 +1,34 @@
+.please/docs/tracks/active/relative-working-dir-20260423/plan.md
+  9b4d0cb7ec62f60a 42-48,102-107
+src/__tests__/vercel.test.ts
+  9b4d0cb7ec62f60a 2,175-188
+src/__tests__/config.test.ts
+  9b4d0cb7ec62f60a 1,4,83-180
+dist/index.js
+  9b4d0cb7ec62f60a 99042,99070-99079,99122,108276
+src/__tests__/vercel-api.test.ts
+  9b4d0cb7ec62f60a 2,329-362
+src/config.ts
+  9b4d0cb7ec62f60a 2,35-45,93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "f65f761df149d5fe3f5a9d1911a4eb971cd8d8e5",
+  "prompts": {
+    "9b4d0cb7ec62f60a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc5480b4-3b1a-4aa0-973b-6e12e87b3fdc",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 195,
+      "total_deletions": 18,
+      "accepted_lines": 1486,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/515d306e8ffefe4597a7db1913afe2c22772e7a61e66d8f20c8e9a1292fe137d"
+    }
+  }
+}
