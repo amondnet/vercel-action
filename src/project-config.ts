@@ -5,6 +5,27 @@ function resolveWorkingDir(workingDirectory: string): string {
   return workingDirectory || process.cwd()
 }
 
+export function readNodeVersion(workingDirectory: string): string | undefined {
+  const filePath = path.join(resolveWorkingDir(workingDirectory), 'package.json')
+
+  let raw: string
+  try {
+    raw = readFileSync(filePath, 'utf8')
+  }
+  catch {
+    return undefined
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as { engines?: { node?: unknown } }
+    const node = parsed.engines?.node
+    return typeof node === 'string' ? node : undefined
+  }
+  catch {
+    return undefined
+  }
+}
+
 export function readVercelJson(workingDirectory: string): Record<string, unknown> | null {
   const filePath = path.join(resolveWorkingDir(workingDirectory), 'vercel.json')
 
