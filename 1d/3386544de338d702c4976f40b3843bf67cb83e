@@ -1,0 +1,24 @@
+.please/docs/tracks/active/relative-working-dir-20260423/plan.md
+  9b4d0cb7ec62f60a 48,108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "1d3386544de338d702c4976f40b3843bf67cb83e",
+  "prompts": {
+    "9b4d0cb7ec62f60a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc5480b4-3b1a-4aa0-973b-6e12e87b3fdc",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 1,
+      "accepted_lines": 2,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/086f6f0a150f53033fd7129f748b8e859b28e7048948f499315a03f187bc7887"
+    }
+  }
+}
