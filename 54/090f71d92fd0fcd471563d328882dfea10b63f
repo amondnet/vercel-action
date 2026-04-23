@@ -1,0 +1,32 @@
+.please/docs/tracks/active/build-exit-255-20260423/investigation.md
+  7cd5c2f4ab677d7f 1-147
+.please/docs/tracks/active/build-exit-255-20260423/spec.md
+  7cd5c2f4ab677d7f 1-78
+.please/docs/tracks/active/build-exit-255-20260423/plan.md
+  7cd5c2f4ab677d7f 1-97
+.please/docs/tracks/active/build-exit-255-20260423/metadata.json
+  7cd5c2f4ab677d7f 1-10
+.please/docs/tracks.jsonl
+  7cd5c2f4ab677d7f 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "54090f71d92fd0fcd471563d328882dfea10b63f",
+  "prompts": {
+    "7cd5c2f4ab677d7f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "99b09d73-2d2e-4efe-b6ce-d49dac3d6013",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 336,
+      "total_deletions": 3,
+      "accepted_lines": 333,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/bf967f910443f0ec52631f8a0580c9a6c4d1f7a389f1e967f47f74b8911d906f"
+    }
+  }
+}
