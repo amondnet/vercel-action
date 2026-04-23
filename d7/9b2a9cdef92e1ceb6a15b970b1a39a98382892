@@ -1,0 +1,24 @@
+.please/docs/tracks/active/build-exit-255-20260423/plan.md
+  ae4965c21e5eb9c9 51-52,91-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "d79b2a9cdef92e1ceb6a15b970b1a39a98382892",
+  "prompts": {
+    "ae4965c21e5eb9c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e089d395-04df-46d3-9bbb-b92213e3cf7a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 1,
+      "accepted_lines": 5,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/e90efc4b203b5226da543688082ee3fe8a03151719657a88e31aec06f7d7cb67"
+    }
+  }
+}
