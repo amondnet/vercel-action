@@ -61,7 +61,7 @@ This action make a Vercel deployment with github actions.
 
 These inputs use the `@vercel/client` API directly instead of the CLI. They are used when `vercel-args` is **not** provided.
 
-> **Note:** As of v42.3.0, the API path honors your project's `vercel.json` — including `buildCommand`, `installCommand`, `outputDirectory`, and `framework` — along with `engines.node` from `package.json`. Projects with custom build scripts (e.g. `"buildCommand": "./build.sh"`) no longer need the `vercel-args: "--prod"` workaround. Fixes [#336](https://github.com/amondnet/vercel-action/issues/336).
+> **Note:** Starting with this change, the API path honors your project's `vercel.json` — including `buildCommand`, `installCommand`, `outputDirectory`, and `framework` — along with `engines.node` from `package.json`. Projects with custom build scripts (e.g. `"buildCommand": "./build.sh"`) no longer need the `vercel-args: "--prod"` workaround. Fixes [#336](https://github.com/amondnet/vercel-action/issues/336).
 
 | Name                       | Required | Default   | Description                                                        |
 |----------------------------|:--------:|-----------|--------------------------------------------------------------------|

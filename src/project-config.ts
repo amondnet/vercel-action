@@ -70,13 +70,23 @@ export function readVercelJson(workingDirectory: string): Record<string, unknown
     throw error
   }
 
+  let parsed: unknown
   try {
-    return JSON.parse(raw) as Record<string, unknown>
+    parsed = JSON.parse(raw)
   }
   catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     throw new Error(`Failed to parse ${filePath}: ${message}`)
   }
+
+  // Guard against non-object JSON (arrays, strings, numbers, null, booleans).
+  // Vercel expects an object at the top level; anything else would silently
+  // produce an invalid nowConfig (e.g. `Object.entries([])` yields index keys).
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`Invalid ${filePath}: expected a JSON object at the top level`)
+  }
+
+  return parsed as Record<string, unknown>
 }
 
 export function buildProjectConfig(config: ActionConfig): ProjectConfig {

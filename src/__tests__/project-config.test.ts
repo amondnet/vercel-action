@@ -69,6 +69,22 @@ describe('readVercelJson', () => {
     expect(() => readVercelJson(tmpDir)).toThrow(configPath)
   })
 
+  it.each([
+    ['array', '[]'],
+    ['string', '"hello"'],
+    ['number', '42'],
+    ['boolean', 'true'],
+    ['null', 'null'],
+  ])('throws when vercel.json top-level value is %s', (_label, raw) => {
+    // Vercel expects an object at the top level. Non-object JSON would
+    // silently produce an invalid nowConfig (e.g. Object.entries([]) yields
+    // numeric index keys), so we fail fast.
+    const configPath = path.join(tmpDir, 'vercel.json')
+    writeFileSync(configPath, raw)
+
+    expect(() => readVercelJson(tmpDir)).toThrow(configPath)
+  })
+
   it('reads vercel.json relative to workingDirectory, not process.cwd', () => {
     const configPath = path.join(tmpDir, 'vercel.json')
     writeFileSync(configPath, JSON.stringify({ framework: 'hugo' }))
@@ -243,7 +259,8 @@ describe('buildProjectConfig', () => {
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
     expect(result.nowConfig).toEqual({ buildCommand: 'build' })
-    expect(result.nowConfig).not.toHaveProperty('__proto__', expect.any(Object))
+    // Use Object.getOwnPropertyNames so we only inspect own keys — `toHaveProperty`
+    // walks the prototype chain and would match `__proto__` on any normal object.
     expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('__proto__')
     expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('constructor')
     // sanity: Object.prototype was not mutated in the process
