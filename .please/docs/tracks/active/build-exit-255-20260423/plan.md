@@ -43,7 +43,7 @@ Restore the CLI parity that v42.2.0 lost during the migration to `@vercel/client
 
 ## Tasks
 
-- [ ] T001 Create `src/project-config.ts` with `readVercelJson(workingDirectory)` (file: src/project-config.ts, src/__tests__/project-config.test.ts) — reads `vercel.json` from resolved working directory. Returns parsed object on success, `null` when file is absent, throws `Error` with the file path on invalid JSON. Tests cover: present/absent/invalid-JSON cases and relative-path resolution via `workingDirectory` input.
+- [x] T001 Create `src/project-config.ts` with `readVercelJson(workingDirectory)` (file: src/project-config.ts, src/__tests__/project-config.test.ts) — reads `vercel.json` from resolved working directory. Returns parsed object on success, `null` when file is absent, throws `Error` with the file path on invalid JSON. Tests cover: present/absent/invalid-JSON cases and relative-path resolution via `workingDirectory` input.
 - [ ] T002 Add `readNodeVersion(workingDirectory)` to `src/project-config.ts` (file: src/project-config.ts, src/__tests__/project-config.test.ts) (depends on T001) — reads `package.json` from the same working directory and returns `engines.node` as a string, or `undefined` when missing/unreadable. Mirrors `vercel@50.0.0/packages/cli/src/commands/deploy/index.ts:541-558`. Tests cover: present/absent/unreadable cases.
 - [ ] T003 Add `buildProjectConfig(config)` to `src/project-config.ts` (file: src/project-config.ts, src/__tests__/project-config.test.ts) (depends on T001, T002) — returns `{ nowConfig?, projectSettings? }`. When `vercel.json` is present: strip `images`, set `nowConfig`. When `vercel.json.builds` is empty/absent (zero-config): set `projectSettings.rootDirectory` and `projectSettings.sourceFilesOutsideRootDirectory` from `config.rootDirectory`. Always populate `projectSettings.nodeVersion` when `readNodeVersion` returns a value. Returns empty object `{}` when there's nothing to contribute. Tests cover: vercel.json present with buildCommand, vercel.json present with `builds`, vercel.json absent, images stripped.
 - [ ] T004 Integrate `buildProjectConfig` into `VercelApiClient.buildDeploymentOptions` (file: src/vercel-api.ts, src/__tests__/vercel-api.test.ts) (depends on T003) — call `buildProjectConfig(config)` and merge the returned `{ nowConfig, projectSettings }` into the deployment options via `Object.assign(options, projectConfig)`. Keep the existing `skipAutoDetectionConfirmation = true`. Tests cover: deploy POST body includes `nowConfig.buildCommand` when `vercel.json` defines it; deploy POST body omits `nowConfig` when `vercel.json` is absent (assert via `mockCreateDeployment` call args, using a tmp working directory fixture).
@@ -83,7 +83,7 @@ Manual verification after T006 before marking the track done:
 
 ## Progress
 
-_(Implementation tasks — to be filled during `/please:implement`.)_
+- **2026-04-23T21:47Z** — T001 완료: `src/project-config.ts`에 `readVercelJson()` 구현. 5개 단위 테스트 통과 (present/absent/invalid-JSON/relative-path/empty-workingDirectory).
 
 ## Decision Log
 
