@@ -1,9 +1,9 @@
 {
   "track_id": "relative-working-dir-20260423",
   "type": "bugfix",
-  "status": "planned",
+  "status": "in_progress",
   "created_at": "2026-04-23T12:53:33Z",
-  "updated_at": "2026-04-23T13:01:00Z",
+  "updated_at": "2026-04-23T13:05:13Z",
   "issue": "#341",
   "pr": "",
   "project": "",
