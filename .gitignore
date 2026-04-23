@@ -73,3 +73,6 @@ typings/
 
 # please plugin runtime state
 .please/state/
+
+# Claude Code agent-persistent memory (machine-local, not project artifacts)
+.claude/agent-memory/

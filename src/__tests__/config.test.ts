@@ -1,6 +1,7 @@
+import path from 'node:path'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@actions/core', () => ({
   getInput: vi.fn(),
@@ -76,6 +77,104 @@ describe('getActionConfig', () => {
     const config = getActionConfig()
 
     expect(config.vercelBin).toBe('vercel@30.0.0')
+  })
+})
+
+describe('getActionConfig working-directory normalization', () => {
+  const originalWorkspace = process.env.GITHUB_WORKSPACE
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    if (originalWorkspace === undefined) {
+      delete process.env.GITHUB_WORKSPACE
+    }
+    else {
+      process.env.GITHUB_WORKSPACE = originalWorkspace
+    }
+  })
+
+  function mockWorkingDirectoryInput(value: string): void {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      if (name === 'working-directory')
+        return value
+      if (name === 'vercel-token')
+        return 'v-token'
+      return ''
+    })
+  }
+
+  it('resolves relative path against GITHUB_WORKSPACE when set', async () => {
+    process.env.GITHUB_WORKSPACE = '/github/workspace'
+    mockWorkingDirectoryInput('public')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe(path.resolve('/github/workspace', 'public'))
+  })
+
+  it('falls back to process.cwd() when GITHUB_WORKSPACE is unset', async () => {
+    delete process.env.GITHUB_WORKSPACE
+    mockWorkingDirectoryInput('public')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe(path.resolve(process.cwd(), 'public'))
+  })
+
+  it('falls back to process.cwd() when GITHUB_WORKSPACE is empty string', async () => {
+    process.env.GITHUB_WORKSPACE = ''
+    mockWorkingDirectoryInput('public')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe(path.resolve(process.cwd(), 'public'))
+  })
+
+  it('passes absolute path through unchanged', async () => {
+    process.env.GITHUB_WORKSPACE = '/github/workspace'
+    mockWorkingDirectoryInput('/app')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe('/app')
+  })
+
+  it('leaves empty input as empty string', async () => {
+    process.env.GITHUB_WORKSPACE = '/github/workspace'
+    mockWorkingDirectoryInput('')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe('')
+  })
+
+  it('resolves nested relative paths against GITHUB_WORKSPACE', async () => {
+    process.env.GITHUB_WORKSPACE = '/github/workspace'
+    mockWorkingDirectoryInput('apps/web/public')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe(path.resolve('/github/workspace', 'apps/web/public'))
+  })
+
+  it('collapses parent-traversal segments via path.resolve', async () => {
+    process.env.GITHUB_WORKSPACE = '/github/workspace/repo'
+    mockWorkingDirectoryInput('../sibling')
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.workingDirectory).toBe(path.resolve('/github/workspace/repo', '../sibling'))
   })
 })
 

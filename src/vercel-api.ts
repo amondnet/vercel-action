@@ -5,6 +5,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { HttpClient } from '@actions/http-client'
 import { createDeployment } from '@vercel/client'
+import { buildProjectConfig } from './project-config'
 
 const DEFAULT_BASE_URL = 'https://api.vercel.com'
 
@@ -83,6 +84,16 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     autoAssignCustomDomains: config.autoAssignCustomDomains,
   }
 
+  applyConditionalFlags(options, config)
+  applyProjectConfig(options, config)
+
+  return options
+}
+
+// Copy across the flat action-input flags that map 1:1 to DeploymentOptions.
+// Kept separate from buildDeploymentOptions to honor the 50-LOC function limit
+// (AGENTS.md) and to isolate the long if-chain from the main meta shape.
+function applyConditionalFlags(options: DeploymentOptions, config: ActionConfig): void {
   if (config.target === 'production') {
     options.target = 'production'
   }
@@ -108,20 +119,25 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     // The Vercel REST API accepts `project` in the deployment body to target a
     // specific project by ID, but @vercel/client's DeploymentOptions type doesn't
     // declare it. Object.assign adds the field without explicit type casting.
-    // It passes through via object spread in the POST body. See: #330
+    // See: #330
     Object.assign(options, { project: config.vercelProjectId })
   }
-  if (config.rootDirectory || config.sourceFilesOutsideRootDirectory) {
-    options.projectSettings = {}
-    if (config.rootDirectory) {
-      options.projectSettings.rootDirectory = config.rootDirectory
-    }
-    if (config.sourceFilesOutsideRootDirectory) {
-      options.projectSettings.sourceFilesOutsideRootDirectory = true
-    }
-  }
+}
 
-  return options
+// Merge nowConfig (vercel.json contents) and projectSettings (rootDirectory,
+// nodeVersion, etc.) so the Vercel API honors the user's
+// buildCommand/installCommand/outputDirectory instead of falling back to
+// framework auto-detection. `nowConfig` is accepted by the REST API but not
+// declared in DeploymentOptions — passed through via Object.assign, same
+// pattern as `project` in buildDeploymentOptions. See: #336
+function applyProjectConfig(options: DeploymentOptions, config: ActionConfig): void {
+  const projectConfig = buildProjectConfig(config)
+  if (projectConfig.nowConfig) {
+    Object.assign(options, { nowConfig: projectConfig.nowConfig })
+  }
+  if (projectConfig.projectSettings) {
+    options.projectSettings = projectConfig.projectSettings
+  }
 }
 
 export class VercelApiClient implements VercelClient {

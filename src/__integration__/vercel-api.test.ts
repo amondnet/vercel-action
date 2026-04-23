@@ -1,5 +1,8 @@
 import type { ActionConfig } from '../types'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { VercelApiClient } from '../vercel-api'
 import { TEST_PROJECT, TEST_TEAM, VERCEL_TOKEN, vercelFetch } from './helpers'
 
@@ -117,6 +120,96 @@ describe('vercelApiClient (integration)', () => {
     it('should have deploy method implemented', () => {
       const client = new VercelApiClient(createTeamConfig(), process.env.EMULATE_VERCEL_URL)
       expect(typeof client.deploy).toBe('function')
+    })
+
+    describe('with vercel.json buildCommand', () => {
+      let projectDir: string
+
+      beforeEach(() => {
+        projectDir = mkdtempSync(path.join(tmpdir(), 'vercel-action-int-'))
+        writeFileSync(
+          path.join(projectDir, 'vercel.json'),
+          JSON.stringify({ buildCommand: './build.sh' }),
+        )
+        const buildScript = path.join(projectDir, 'build.sh')
+        writeFileSync(buildScript, '#!/bin/sh\necho "building"\n')
+        chmodSync(buildScript, 0o755)
+        // Minimal content so the file manifest is not empty
+        writeFileSync(path.join(projectDir, 'index.html'), '<h1>Hello</h1>')
+      })
+
+      afterEach(() => {
+        rmSync(projectDir, { recursive: true, force: true })
+      })
+
+      it('does not crash when reading vercel.json from workingDirectory', async () => {
+        // Regression guard for #336: the filesystem read path must not throw
+        // against a realistic tmp project layout. The deploy itself may fail
+        // at file upload time against the emulator (known limitation), which
+        // is tolerated below — what matters is that the code reached upload.
+        expect.hasAssertions()
+
+        const client = new VercelApiClient(
+          createTeamConfig({ workingDirectory: projectDir }),
+          process.env.EMULATE_VERCEL_URL,
+        )
+
+        try {
+          const url = await client.deploy(
+            createTeamConfig({ workingDirectory: projectDir }),
+            {
+              ref: 'main',
+              sha: 'abc',
+              commit: 'test',
+              commitOrg: 'org',
+              commitRepo: 'repo',
+            },
+          )
+          expect(url).toBeTruthy()
+        }
+        catch (error) {
+          const message = error instanceof Error ? error.message : String(error)
+          // Any regression would surface as a vercel.json parsing/resolution error.
+          expect(message).not.toMatch(/vercel\.json/)
+          // Known emulator limitations — not real failures.
+          const emulatorErrors = [
+            'fetch',
+            'ECONNREFUSED',
+            'network',
+            'socket',
+            'ERR_INVALID_PROTOCOL',
+          ]
+          const isEmulatorError = emulatorErrors.some(e => message.includes(e))
+          if (!isEmulatorError) {
+            throw error
+          }
+        }
+      })
+    })
+
+    describe('with malformed vercel.json', () => {
+      let projectDir: string
+
+      beforeEach(() => {
+        projectDir = mkdtempSync(path.join(tmpdir(), 'vercel-action-int-'))
+        writeFileSync(path.join(projectDir, 'vercel.json'), '{not valid json')
+      })
+
+      afterEach(() => {
+        rmSync(projectDir, { recursive: true, force: true })
+      })
+
+      it('fails fast with a message naming the file', async () => {
+        const client = new VercelApiClient(
+          createTeamConfig({ workingDirectory: projectDir }),
+          process.env.EMULATE_VERCEL_URL,
+        )
+
+        await expect(client.deploy(
+          createTeamConfig({ workingDirectory: projectDir }),
+          { ref: 'main', sha: 'abc', commit: 'test', commitOrg: 'org', commitRepo: 'repo' },
+        )).rejects.toThrow(/vercel\.json/)
+      })
     })
 
     it('should attempt deployment via @vercel/client (may fail against emulator)', async () => {

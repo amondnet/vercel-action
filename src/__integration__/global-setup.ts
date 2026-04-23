@@ -49,6 +49,11 @@ export async function setup(): Promise<void> {
   process.env.EMULATE_VERCEL_URL = vercelEmulator.url
   process.env.EMULATE_GITHUB_URL = githubEmulator.url
   process.env.GITHUB_API_URL = githubEmulator.url
+
+  // GitHub Actions normally injects these; provide defaults so integration
+  // tests also run locally. Do not overwrite values set by a real CI run.
+  process.env.GITHUB_REPOSITORY ??= 'test-owner/test-repo'
+  process.env.GITHUB_ACTOR ??= 'test-user'
 }
 
 export async function teardown(): Promise<void> {

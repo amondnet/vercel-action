@@ -1,0 +1,11 @@
+{
+  "track_id": "relative-working-dir-20260423",
+  "type": "bugfix",
+  "status": "review",
+  "created_at": "2026-04-23T12:53:33Z",
+  "updated_at": "2026-04-23T14:16:08Z",
+  "issue": "#341",
+  "pr": "#349",
+  "project": "",
+  "project_item_id": ""
+}
