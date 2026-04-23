@@ -292,9 +292,9 @@ describe('vercelApiClient.deploy', () => {
       expected: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: true },
     },
     {
-      name: 'empty when neither is set',
+      name: 'omitted when neither is set',
       overrides: { rootDirectory: '', sourceFilesOutsideRootDirectory: false },
-      expected: {},
+      expected: undefined,
     },
     {
       name: 'sourceFilesOutsideRootDirectory independently of rootDirectory',

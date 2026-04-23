@@ -81,7 +81,6 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     },
     gitMetadata: buildGitMetadata(deployContext),
     autoAssignCustomDomains: config.autoAssignCustomDomains,
-    projectSettings: {},
   }
 
   if (config.target === 'production') {
@@ -112,11 +111,14 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     // It passes through via object spread in the POST body. See: #330
     Object.assign(options, { project: config.vercelProjectId })
   }
-  if (config.rootDirectory) {
-    options.projectSettings!.rootDirectory = config.rootDirectory
-  }
-  if (config.sourceFilesOutsideRootDirectory) {
-    options.projectSettings!.sourceFilesOutsideRootDirectory = true
+  if (config.rootDirectory || config.sourceFilesOutsideRootDirectory) {
+    options.projectSettings = {}
+    if (config.rootDirectory) {
+      options.projectSettings.rootDirectory = config.rootDirectory
+    }
+    if (config.sourceFilesOutsideRootDirectory) {
+      options.projectSettings.sourceFilesOutsideRootDirectory = true
+    }
   }
 
   return options
