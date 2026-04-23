@@ -1,0 +1,28 @@
+.github/workflows/example-nextjs.yml
+  c14dd10b92a76792 16
+.github/workflows/ci.yml
+  c14dd10b92a76792 19,54,77,100,123
+.github/workflows/example-angular.yml
+  c14dd10b92a76792 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "c16d6cbdc948754300cb21a5b8339c07343ff891",
+  "prompts": {
+    "c14dd10b92a76792": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cebdab2a-3289-4afd-803c-6e21d9f832b7",
+        "model": "<synthetic>"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 7,
+      "accepted_lines": 375,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/f2d38913bf9d3b26149b572e578eb6aeccec7e2d56b4041f64e85b86ef7bc6d3"
+    }
+  }
+}
