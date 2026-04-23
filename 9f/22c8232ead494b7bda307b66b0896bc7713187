@@ -1,0 +1,28 @@
+src/project-config.ts
+  ae4965c21e5eb9c9 8-28
+src/__tests__/project-config.test.ts
+  ae4965c21e5eb9c9 5,57-98
+.please/docs/tracks/active/build-exit-255-20260423/plan.md
+  ae4965c21e5eb9c9 47,87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "9f22c8232ead494b7bda307b66b0896bc7713187",
+  "prompts": {
+    "ae4965c21e5eb9c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e089d395-04df-46d3-9bbb-b92213e3cf7a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 67,
+      "total_deletions": 3,
+      "accepted_lines": 66,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/7222cbfc555ae532e2948de36eca4d33c7a4f5d6874c46759e7f7f2d8ee8bb56"
+    }
+  }
+}
