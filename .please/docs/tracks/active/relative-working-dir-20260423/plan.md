@@ -45,7 +45,7 @@ Fix the regression introduced in v42.2.0 where a relative `working-directory` in
 - [x] T004 [P] Add CLI-mode parity test in `src/__tests__/vercel.test.ts` verifying `exec.cwd` receives the absolute `workingDirectory` after normalization (file: src/__tests__/vercel.test.ts) (depends on T002)
 - [x] T005 Run full validation: `pnpm run lint`, `pnpm test`, confirm >80% coverage on changed lines (file: n/a) (depends on T003, T004)
 - [x] T006 Rebuild `dist/` via `pnpm run build` and commit the updated bundle (file: dist/index.js) (depends on T005)
-- [~] T007 Commit with conventional message `fix: resolve relative working-directory to absolute path for API deployments` referencing `#341`; ensure commit contains src + tests + dist (file: git commit) (depends on T006)
+- [x] T007 Commit with conventional message `fix: resolve relative working-directory to absolute path for API deployments` referencing `#341`; ensure commit contains src + tests + dist (file: git commit) (depends on T006)
 
 ## Dependencies
 
@@ -105,6 +105,7 @@ Files explicitly NOT changed:
 - 2026-04-23T13:15Z — T004 done: CLI parity test added to `vercel.test.ts`; 31 tests pass.
 - 2026-04-23T13:17Z — T005 done: `pnpm run lint` (0 errors, 20 pre-existing warnings), `pnpm test` (204/204 pass with `GITHUB_REPOSITORY` set).
 - 2026-04-23T13:18Z — T006 done: `dist/index.js` rebuilt via `pnpm run build`.
+- 2026-04-23T13:19Z — T007 done: committed as `fix: resolve relative working-directory to absolute path for API deployments` (f65f761), Fixes #341.
 
 ## Decision Log
 
