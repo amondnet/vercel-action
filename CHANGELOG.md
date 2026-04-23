@@ -1,5 +1,13 @@
 # Changelog
 
+## [42.2.1](https://github.com/amondnet/vercel-action/compare/v42.2.0...v42.2.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* restore relative working-directory support in API deployment ([#341](https://github.com/amondnet/vercel-action/issues/341)) ([#349](https://github.com/amondnet/vercel-action/issues/349)) ([a402367](https://github.com/amondnet/vercel-action/commit/a402367d0ef8a075898aafed4db12964b6fb33ae))
+* **vercel-api:** send nowConfig and projectSettings to honor vercel.json ([#350](https://github.com/amondnet/vercel-action/issues/350)) ([ed665b2](https://github.com/amondnet/vercel-action/commit/ed665b2a904177e8e178eb5709bf3b9c0d474c92))
+
 ## [42.2.0](https://github.com/amondnet/vercel-action/compare/v42.1.0...v42.2.0) (2026-04-08)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "vercel-action",
-  "version": "42.2.0",
+  "version": "42.2.1",
   "private": true,
   "packageManager": "pnpm@10.15.0",
   "author": {
