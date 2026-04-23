@@ -1,0 +1,30 @@
+src/__tests__/project-config.test.ts
+  c14dd10b92a76792 72-87,262-263
+src/project-config.ts
+  c14dd10b92a76792 73,75,81-89
+README.md
+  c14dd10b92a76792 64
+dist/index.js
+  c14dd10b92a76792 99751,99753,99759-99765
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "0b48cd9810f13dd5a2d7d60b3e01406923f235b1",
+  "prompts": {
+    "c14dd10b92a76792": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cebdab2a-3289-4afd-803c-6e21d9f832b7",
+        "model": "<synthetic>"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 39,
+      "total_deletions": 4,
+      "accepted_lines": 1704,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/d62dd3807ccd789e2945c0c5b1291a4f48929f4a3085ece805976ef3f3406bd3"
+    }
+  }
+}
