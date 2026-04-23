@@ -1,0 +1,24 @@
+.github/workflows/check-dist.yml
+  c14dd10b92a76792 30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "f3188ff321aee39734f71070abd0cb6aee1d8c62",
+  "prompts": {
+    "c14dd10b92a76792": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cebdab2a-3289-4afd-803c-6e21d9f832b7",
+        "model": "<synthetic>"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 370,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/231ed0f67e821457425f2f1fadff04c62b774101b4ce85248e3f32e101f73284"
+    }
+  }
+}
