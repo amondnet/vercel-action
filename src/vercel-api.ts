@@ -5,6 +5,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { HttpClient } from '@actions/http-client'
 import { createDeployment } from '@vercel/client'
+import { buildProjectConfig } from './project-config'
 
 const DEFAULT_BASE_URL = 'https://api.vercel.com'
 
@@ -110,6 +111,20 @@ function buildDeploymentOptions(config: ActionConfig, deployContext: DeploymentC
     // declare it. Object.assign adds the field without explicit type casting.
     // It passes through via object spread in the POST body. See: #330
     Object.assign(options, { project: config.vercelProjectId })
+  }
+
+  // Merge nowConfig (contents of vercel.json) and projectSettings
+  // (rootDirectory, nodeVersion, etc.) so the Vercel API honors the user's
+  // buildCommand/installCommand/outputDirectory instead of falling back to
+  // framework auto-detection. `nowConfig` is accepted by the REST API but not
+  // declared in DeploymentOptions — passed through via Object.assign, same
+  // pattern as `project` above. See: #336
+  const projectConfig = buildProjectConfig(config)
+  if (projectConfig.nowConfig) {
+    Object.assign(options, { nowConfig: projectConfig.nowConfig })
+  }
+  if (projectConfig.projectSettings) {
+    options.projectSettings = projectConfig.projectSettings
   }
 
   return options

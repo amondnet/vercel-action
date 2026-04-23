@@ -1,7 +1,9 @@
 import type { ActionConfig, DeploymentContext } from '../types'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import * as core from '@actions/core'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { VercelApiClient } from '../vercel-api'
 
 vi.mock('@actions/core', () => ({
@@ -359,5 +361,106 @@ describe('vercelApiClient.deploy', () => {
     const callArgs = mockCreateDeployment.mock.calls[0][0]
     expect(path.isAbsolute(callArgs.vercelOutputDir)).toBe(true)
     expect(callArgs.vercelOutputDir).toBe(path.join('/github/workspace/app', '.vercel', 'output'))
+  })
+})
+
+describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    tmpDir = mkdtempSync(path.join(tmpdir(), 'vercel-action-api-'))
+  })
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('includes nowConfig.buildCommand when vercel.json is present', async () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: './build.sh', framework: 'hugo' }),
+    )
+
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.nowConfig).toBeDefined()
+    expect(deployOpts.nowConfig.buildCommand).toBe('./build.sh')
+    expect(deployOpts.nowConfig.framework).toBe('hugo')
+  })
+
+  it('omits nowConfig when vercel.json is absent', async () => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.nowConfig).toBeUndefined()
+  })
+
+  it('strips images from nowConfig', async () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: 'build', images: { sizes: [640] } }),
+    )
+
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.nowConfig).toEqual({ buildCommand: 'build' })
+  })
+
+  it('populates projectSettings.nodeVersion from package.json engines.node', async () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: 'build' }),
+    )
+    writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ engines: { node: '20.x' } }),
+    )
+
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings?.nodeVersion).toBe('20.x')
+  })
+
+  it('fails fast when vercel.json is malformed', async () => {
+    writeFileSync(path.join(tmpDir, 'vercel.json'), '{invalid')
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+
+    await expect(client.deploy(config, createDeployContext()))
+      .rejects
+      .toThrow(/vercel\.json/)
   })
 })
