@@ -1,0 +1,32 @@
+.gitignore
+  ae4965c21e5eb9c9 75-78
+dist/index.js
+  ae4965c21e5eb9c9 99710-99720,99764,100140-100147,100173,100176-100183
+src/__tests__/project-config.test.ts
+  ae4965c21e5eb9c9 2,88-98,234-251
+src/vercel-api.ts
+  ae4965c21e5eb9c9 87-96,122,125,127-133
+src/project-config.ts
+  ae4965c21e5eb9c9 23-37,89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "fb0f5cf07fda6e8fe1724f87b0ff70414935a394",
+  "prompts": {
+    "ae4965c21e5eb9c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e089d395-04df-46d3-9bbb-b92213e3cf7a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 1,
+      "accepted_lines": 98,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/fc995311e9230aed6cddbebad490d520a1983262964b68237e21a37a7c60fd84"
+    }
+  }
+}
