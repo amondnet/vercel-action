@@ -1,9 +1,9 @@
-import type { ActionConfig, DeploymentContext } from '../types'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import * as core from '@actions/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createConfig, createDeployContext } from './helpers'
 import { VercelApiClient } from '../vercel-api'
 
 vi.mock('@actions/core', () => ({
@@ -31,47 +31,6 @@ vi.mock('@actions/http-client', () => ({
     post: vi.fn(),
   })),
 }))
-
-function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
-  return {
-    githubToken: '',
-    githubComment: false,
-    workingDirectory: '/test/path',
-    vercelToken: 'test-token',
-    vercelArgs: '',
-    vercelOrgId: '',
-    vercelProjectId: '',
-    vercelScope: '',
-    vercelProjectName: '',
-    vercelBin: 'vercel@latest',
-    aliasDomains: [],
-    target: 'preview',
-    prebuilt: false,
-    vercelOutputDir: '',
-    force: false,
-    env: {},
-    buildEnv: {},
-    regions: [],
-    archive: '',
-    rootDirectory: '',
-    autoAssignCustomDomains: true,
-    customEnvironment: '',
-    isPublic: false,
-    withCache: false,
-    ...overrides,
-  }
-}
-
-function createDeployContext(overrides: Partial<DeploymentContext> = {}): DeploymentContext {
-  return {
-    ref: 'refs/heads/main',
-    sha: 'abc123',
-    commit: 'test commit',
-    commitOrg: 'test-owner',
-    commitRepo: 'test-repo',
-    ...overrides,
-  }
-}
 
 async function* fakeDeploymentEvents(events: Array<{ type: string, payload: unknown }>) {
   for (const event of events) {
@@ -361,6 +320,36 @@ describe('vercelApiClient.deploy', () => {
     const callArgs = mockCreateDeployment.mock.calls[0][0]
     expect(path.isAbsolute(callArgs.vercelOutputDir)).toBe(true)
     expect(callArgs.vercelOutputDir).toBe(path.join('/github/workspace/app', '.vercel', 'output'))
+  })
+
+  it.each([
+    {
+      name: 'both rootDirectory and sourceFilesOutsideRootDirectory set',
+      overrides: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: true },
+      expected: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: true },
+    },
+    {
+      name: 'sourceFilesOutsideRootDirectory independently of rootDirectory',
+      overrides: { rootDirectory: '', sourceFilesOutsideRootDirectory: true },
+      expected: { sourceFilesOutsideRootDirectory: true },
+    },
+    {
+      name: 'rootDirectory without sourceFilesOutsideRootDirectory',
+      overrides: { rootDirectory: 'apps/web', sourceFilesOutsideRootDirectory: false },
+      expected: { rootDirectory: 'apps/web' },
+    },
+  ])('passes projectSettings from action inputs: $name', async ({ overrides, expected }) => {
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig(overrides)
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.projectSettings).toEqual(expect.objectContaining(expected))
   })
 })
 

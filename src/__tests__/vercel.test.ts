@@ -1,8 +1,9 @@
-import type { ActionConfig, DeploymentContext } from '../types'
+import type { ActionConfig } from '../types'
 import path from 'node:path'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createConfig, createDeployContext } from './helpers'
 import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspect } from '../vercel'
 import { VercelApiClient } from '../vercel-api'
 import { VercelCliClient } from '../vercel-cli'
@@ -24,49 +25,8 @@ vi.mock('@actions/github', () => ({
   },
 }))
 
-function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
-  return {
-    githubToken: '',
-    githubComment: false,
-    workingDirectory: '',
-    vercelToken: 'test-token',
-    vercelArgs: '',
-    vercelOrgId: '',
-    vercelProjectId: '',
-    vercelScope: '',
-    vercelProjectName: '',
-    vercelBin: 'vercel@latest',
-    aliasDomains: [],
-    target: 'preview',
-    prebuilt: false,
-    vercelOutputDir: '',
-    force: false,
-    env: {},
-    buildEnv: {},
-    regions: [],
-    archive: '',
-    rootDirectory: '',
-    autoAssignCustomDomains: true,
-    customEnvironment: '',
-    isPublic: false,
-    withCache: false,
-    ...overrides,
-  }
-}
-
 function createClient(config?: ActionConfig): VercelCliClient {
   return new VercelCliClient(config ?? createConfig())
-}
-
-function createDeployContext(overrides: Partial<DeploymentContext> = {}): DeploymentContext {
-  return {
-    ref: 'refs/heads/main',
-    sha: 'abc123',
-    commit: 'test commit',
-    commitOrg: 'test-owner',
-    commitRepo: 'test-repo',
-    ...overrides,
-  }
 }
 
 describe('vercelDeploy', () => {

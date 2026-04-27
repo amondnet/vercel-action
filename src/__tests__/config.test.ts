@@ -489,6 +489,8 @@ describe('api deployment inputs', () => {
     expect(config.regions).toEqual([])
     expect(config.archive).toBe('')
     expect(config.rootDirectory).toBe('')
+    expect(config.sourceFilesOutsideRootDirectory).toBe(false)
+    expect(config.nodeVersion).toBe('')
     expect(config.autoAssignCustomDomains).toBe(true)
     expect(config.customEnvironment).toBe('')
     expect(config.isPublic).toBe(false)
@@ -521,6 +523,7 @@ describe('api deployment inputs', () => {
         'prebuilt': 'true',
         'force': 'true',
         'auto-assign-custom-domains': 'false',
+        'source-files-outside-root-directory': 'true',
         'public': 'true',
         'with-cache': 'true',
       }
@@ -533,6 +536,7 @@ describe('api deployment inputs', () => {
     expect(config.prebuilt).toBe(true)
     expect(config.force).toBe(true)
     expect(config.autoAssignCustomDomains).toBe(false)
+    expect(config.sourceFilesOutsideRootDirectory).toBe(true)
     expect(config.isPublic).toBe(true)
     expect(config.withCache).toBe(true)
   })

@@ -111,7 +111,18 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
     projectSettings.sourceFilesOutsideRootDirectory = true
   }
 
-  if (nodeVersion) {
+  // Always apply action inputs — these must work regardless of vercel.json.
+  if (config.rootDirectory) {
+    projectSettings.rootDirectory = config.rootDirectory
+  }
+  if (config.sourceFilesOutsideRootDirectory) {
+    projectSettings.sourceFilesOutsideRootDirectory = true
+  }
+
+  if (config.nodeVersion) {
+    projectSettings.nodeVersion = config.nodeVersion
+  }
+  else if (nodeVersion) {
     projectSettings.nodeVersion = nodeVersion
   }
 
