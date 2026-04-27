@@ -110,6 +110,7 @@ export function getActionConfig(): ActionConfig {
     archive: parseArchive(core.getInput('archive')),
     rootDirectory: core.getInput('root-directory'),
     sourceFilesOutsideRootDirectory: core.getInput('source-files-outside-root-directory') === 'true',
+    nodeVersion: core.getInput('node-version'),
     autoAssignCustomDomains: core.getInput('auto-assign-custom-domains') !== 'false',
     customEnvironment: core.getInput('custom-environment'),
     isPublic: core.getInput('public') === 'true',

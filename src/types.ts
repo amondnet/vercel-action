@@ -77,6 +77,7 @@ export interface ActionConfig {
   archive: '' | 'tgz'
   rootDirectory: string
   sourceFilesOutsideRootDirectory: boolean
+  nodeVersion: string
   autoAssignCustomDomains: boolean
   customEnvironment: string
   isPublic: boolean

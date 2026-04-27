@@ -490,6 +490,7 @@ describe('api deployment inputs', () => {
     expect(config.archive).toBe('')
     expect(config.rootDirectory).toBe('')
     expect(config.sourceFilesOutsideRootDirectory).toBe(false)
+    expect(config.nodeVersion).toBe('')
     expect(config.autoAssignCustomDomains).toBe(true)
     expect(config.customEnvironment).toBe('')
     expect(config.isPublic).toBe(false)

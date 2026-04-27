@@ -119,7 +119,10 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
     projectSettings.sourceFilesOutsideRootDirectory = true
   }
 
-  if (nodeVersion) {
+  if (config.nodeVersion) {
+    projectSettings.nodeVersion = config.nodeVersion
+  }
+  else if (nodeVersion) {
     projectSettings.nodeVersion = nodeVersion
   }
 

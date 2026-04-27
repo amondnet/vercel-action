@@ -25,6 +25,7 @@ export function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfi
     archive: '',
     rootDirectory: '',
     sourceFilesOutsideRootDirectory: false,
+    nodeVersion: '',
     autoAssignCustomDomains: true,
     customEnvironment: '',
     isPublic: false,

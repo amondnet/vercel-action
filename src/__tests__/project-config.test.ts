@@ -216,7 +216,7 @@ describe('buildProjectConfig', () => {
     expect(result).toEqual({})
   })
 
-  it('populates projectSettings.nodeVersion from package.json engines.node', () => {
+  it('falls back to package.json engines.node when nodeVersion input is unset', () => {
     writeFileSync(
       path.join(tmpDir, 'package.json'),
       JSON.stringify({ engines: { node: '20.x' } }),
@@ -225,6 +225,17 @@ describe('buildProjectConfig', () => {
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
     expect(result.projectSettings?.nodeVersion).toBe('20.x')
+  })
+
+  it('action input nodeVersion takes precedence over package.json engines.node', () => {
+    writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ engines: { node: '20.x' } }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir, nodeVersion: '22.x' }))
+
+    expect(result.projectSettings?.nodeVersion).toBe('22.x')
   })
 
   it('sets projectSettings.rootDirectory to config.rootDirectory when provided and zero-config', () => {

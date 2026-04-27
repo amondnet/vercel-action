@@ -119,6 +119,10 @@ inputs:
     required: false
     description: 'Indicates if there are source files outside of the root directory, typically used for monorepos (default: false).'
     default: 'false'
+  node-version:
+    required: false
+    description: 'Node.js version for the deployment. Must be one of "24.x", "22.x", "20.x". When unset, falls back to package.json engines.node.'
+    default: ''
 
 outputs:
   preview-url:
