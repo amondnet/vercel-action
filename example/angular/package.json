@@ -12,7 +12,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~8.0.1",
-    "@angular/common": "~8.0.1",
+    "@angular/common": "~21.2.10",
     "@angular/compiler": "~8.0.1",
     "@angular/core": "~8.0.1",
     "@angular/forms": "~8.0.1",
