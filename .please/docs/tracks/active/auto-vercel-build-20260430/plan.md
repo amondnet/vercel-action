@@ -74,9 +74,9 @@ run() in src/index.ts
 - [x] T011 Add `createBuildFailureCommentOnPullRequest()` and `createBuildFailureCommentOnCommit()` helpers (file: src/github-comments.ts) (depends on T010)
 - [x] T012 [P] Add tests for `run()` integration — `vercel-build: true` invokes build runner before deploy and routes through prebuilt path; build failure posts comment and exits non-zero (file: src/__tests__/index.test.ts or new src/__tests__/run-build.test.ts) (depends on T011)
 - [x] T013 Wire `runBuildStep()` into `run()` in src/index.ts: call before `createVercelClient`, mutate config to `prebuilt = true`, catch `BuildFailedError` to post comment then rethrow (file: src/index.ts) (depends on T012)
-- [ ] T014 [P] Add integration test using emulate.dev that verifies `vercel-build: true` flow end-to-end against a fixture project with `.vercel/output` (file: src/__integration__/vercel-build.test.ts) (depends on T013)
-- [ ] T015 Update README.md with `vercel-build` input documentation, usage example, and the official Vercel KB workflow reference (file: README.md) (depends on T013)
-- [ ] T016 Rebuild dist/ via `pnpm build` and commit the bundled output (file: dist/index.js) (depends on T015)
+- [x] T014 [P] Add integration test using emulate.dev that verifies `vercel-build: true` flow end-to-end against a fixture project with `.vercel/output` (file: src/__integration__/vercel-build.test.ts) (depends on T013)
+- [x] T015 Update README.md with `vercel-build` input documentation, usage example, and the official Vercel KB workflow reference (file: README.md) (depends on T013)
+- [x] T016 Rebuild dist/ via `pnpm build` and commit the bundled output (file: dist/index.js) (depends on T015)
 
 ## Dependencies
 
@@ -135,6 +135,9 @@ Automated:
 - 2026-04-30 — T008+T009 completed: `runBuildStep(config)` orchestrator runs pull → build sequentially, returns `{ prebuilt: true, vercelOutputDir }`. 4 new tests (21 total).
 - 2026-04-30 — T010+T011 completed: `createBuildFailureCommentOnPullRequest()` and `createBuildFailureCommentOnCommit()` helpers in github-comments.ts. Wraps stderr tail in fenced code block, warns (does not throw) on API failure. 5 new tests (16 total in github-comments.test.ts).
 - 2026-04-30 — T012+T013 completed: `run()` exported and wired with `maybeRunVercelBuild()` (no-op when vercelBuild=false; otherwise runs build then mutates config to prebuilt). BuildFailedError caught to post failure comment before rethrow. Top-level `run()` invocation guarded by `process.env.VITEST` check to prevent double-execution under tests. 3 new integration tests in run-build.test.ts. Full suite: 252 tests passing.
+- 2026-04-30 — T014 completed: emulate.dev integration test (3 tests) verifying runBuildStep produces correct vercelOutputDir, end-to-end deploy through real emulator using prebuilt output, and fail-fast on pull error. Full suite: 272 tests passing.
+- 2026-04-30 — T015 completed: README updated with `vercel-build` input row, "Method 4 - Build inside the action" usage example, KB workflow reference, and notes on mutual exclusivity, build-env, target=production, and failure comments.
+- 2026-04-30 — T016 completed: dist/ rebuilt via `pnpm build` (4336 kB bundle). Coverage: vercel-build.ts 94.39% (> 80% NFR-4 target), overall lines 87.42%.
 
 ## Decision Log
 
