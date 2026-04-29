@@ -11,30 +11,30 @@ export interface ProjectSettings {
   rootDirectory?: string | null
   sourceFilesOutsideRootDirectory?: boolean
   nodeVersion?: string
+  buildCommand?: string | null
+  installCommand?: string | null
+  outputDirectory?: string | null
+  framework?: string | null
+  devCommand?: string | null
 }
 
 export interface ProjectConfig {
-  nowConfig?: Record<string, unknown>
   projectSettings?: ProjectSettings
 }
 
+// Vercel CLI parity: keys from vercel.json that map directly into
+// projectSettings on the deployment payload. The Vercel REST API rejects
+// nowConfig as an additional property, so we never forward it. See #359.
+const PROJECT_SETTINGS_KEYS = [
+  'buildCommand',
+  'installCommand',
+  'outputDirectory',
+  'framework',
+  'devCommand',
+] as const
+
 function resolveWorkingDir(workingDirectory: string): string {
   return workingDirectory || process.cwd()
-}
-
-// Keys that must not pass through to `nowConfig`.
-//   - `images`: the Vercel API rejects it; it is consumed locally by `vc build`.
-//     Mirrors vercel@50.0.0 CLI at packages/cli/src/commands/deploy/index.ts:512-517.
-//   - prototype-pollution gadgets: a crafted vercel.json could otherwise smuggle
-//     them into downstream merge paths in @vercel/client. The rest spread we
-//     previously used is CreateDataProperty-safe, but code we do not control
-//     (e.g. request serializers) may forward the object via [[Set]].
-const STRIPPED_NOW_CONFIG_KEYS = new Set(['images', '__proto__', 'constructor', 'prototype'])
-
-function sanitizeNowConfig(vercelJson: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(vercelJson).filter(([key]) => !STRIPPED_NOW_CONFIG_KEYS.has(key)),
-  )
 }
 
 // Vercel REST API enum for projectSettings.nodeVersion. Forwarding any other
@@ -111,7 +111,7 @@ export function readVercelJson(workingDirectory: string): Record<string, unknown
 
   // Guard against non-object JSON (arrays, strings, numbers, null, booleans).
   // Vercel expects an object at the top level; anything else would silently
-  // produce an invalid nowConfig (e.g. `Object.entries([])` yields index keys).
+  // produce malformed projectSettings (e.g. `Object.entries([])` yields index keys).
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error(`Invalid ${filePath}: expected a JSON object at the top level`)
   }
@@ -124,12 +124,19 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
   const nodeVersion = readNodeVersion(config.workingDirectory)
 
   const result: ProjectConfig = {}
+  const projectSettings: ProjectSettings = {}
 
   if (vercelJson) {
-    result.nowConfig = sanitizeNowConfig(vercelJson)
+    for (const key of PROJECT_SETTINGS_KEYS) {
+      if (key in vercelJson) {
+        // The Vercel REST API validates each value type itself. We only
+        // copy whitelisted keys, so prototype-pollution gadgets in
+        // vercel.json (`__proto__`, `constructor`, ...) cannot reach
+        // projectSettings.
+        projectSettings[key] = vercelJson[key] as string | null
+      }
+    }
   }
-
-  const projectSettings: ProjectSettings = {}
 
   // Zero-config: only fill rootDirectory fields when vercel.json exists and
   // does not declare `builds`. Matches the CLI's `if (!localConfig.builds ||

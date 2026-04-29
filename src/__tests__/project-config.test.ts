@@ -203,7 +203,10 @@ describe('buildProjectConfig', () => {
     rmSync(tmpDir, { recursive: true, force: true })
   })
 
-  it('returns nowConfig from vercel.json with buildCommand and zero-config projectSettings', () => {
+  it('copies vercel.json buildCommand and installCommand into projectSettings', () => {
+    // The Vercel REST API rejects `nowConfig` as an undeclared additional
+    // property; we mirror the CLI's parity behavior of copying select
+    // vercel.json keys into projectSettings. See #359.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
       JSON.stringify({ buildCommand: './build.sh', installCommand: 'pnpm i' }),
@@ -211,11 +214,33 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: './build.sh', installCommand: 'pnpm i' })
+    expect(result).not.toHaveProperty('nowConfig')
+    expect(result.projectSettings?.buildCommand).toBe('./build.sh')
+    expect(result.projectSettings?.installCommand).toBe('pnpm i')
     // zero-config: builds absent → projectSettings gets rootDirectory + sourceFilesOutsideRootDirectory
-    expect(result.projectSettings).toBeDefined()
     expect(result.projectSettings?.rootDirectory).toBeNull()
     expect(result.projectSettings?.sourceFilesOutsideRootDirectory).toBe(true)
+  })
+
+  it('copies all whitelisted vercel.json keys: buildCommand, installCommand, outputDirectory, framework, devCommand', () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({
+        buildCommand: 'build',
+        installCommand: 'install',
+        outputDirectory: 'dist',
+        framework: 'nextjs',
+        devCommand: 'dev',
+      }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(result.projectSettings?.installCommand).toBe('install')
+    expect(result.projectSettings?.outputDirectory).toBe('dist')
+    expect(result.projectSettings?.framework).toBe('nextjs')
+    expect(result.projectSettings?.devCommand).toBe('dev')
   })
 
   it('omits projectSettings.rootDirectory when vercel.json defines builds', () => {
@@ -228,22 +253,31 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ builds: [{ src: 'api/*.ts', use: '@vercel/node' }] })
-    // builds present → skip rootDirectory/sourceFilesOutsideRootDirectory
+    // `builds` is not in the projectSettings whitelist; presence of vercel.json
+    // is enough to skip the zero-config branch.
     expect(result.projectSettings?.rootDirectory).toBeUndefined()
     expect(result.projectSettings?.sourceFilesOutsideRootDirectory).toBeUndefined()
   })
 
-  it('strips images from nowConfig', () => {
+  it('does not copy images, redirects, or other non-whitelisted vercel.json keys into projectSettings', () => {
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
-      JSON.stringify({ buildCommand: 'build', images: { sizes: [640, 1080] } }),
+      JSON.stringify({
+        buildCommand: 'build',
+        images: { sizes: [640, 1080] },
+        redirects: [{ source: '/a', destination: '/b' }],
+        rewrites: [{ source: '/c', destination: '/d' }],
+        headers: [{ source: '/e', headers: [] }],
+      }),
     )
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: 'build' })
-    expect(result.nowConfig).not.toHaveProperty('images')
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(result.projectSettings).not.toHaveProperty('images')
+    expect(result.projectSettings).not.toHaveProperty('redirects')
+    expect(result.projectSettings).not.toHaveProperty('rewrites')
+    expect(result.projectSettings).not.toHaveProperty('headers')
   })
 
   it('returns empty object when vercel.json and package.json are both absent', () => {
@@ -284,9 +318,10 @@ describe('buildProjectConfig', () => {
     expect(() => buildProjectConfig(createConfig({ workingDirectory: tmpDir }))).toThrow()
   })
 
-  it('strips __proto__ and constructor keys from nowConfig', () => {
-    // Crafted vercel.json with prototype-pollution gadgets. Must not reach
-    // downstream consumers that might forward the object via [[Set]].
+  it('does not let prototype-pollution gadgets reach projectSettings', () => {
+    // The static whitelist (buildCommand, installCommand, outputDirectory,
+    // framework, devCommand) excludes __proto__/constructor/prototype by
+    // construction. Locking the contract.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
       '{"buildCommand":"build","__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}',
@@ -294,12 +329,9 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: 'build' })
-    // Use Object.getOwnPropertyNames so we only inspect own keys — `toHaveProperty`
-    // walks the prototype chain and would match `__proto__` on any normal object.
-    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('__proto__')
-    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('constructor')
-    // sanity: Object.prototype was not mutated in the process
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(Object.getOwnPropertyNames(result.projectSettings ?? {})).not.toContain('__proto__')
+    expect(Object.getOwnPropertyNames(result.projectSettings ?? {})).not.toContain('constructor')
     expect(({} as Record<string, unknown>).polluted).toBeUndefined()
   })
 })
