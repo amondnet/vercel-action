@@ -50,6 +50,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     customEnvironment: '',
     isPublic: false,
     withCache: false,
+    experimentalApi: false,
     ...overrides,
   }
 }
@@ -497,19 +498,42 @@ describe('createVercelClient', () => {
     vi.clearAllMocks()
   })
 
-  it('returns VercelCliClient when vercelArgs is non-empty', () => {
-    const config = createConfig({ vercelArgs: '--prod' })
+  // Routing matrix (spec AC-1):
+  // experimentalApi=false, vercelArgs=""    → VercelCliClient
+  // experimentalApi=false, vercelArgs="..." → VercelCliClient
+  // experimentalApi=true,  vercelArgs=""    → VercelApiClient (with warning)
+  // experimentalApi=true,  vercelArgs="..." → mutual-exclusion error
+  //   (enforced upstream in getActionConfig; not exercised here)
+
+  it('returns VercelCliClient by default (experimentalApi=false, vercelArgs="")', () => {
+    const config = createConfig({ experimentalApi: false, vercelArgs: '' })
     const client = createVercelClient(config)
 
     expect(client).toBeInstanceOf(VercelCliClient)
-    expect(core.info).toHaveBeenCalledWith('Using CLI-based deployment (vercel-args provided)')
+    expect(core.info).toHaveBeenCalledWith('Using CLI-based deployment')
+    expect(core.warning).not.toHaveBeenCalled()
   })
 
-  it('returns VercelApiClient when vercelArgs is empty', () => {
-    const config = createConfig({ vercelArgs: '' })
+  it('returns VercelCliClient when vercelArgs is provided (experimentalApi=false)', () => {
+    const config = createConfig({ experimentalApi: false, vercelArgs: '--prod' })
+    const client = createVercelClient(config)
+
+    expect(client).toBeInstanceOf(VercelCliClient)
+    expect(core.info).toHaveBeenCalledWith('Using CLI-based deployment')
+    expect(core.warning).not.toHaveBeenCalled()
+  })
+
+  it('returns VercelApiClient when experimentalApi=true and emits an experimental warning', () => {
+    const config = createConfig({ experimentalApi: true, vercelArgs: '' })
     const client = createVercelClient(config)
 
     expect(client).toBeInstanceOf(VercelApiClient)
-    expect(core.info).toHaveBeenCalledWith('Using API-based deployment')
+    expect(core.warning).toHaveBeenCalledTimes(1)
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('experimental'),
+    )
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('@vercel/client'),
+    )
   })
 })

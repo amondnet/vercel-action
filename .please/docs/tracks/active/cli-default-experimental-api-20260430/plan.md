@@ -44,9 +44,9 @@ The experimental warning is emitted in the factory (not the constructor) because
 
 ### Phase 2 — Routing change
 
-- [ ] T005 Update `createVercelClient()` in `src/vercel.ts`: route to `VercelCliClient` by default; route to `VercelApiClient` only when `config.experimentalApi === true`; emit `core.warning` describing the experimental nature and how to opt out when API path is taken (file: src/vercel.ts) (depends on T003)
-- [ ] T006 Update existing routing tests in `src/__tests__/vercel.test.ts` (the `describe('createVercelClient', ...)` block): replace the two existing cases with the new four-case matrix from spec AC-1 — verify warning text in the API case, verify `core.info` text in the CLI case, verify both `vercelArgs=""` and `vercelArgs="--prod"` route to `VercelCliClient` when `experimentalApi=false` (file: src/__tests__/vercel.test.ts) (depends on T005)
-- [ ] T007 [P] Update `createConfig` test helper in `src/__tests__/vercel.test.ts` to include `experimentalApi: false` so the helper produces a valid `ActionConfig` after T002 (file: src/__tests__/vercel.test.ts) (depends on T002)
+- [x] T005 Update `createVercelClient()` in `src/vercel.ts`: route to `VercelCliClient` by default; route to `VercelApiClient` only when `config.experimentalApi === true`; emit `core.warning` describing the experimental nature and how to opt out when API path is taken (file: src/vercel.ts) (depends on T003)
+- [x] T006 Update existing routing tests in `src/__tests__/vercel.test.ts` (the `describe('createVercelClient', ...)` block): replace the two existing cases with the new four-case matrix from spec AC-1 — verify warning text in the API case, verify `core.info` text in the CLI case, verify both `vercelArgs=""` and `vercelArgs="--prod"` route to `VercelCliClient` when `experimentalApi=false` (file: src/__tests__/vercel.test.ts) (depends on T005)
+- [x] T007 [P] Update `createConfig` test helper in `src/__tests__/vercel.test.ts` to include `experimentalApi: false` so the helper produces a valid `ActionConfig` after T002 (file: src/__tests__/vercel.test.ts) (depends on T002)
 
 ### Phase 3 — action.yml cleanup
 
