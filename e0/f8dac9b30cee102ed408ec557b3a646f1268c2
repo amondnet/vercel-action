@@ -1,0 +1,28 @@
+src/__tests__/vercel.test.ts
+  e13f64cc5963a2de 53,501-518,522-523,526-527,531-537
+.please/docs/tracks/active/cli-default-experimental-api-20260430/plan.md
+  e13f64cc5963a2de 47-49
+src/vercel.ts
+  e13f64cc5963a2de 10-16,18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "e0f8dac9b30cee102ed408ec557b3a646f1268c2",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 42,
+      "total_deletions": 14,
+      "accepted_lines": 44,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/82395e74eacd9ccc33ce7d6a273073e25b035c6cc0dde3c4dd5f913678053572"
+    }
+  }
+}
