@@ -1,0 +1,30 @@
+.please/docs/tracks.jsonl
+  e13f64cc5963a2de 4
+.please/docs/tracks/active/cli-default-experimental-api-20260430/spec.md
+  e13f64cc5963a2de 1-61
+.please/docs/tracks/active/cli-default-experimental-api-20260430/metadata.json
+  e13f64cc5963a2de 1-11
+.please/docs/tracks/active/cli-default-experimental-api-20260430/plan.md
+  e13f64cc5963a2de 1-122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "89bd24b593d8e024440317a46e398f0033937cc8",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 199,
+      "total_deletions": 4,
+      "accepted_lines": 195,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/960e80dbb64ab8ce6461c3dcf00ac5a459d6af99cf96ecb7df7cf55d329bd9fe"
+    }
+  }
+}
