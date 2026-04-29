@@ -37,10 +37,10 @@ The experimental warning is emitted in the factory (not the constructor) because
 
 ### Phase 1 — Config foundation
 
-- [ ] T001 Add `experimental-api` boolean input to `action.yml` with default `'false'` and a description explaining it gates opt-in API mode and is mutually exclusive with `vercel-args` (file: action.yml)
-- [ ] T002 Add `experimentalApi: boolean` field to `ActionConfig` interface (file: src/types.ts) (depends on T001)
-- [ ] T003 Parse the new input in `getActionConfig()` and add the mutual-exclusion error: throw a clear `Error` when both `experimental-api === 'true'` and `vercel-args` is non-empty (file: src/config.ts) (depends on T002)
-- [ ] T004 Add unit tests in `src/__tests__/config.test.ts` for: (a) `experimentalApi=false` default, (b) `experimentalApi=true` parses correctly, (c) mutual-exclusion error message and stack when both are set (file: src/__tests__/config.test.ts) (depends on T003)
+- [x] T001 Add `experimental-api` boolean input to `action.yml` with default `'false'` and a description explaining it gates opt-in API mode and is mutually exclusive with `vercel-args` (file: action.yml)
+- [x] T002 Add `experimentalApi: boolean` field to `ActionConfig` interface (file: src/types.ts) (depends on T001)
+- [x] T003 Parse the new input in `getActionConfig()` and add the mutual-exclusion error: throw a clear `Error` when both `experimental-api === 'true'` and `vercel-args` is non-empty (file: src/config.ts) (depends on T002)
+- [x] T004 Add unit tests in `src/__tests__/config.test.ts` for: (a) `experimentalApi=false` default, (b) `experimentalApi=true` parses correctly, (c) mutual-exclusion error message and stack when both are set (file: src/__tests__/config.test.ts) (depends on T003)
 
 ### Phase 2 — Routing change
 

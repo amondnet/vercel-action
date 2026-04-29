@@ -83,6 +83,15 @@ export function getActionConfig(): ActionConfig {
   core.setSecret(vercelToken)
 
   const vercelArgs = core.getInput('vercel-args')
+  const experimentalApi = core.getInput('experimental-api') === 'true'
+  if (experimentalApi && vercelArgs) {
+    throw new Error(
+      'The "experimental-api" and "vercel-args" inputs are mutually exclusive. '
+      + 'Either remove "vercel-args" to use the experimental API mode, '
+      + 'or set "experimental-api: false" (or remove it) to use CLI mode with vercel-args.',
+    )
+  }
+
   const githubDeploymentEnvInput = core.getInput('github-deployment-environment')
 
   return {
@@ -113,6 +122,7 @@ export function getActionConfig(): ActionConfig {
     customEnvironment: core.getInput('custom-environment'),
     isPublic: core.getInput('public') === 'true',
     withCache: core.getInput('with-cache') === 'true',
+    experimentalApi,
   }
 }
 

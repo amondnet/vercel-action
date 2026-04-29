@@ -80,6 +80,7 @@ export interface ActionConfig {
   customEnvironment: string
   isPublic: boolean
   withCache: boolean
+  experimentalApi: boolean
 }
 
 export interface GitHubDeploymentResult {

@@ -655,3 +655,114 @@ describe('setVercelEnv', () => {
     expect(core.exportVariable).toHaveBeenCalledWith('VERCEL_TELEMETRY_DISABLED', '1')
   })
 })
+
+describe('getActionConfig - experimentalApi', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  it('defaults experimentalApi to false when input is empty', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': '',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.experimentalApi).toBe(false)
+  })
+
+  it('defaults experimentalApi to false when input is "false"', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'false',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.experimentalApi).toBe(false)
+  })
+
+  it('parses experimentalApi as true when input is "true"', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.experimentalApi).toBe(true)
+  })
+
+  it('throws when experimental-api=true and vercel-args is non-empty', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'true',
+        'vercel-args': '--prod',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+
+    expect(() => getActionConfig()).toThrow(/mutually exclusive/i)
+  })
+
+  it('mutual-exclusion error names both inputs in the message', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'true',
+        'vercel-args': '--force',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+
+    expect(() => getActionConfig()).toThrow(/experimental-api/)
+    expect(() => getActionConfig()).toThrow(/vercel-args/)
+  })
+
+  it('does not throw when only vercel-args is set (experimental-api unset)', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'vercel-args': '--prod',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+
+    expect(() => getActionConfig()).not.toThrow()
+  })
+
+  it('does not throw when only experimental-api=true is set (vercel-args empty)', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+
+    expect(() => getActionConfig()).not.toThrow()
+  })
+})

@@ -115,6 +115,10 @@ inputs:
     required: false
     description: 'Retain build cache from previous deployments (default: false).'
     default: 'false'
+  experimental-api:
+    required: false
+    description: 'Opt in to the experimental API-based deployment via @vercel/client. The CLI is the default and recommended path. The API client relies on an internal Vercel package without semver guarantees and may break across updates. Mutually exclusive with vercel-args (default: false).'
+    default: 'false'
 
 outputs:
   preview-url:
