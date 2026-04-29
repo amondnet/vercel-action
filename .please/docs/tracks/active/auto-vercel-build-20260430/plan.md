@@ -64,12 +64,12 @@ run() in src/index.ts
 - [x] T001 Add `vercel-build` input to action.yml and `vercelBuild` field to `ActionConfig` type (file: action.yml, src/types.ts)
 - [x] T002 [P] Add unit tests for `vercel-build` input parsing in `getActionConfig()` (file: src/__tests__/config.test.ts) (depends on T001)
 - [x] T003 Parse `vercel-build` input in `getActionConfig()` and enforce mutual exclusivity with `prebuilt` (file: src/config.ts) (depends on T002)
-- [ ] T004 [P] Add unit tests for `BuildFailedError` class (file: src/__tests__/vercel-build.test.ts)
-- [ ] T005 Implement `BuildFailedError` class with stderr tail capture (file: src/vercel-build.ts) (depends on T004)
-- [ ] T006 [P] Add unit tests for `runVercelPull()` and `runVercelBuild()` exec wrappers — covers happy path, scope propagation, build-env, target=production, exit-code failure (file: src/__tests__/vercel-build.test.ts) (depends on T005)
-- [ ] T007 Implement `runVercelPull()` and `runVercelBuild()` using `@actions/exec` with streamed stdout/stderr listeners (file: src/vercel-build.ts) (depends on T006)
-- [ ] T008 [P] Add unit tests for `runBuildStep()` orchestrator — verifies pull → build sequencing, returns `{ prebuilt, vercelOutputDir }`, propagates `BuildFailedError` (file: src/__tests__/vercel-build.test.ts) (depends on T007)
-- [ ] T009 Implement `runBuildStep(config)` orchestrator that calls pull + build and returns updated config fragment (file: src/vercel-build.ts) (depends on T008)
+- [x] T004 [P] Add unit tests for `BuildFailedError` class (file: src/__tests__/vercel-build.test.ts)
+- [x] T005 Implement `BuildFailedError` class with stderr tail capture (file: src/vercel-build.ts) (depends on T004)
+- [x] T006 [P] Add unit tests for `runVercelPull()` and `runVercelBuild()` exec wrappers — covers happy path, scope propagation, build-env, target=production, exit-code failure (file: src/__tests__/vercel-build.test.ts) (depends on T005)
+- [x] T007 Implement `runVercelPull()` and `runVercelBuild()` using `@actions/exec` with streamed stdout/stderr listeners (file: src/vercel-build.ts) (depends on T006)
+- [x] T008 [P] Add unit tests for `runBuildStep()` orchestrator — verifies pull → build sequencing, returns `{ prebuilt, vercelOutputDir }`, propagates `BuildFailedError` (file: src/__tests__/vercel-build.test.ts) (depends on T007)
+- [x] T009 Implement `runBuildStep(config)` orchestrator that calls pull + build and returns updated config fragment (file: src/vercel-build.ts) (depends on T008)
 - [ ] T010 [P] Add tests for build-failure comment helpers — verifies truncated tail formatting and PR/commit dispatch (file: src/__tests__/github-comments.test.ts) (depends on T009)
 - [ ] T011 Add `createBuildFailureCommentOnPullRequest()` and `createBuildFailureCommentOnCommit()` helpers (file: src/github-comments.ts) (depends on T010)
 - [ ] T012 [P] Add tests for `run()` integration — `vercel-build: true` invokes build runner before deploy and routes through prebuilt path; build failure posts comment and exits non-zero (file: src/__tests__/index.test.ts or new src/__tests__/run-build.test.ts) (depends on T011)
@@ -130,6 +130,9 @@ Automated:
 ## Progress
 
 - 2026-04-30 — T001+T002+T003 completed: `vercel-build` input added to action.yml, `vercelBuild` field added to ActionConfig, parser + mutual-exclusivity validation in getActionConfig(), 6 new tests (43 total config tests passing).
+- 2026-04-30 — T004+T005 completed: `BuildFailedError` class with `fromOutput()` factory and stderr-tail capture (last 20 lines, fallback to stdout when stderr empty). 7 tests passing.
+- 2026-04-30 — T006+T007 completed: `runVercelPull()` + `runVercelBuild()` via `@actions/exec`, with `--scope`, `-t <token>`, `--environment=<target>`, `--prod` (production only), `buildEnv` merged into exec env. 10 new tests (17 total in vercel-build.test.ts).
+- 2026-04-30 — T008+T009 completed: `runBuildStep(config)` orchestrator runs pull → build sequentially, returns `{ prebuilt: true, vercelOutputDir }`. 4 new tests (21 total).
 
 ## Decision Log
 
