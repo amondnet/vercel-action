@@ -1,6 +1,8 @@
 import type { ActionConfig } from './types'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import * as core from '@actions/core'
+import semver from 'semver'
 
 // Subset of @vercel/build-utils `ProjectSettings` covering the fields this
 // action populates. Kept local so we do not depend on @vercel/build-utils
@@ -33,6 +35,34 @@ function sanitizeNowConfig(vercelJson: Record<string, unknown>): Record<string, 
   return Object.fromEntries(
     Object.entries(vercelJson).filter(([key]) => !STRIPPED_NOW_CONFIG_KEYS.has(key)),
   )
+}
+
+// Vercel REST API enum for projectSettings.nodeVersion. Forwarding any other
+// value (e.g. raw `engines.node` like ">=24.0.0") fails with HTTP 400. Order
+// matters: lowest first so `semver.intersects` picks the most compatible match
+// for open-ended ranges like ">=18". See #359.
+const VERCEL_NODE_VERSIONS = ['20.x', '22.x', '24.x'] as const
+
+export function normalizeNodeVersion(input: string | undefined): string | undefined {
+  if (!input)
+    return undefined
+  if ((VERCEL_NODE_VERSIONS as readonly string[]).includes(input))
+    return input
+
+  const range = semver.validRange(input)
+  if (!range)
+    return undefined
+
+  for (const version of VERCEL_NODE_VERSIONS) {
+    try {
+      if (semver.intersects(range, version))
+        return version
+    }
+    catch {
+      // semver.intersects can throw on exotic inputs; treat as no match.
+    }
+  }
+  return undefined
 }
 
 export function readNodeVersion(workingDirectory: string): string | undefined {
@@ -112,7 +142,15 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
   }
 
   if (nodeVersion) {
-    projectSettings.nodeVersion = nodeVersion
+    const normalized = normalizeNodeVersion(nodeVersion)
+    if (normalized) {
+      projectSettings.nodeVersion = normalized
+    }
+    else {
+      core.warning(
+        `Ignoring engines.node="${nodeVersion}" — Vercel only accepts one of ${VERCEL_NODE_VERSIONS.join(', ')}. The deployment will use the project's default Node version.`,
+      )
+    }
   }
 
   if (Object.keys(projectSettings).length > 0) {

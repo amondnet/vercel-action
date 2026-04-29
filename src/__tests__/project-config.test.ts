@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { buildProjectConfig, readNodeVersion, readVercelJson } from '../project-config'
+import { buildProjectConfig, normalizeNodeVersion, readNodeVersion, readVercelJson } from '../project-config'
 
 function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   return {
@@ -153,6 +153,42 @@ describe('readNodeVersion', () => {
     // Unlike vercel.json, a malformed package.json should not fail the
     // deployment — it is only used for an optional nodeVersion hint.
     expect(readNodeVersion(tmpDir)).toBeUndefined()
+  })
+})
+
+describe('normalizeNodeVersion', () => {
+  // Vercel REST API only accepts the canonical "NN.x" enum for
+  // projectSettings.nodeVersion. Forwarding raw engines.node values like
+  // ">=24.0.0" or "24.0.0" causes 400 bad_request (issue #359).
+  it.each([
+    ['24.x', '24.x'],
+    ['22.x', '22.x'],
+    ['20.x', '20.x'],
+  ])('passes canonical %s through unchanged', (input, expected) => {
+    expect(normalizeNodeVersion(input)).toBe(expected)
+  })
+
+  it.each([
+    ['>=24.0.0', '24.x'],
+    ['^20.0.0', '20.x'],
+    ['24.0.0', '24.x'],
+    ['>=18', '20.x'], // lowest supported major matching the range
+    ['>=22.0.0', '22.x'],
+  ])('normalizes range %s to %s', (input, expected) => {
+    expect(normalizeNodeVersion(input)).toBe(expected)
+  })
+
+  it('returns undefined when the range matches no supported version', () => {
+    expect(normalizeNodeVersion('>=99.0.0')).toBeUndefined()
+  })
+
+  it('returns undefined for invalid semver input', () => {
+    expect(normalizeNodeVersion('not-a-version')).toBeUndefined()
+  })
+
+  it('returns undefined for empty input', () => {
+    expect(normalizeNodeVersion(undefined)).toBeUndefined()
+    expect(normalizeNodeVersion('')).toBeUndefined()
   })
 })
 
