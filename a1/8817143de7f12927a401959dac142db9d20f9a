@@ -1,0 +1,28 @@
+src/project-config.ts
+  ea035ee511107465 42-46,159-161,163
+dist/index.js
+  ea035ee511107465 102482-102486,102583-102586
+src/__tests__/project-config.test.ts
+  ea035ee511107465 175-179,184-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "a18817143de7f12927a401959dac142db9d20f9a",
+  "prompts": {
+    "ea035ee511107465": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0e070073-f41e-4a1a-96c7-0ae9e463b441",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 30,
+      "total_deletions": 10,
+      "accepted_lines": 30,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/ffa3cdc9abee0951b662a4bba86673b279a72fb392a126d1194dff83bd97564c"
+    }
+  }
+}
