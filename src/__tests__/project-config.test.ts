@@ -172,10 +172,20 @@ describe('normalizeNodeVersion', () => {
     ['>=24.0.0', '24.x'],
     ['^20.0.0', '20.x'],
     ['24.0.0', '24.x'],
-    ['>=18', '20.x'], // lowest supported major matching the range
-    ['>=22.0.0', '22.x'],
+    // Highest-first iteration matches Vercel CLI parity (@vercel/build-utils
+    // `getSupportedNodeVersion`) — open-ended ranges resolve to the newest
+    // supported major.
+    ['>=18', '24.x'],
+    ['>=22.0.0', '24.x'],
   ])('normalizes range %s to %s', (input, expected) => {
     expect(normalizeNodeVersion(input)).toBe(expected)
+  })
+
+  it('returns undefined for a discontinued-but-valid major (e.g. 18.x)', () => {
+    // 18.x parses cleanly as a range but does not intersect any currently
+    // supported Vercel major. The action falls back to the project default
+    // rather than sending an invalid value.
+    expect(normalizeNodeVersion('18.x')).toBeUndefined()
   })
 
   it('returns undefined when the range matches no supported version', () => {

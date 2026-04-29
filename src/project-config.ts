@@ -39,9 +39,11 @@ function resolveWorkingDir(workingDirectory: string): string {
 
 // Vercel REST API enum for projectSettings.nodeVersion. Forwarding any other
 // value (e.g. raw `engines.node` like ">=24.0.0") fails with HTTP 400. Order
-// matters: lowest first so `semver.intersects` picks the most compatible match
-// for open-ended ranges like ">=18". See #359.
-const VERCEL_NODE_VERSIONS = ['20.x', '22.x', '24.x'] as const
+// is highest-first to match Vercel CLI parity: `@vercel/build-utils`
+// `getSupportedNodeVersion` iterates the same list in descending order and
+// returns the first intersecting major. So `>=18` resolves to `24.x`, just as
+// `vc deploy` would. See #359.
+const VERCEL_NODE_VERSIONS = ['24.x', '22.x', '20.x'] as const
 
 export function normalizeNodeVersion(input: string | undefined): string | undefined {
   if (!input)
@@ -154,8 +156,11 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
       projectSettings.nodeVersion = normalized
     }
     else {
+      // Reached when `engines.node` is syntactically valid semver but does not
+      // intersect any currently-supported Vercel major (e.g. `18.x` after Node
+      // 18 is discontinued, or `>=99.0.0`), or when the value is not parseable.
       core.warning(
-        `Ignoring engines.node="${nodeVersion}" — Vercel only accepts one of ${VERCEL_NODE_VERSIONS.join(', ')}. The deployment will use the project's default Node version.`,
+        `Ignoring engines.node="${nodeVersion}" — Vercel only supports Node majors ${VERCEL_NODE_VERSIONS.join(', ')}. Falling back to the project's default Node version.`,
       )
     }
   }
