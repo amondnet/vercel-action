@@ -1,7 +1,12 @@
 import type { GitHubContext } from '../types'
 import * as core from '@actions/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createCommentOnCommit, createCommentOnPullRequest } from '../github-comments'
+import {
+  createBuildFailureCommentOnCommit,
+  createBuildFailureCommentOnPullRequest,
+  createCommentOnCommit,
+  createCommentOnPullRequest,
+} from '../github-comments'
 
 vi.mock('@actions/core', () => ({
   info: vi.fn(),
@@ -293,6 +298,111 @@ describe('createCommentOnPullRequest', () => {
 
     expect(core.warning).toHaveBeenCalledWith(
       expect.stringContaining('not supported'),
+    )
+  })
+})
+
+describe('createBuildFailureCommentOnPullRequest', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('posts a PR comment with the build failure details', async () => {
+    const ctx = createContext({ eventName: 'pull_request' })
+    mockCreateComment.mockResolvedValue({})
+
+    await createBuildFailureCommentOnPullRequest(
+      createMockOctokit(),
+      ctx,
+      'abc123',
+      137,
+      'fatal: cannot find module foo',
+    )
+
+    expect(mockCreateComment).toHaveBeenCalledOnce()
+    const body = mockCreateComment.mock.calls[0][0].body as string
+    expect(body).toContain('Vercel build failed')
+    expect(body).toContain('exit code 137')
+    expect(body).toContain('abc123')
+    expect(body).toContain('fatal: cannot find module foo')
+  })
+
+  it('wraps stderr tail in a fenced code block', async () => {
+    const ctx = createContext({ eventName: 'pull_request' })
+    mockCreateComment.mockResolvedValue({})
+
+    await createBuildFailureCommentOnPullRequest(
+      createMockOctokit(),
+      ctx,
+      'abc',
+      1,
+      'multi\nline\noutput',
+    )
+
+    const body = mockCreateComment.mock.calls[0][0].body as string
+    expect(body).toMatch(/```[\s\S]*multi\nline\noutput[\s\S]*```/)
+  })
+
+  it('warns and does not throw when the API call fails', async () => {
+    const ctx = createContext({ eventName: 'pull_request' })
+    mockCreateComment.mockRejectedValue(new Error('forbidden'))
+
+    await expect(
+      createBuildFailureCommentOnPullRequest(
+        createMockOctokit(),
+        ctx,
+        'abc',
+        1,
+        'tail',
+      ),
+    ).resolves.toBeUndefined()
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('build failure comment'),
+    )
+  })
+})
+
+describe('createBuildFailureCommentOnCommit', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('posts a commit comment with the build failure details', async () => {
+    const ctx = createContext({ eventName: 'push' })
+    mockCreateCommitComment.mockResolvedValue({})
+
+    await createBuildFailureCommentOnCommit(
+      createMockOctokit(),
+      ctx,
+      'abc123',
+      2,
+      'tail',
+    )
+
+    expect(mockCreateCommitComment).toHaveBeenCalledOnce()
+    const body = mockCreateCommitComment.mock.calls[0][0].body as string
+    expect(body).toContain('Vercel build failed')
+    expect(body).toContain('exit code 2')
+    expect(body).toContain('tail')
+  })
+
+  it('warns and does not throw when the API call fails', async () => {
+    const ctx = createContext({ eventName: 'push' })
+    mockCreateCommitComment.mockRejectedValue(new Error('forbidden'))
+
+    await expect(
+      createBuildFailureCommentOnCommit(
+        createMockOctokit(),
+        ctx,
+        'abc',
+        1,
+        'tail',
+      ),
+    ).resolves.toBeUndefined()
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('build failure comment'),
     )
   })
 })
