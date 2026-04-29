@@ -71,6 +71,10 @@ inputs:
     required: false
     description: 'Deploy prebuilt output (default: false). Replaces --prebuilt flag in vercel-args.'
     default: 'false'
+  vercel-build:
+    required: false
+    description: 'Run "vercel pull" + "vercel build" inside the action before deploying, then upload the resulting .vercel/output via the prebuilt deploy path. Mutually exclusive with prebuilt. Default: false.'
+    default: 'false'
   vercel-output-dir:
     required: false
     description: 'Path to the prebuilt output directory. Defaults to {working-directory}/.vercel/output when prebuilt is true.'

@@ -61,9 +61,9 @@ run() in src/index.ts
 
 ## Tasks
 
-- [ ] T001 Add `vercel-build` input to action.yml and `vercelBuild` field to `ActionConfig` type (file: action.yml, src/types.ts)
-- [ ] T002 [P] Add unit tests for `vercel-build` input parsing in `getActionConfig()` (file: src/__tests__/config.test.ts) (depends on T001)
-- [ ] T003 Parse `vercel-build` input in `getActionConfig()` and enforce mutual exclusivity with `prebuilt` (file: src/config.ts) (depends on T002)
+- [x] T001 Add `vercel-build` input to action.yml and `vercelBuild` field to `ActionConfig` type (file: action.yml, src/types.ts)
+- [x] T002 [P] Add unit tests for `vercel-build` input parsing in `getActionConfig()` (file: src/__tests__/config.test.ts) (depends on T001)
+- [x] T003 Parse `vercel-build` input in `getActionConfig()` and enforce mutual exclusivity with `prebuilt` (file: src/config.ts) (depends on T002)
 - [ ] T004 [P] Add unit tests for `BuildFailedError` class (file: src/__tests__/vercel-build.test.ts)
 - [ ] T005 Implement `BuildFailedError` class with stderr tail capture (file: src/vercel-build.ts) (depends on T004)
 - [ ] T006 [P] Add unit tests for `runVercelPull()` and `runVercelBuild()` exec wrappers — covers happy path, scope propagation, build-env, target=production, exit-code failure (file: src/__tests__/vercel-build.test.ts) (depends on T005)
@@ -129,7 +129,7 @@ Automated:
 
 ## Progress
 
-(populated by /please:implement during execution)
+- 2026-04-30 — T001+T002+T003 completed: `vercel-build` input added to action.yml, `vercelBuild` field added to ActionConfig, parser + mutual-exclusivity validation in getActionConfig(), 6 new tests (43 total config tests passing).
 
 ## Decision Log
 
