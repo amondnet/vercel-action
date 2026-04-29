@@ -107,3 +107,21 @@ Acceptance criteria mapping to spec:
 
 - The bundled `@vercel/client.postDeployment` (`dist/index.js:35101`) is a raw JSON.stringify spread — it does no field filtering. Anything we attach to `DeploymentOptions` ends up in the request body verbatim. Future contributors should add fields only after confirming they appear in the Vercel REST API schema (or use it via `Object.assign` only for fields that are accepted but absent from the SDK type, like `project`).
 - The existing test `src/__tests__/vercel-api.test.ts:379-398` asserts the broken behavior. This is a useful reminder that "all tests pass" does not imply "behavior is correct" — schema-level integration coverage was missing.
+- Initial implementation iterated `VERCEL_NODE_VERSIONS` lowest-first, which would have silently sent `>=18` users to Node 20 when Vercel CLI sends them to Node 24. Caught in code review against the actual `@vercel/build-utils` source. Reinforces the value of explicit CLI-parity verification rather than just "any matching major."
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+PR #364 — semver-based `engines.node` normalization plus removal of the `nowConfig` deployment payload field with whitelisted `vercel.json` → `projectSettings` mapping. Fully covered by 11 new normalization unit tests, an updated `vercel-api.test.ts` suite, and an emulator-based regression test for the combined scenario. `dist/` rebuilt.
+
+### What Went Well
+- The bug-spec → code-analyzer → spec → plan → TDD flow surfaced the root cause (false assumption in PR #350 about `nowConfig` API acceptance) before any code was written, so implementation was a straight line.
+- Inspecting `dist/index.js`'s bundled `@vercel/client.postDeployment` confirmed the SDK does not unwrap `nowConfig` — the architecture decision rested on observed behavior, not docs.
+- Code review caught the highest-vs-lowest precedence divergence from Vercel CLI parity. One small fix re-aligned the implementation with the spec and avoided silently shipping users to a different Node major than `vc deploy` would.
+
+### What Could Improve
+- The TR-1 test matrix did not initially codify the "highest-first" precedence requirement explicitly, so the implementation drifted to lowest-first without tripping a test. Adding a precedence-direction assertion (e.g., `>=18` must yield the highest, not lowest, supported major) up front would have caught it earlier.
+- No live integration test exercises against the real Vercel API — we depend on the emulator and unit-level payload assertions. A nightly canary smoke test would catch future schema drift faster than waiting for a user bug report.
+
+### Tech Debt Created
+- None added. The change is net-removal: `sanitizeNowConfig`, the `nowConfig` field on `ProjectConfig`, and the prior images/proto-pollution stripping were all retired in favor of a smaller, declarative whitelist.
