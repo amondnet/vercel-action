@@ -463,6 +463,36 @@ describe('vercelApiClient.deploy — projectSettings from vercel.json', () => {
     expect(deployOpts.projectSettings?.nodeVersion).toBe('20.x')
   })
 
+  it('regression #359: semver-range engines.node + vercel.json produces an API-acceptable payload', async () => {
+    // Both bugs from issue #359 in one scenario: a semver-range engines.node
+    // value plus a vercel.json with buildCommand. The resulting deployment
+    // payload must (1) normalize nodeVersion to "24.x", (2) carry buildCommand
+    // via projectSettings, and (3) NOT contain a top-level nowConfig field.
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: './build.sh', framework: 'hugo' }),
+    )
+    writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ engines: { node: '>=24.0.0' } }),
+    )
+
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.nowConfig).toBeUndefined()
+    expect(deployOpts.projectSettings?.nodeVersion).toBe('24.x')
+    expect(deployOpts.projectSettings?.buildCommand).toBe('./build.sh')
+    expect(deployOpts.projectSettings?.framework).toBe('hugo')
+  })
+
   it('fails fast when vercel.json is malformed', async () => {
     writeFileSync(path.join(tmpDir, 'vercel.json'), '{invalid')
 

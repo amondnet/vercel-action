@@ -187,6 +187,68 @@ describe('vercelApiClient (integration)', () => {
       })
     })
 
+    describe('with semver-range engines.node + vercel.json (regression #359)', () => {
+      let projectDir: string
+
+      beforeEach(() => {
+        projectDir = mkdtempSync(path.join(tmpdir(), 'vercel-action-int-'))
+        writeFileSync(
+          path.join(projectDir, 'vercel.json'),
+          JSON.stringify({ buildCommand: './build.sh', framework: 'hugo' }),
+        )
+        writeFileSync(
+          path.join(projectDir, 'package.json'),
+          JSON.stringify({ engines: { node: '>=24.0.0' } }),
+        )
+        const buildScript = path.join(projectDir, 'build.sh')
+        writeFileSync(buildScript, '#!/bin/sh\necho "building"\n')
+        chmodSync(buildScript, 0o755)
+        writeFileSync(path.join(projectDir, 'index.html'), '<h1>Hello</h1>')
+      })
+
+      afterEach(() => {
+        rmSync(projectDir, { recursive: true, force: true })
+      })
+
+      it('does not surface nodeVersion or nowConfig validation errors', async () => {
+        // Pre-fix, the deployment would fail with one of:
+        //   - "projectSettings.nodeVersion should be equal to one of the allowed values"
+        //   - "should NOT have additional property `nowConfig`"
+        // Both must be absent from any error path; only emulator network
+        // errors are tolerated.
+        expect.hasAssertions()
+
+        const client = new VercelApiClient(
+          createTeamConfig({ workingDirectory: projectDir }),
+          process.env.EMULATE_VERCEL_URL,
+        )
+
+        try {
+          const url = await client.deploy(
+            createTeamConfig({ workingDirectory: projectDir }),
+            { ref: 'main', sha: 'abc', commit: 'test', commitOrg: 'org', commitRepo: 'repo' },
+          )
+          expect(url).toBeTruthy()
+        }
+        catch (error) {
+          const message = error instanceof Error ? error.message : String(error)
+          expect(message).not.toMatch(/projectSettings\.nodeVersion/)
+          expect(message).not.toMatch(/nowConfig/)
+          const emulatorErrors = [
+            'fetch',
+            'ECONNREFUSED',
+            'network',
+            'socket',
+            'ERR_INVALID_PROTOCOL',
+          ]
+          const isEmulatorError = emulatorErrors.some(e => message.includes(e))
+          if (!isEmulatorError) {
+            throw error
+          }
+        }
+      })
+    })
+
     describe('with malformed vercel.json', () => {
       let projectDir: string
 
