@@ -1,0 +1,24 @@
+README.md
+  622a2820c17b54ba 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "75bb8111a2633d69da44d529239693067ea97f89",
+  "prompts": {
+    "622a2820c17b54ba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d3b9c99c-c901-4969-ac95-bb4a06058f92",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/8e434ed6bcba5a803c2c4ed5ed2b0f2ec5b315fde9dfd53b6b3c151bb4c99a82"
+    }
+  }
+}
