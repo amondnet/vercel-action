@@ -1,0 +1,52 @@
+.please/docs/knowledge/tech-stack.md
+  d6759eea1de654f9 25
+src/vercel-api.ts
+  d6759eea1de654f9 127-130
+.please/docs/tracks/completed/fix-vercel-validation-20260430/spec.md
+  d6759eea1de654f9 1-94
+src/__integration__/vercel-api.test.ts
+  d6759eea1de654f9 190-251
+.please/docs/tracks.jsonl
+  d6759eea1de654f9 4
+dist/index.js
+  d6759eea1de654f9 67937-70649,102518-102550,102555,102561-102572,102576-102600,102642,102652,102654-102669,102681-102690,103090-103093,111827
+package.json
+  d6759eea1de654f9 50,60
+dist/licenses.txt
+  d6759eea1de654f9 3122-3140
+.please/docs/tracks/completed/fix-vercel-validation-20260430/plan.md
+  d6759eea1de654f9 1-127
+src/__tests__/project-config.test.ts
+  d6759eea1de654f9 6,159-204,216-219,227-229,235-255,266-267,272-310,313-319,324-328,369-372,380-382
+src/project-config.ts
+  d6759eea1de654f9 4-5,14-18,25-35,40-67,116,129,132-149,163-174
+.please/docs/tracks/completed/fix-vercel-validation-20260430/metadata.json
+  d6759eea1de654f9 1-11
+src/__tests__/vercel-api.test.ts
+  d6759eea1de654f9 367,379-382,398-400,403,417,420-424,437-440,466-493
+.please/docs/tracks/completed/fix-vercel-validation-20260430/investigation.md
+  d6759eea1de654f9 1-166
+dist/project-config.d.ts
+  d6759eea1de654f9 6-10,15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "64420fe1058efe7b4a5c34d653e4e37b6db36593",
+  "prompts": {
+    "d6759eea1de654f9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b21871a-0c2d-4a45-9d98-61f40adebe93",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 6422,
+      "total_deletions": 2926,
+      "accepted_lines": 25179,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/1b04d6a0a70610e41e3ac742f5c0e0b9ab106978e002269a46e6ad783aaaf7aa"
+    }
+  }
+}
