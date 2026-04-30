@@ -1,0 +1,50 @@
+src/config.ts
+  e13f64cc5963a2de 1,81,89-98,109
+src/vercel.ts
+  e13f64cc5963a2de 10-20
+src/__tests__/config.test.ts
+  e13f64cc5963a2de 61,659,665,677,680,692,695,707,710,720,722,725,737,740,745,752-753
+src/__integration__/github-pr-comments.test.ts
+  e13f64cc5963a2de 14
+src/__integration__/github-commit-comments.test.ts
+  e13f64cc5963a2de 14
+src/__tests__/github-comments.test.ts
+  e13f64cc5963a2de 52
+src/__tests__/vercel.test.ts
+  e13f64cc5963a2de 33,501-509,517-518,526-527
+src/__integration__/vercel-api.test.ts
+  e13f64cc5963a2de 20,241
+dist/index.js
+  e13f64cc5963a2de 99110,99116-99123,99132,100403-100404,100611-100620
+src/vercel-cli.ts
+  e13f64cc5963a2de 29-30
+src/types.ts
+  e13f64cc5963a2de 55-70,78-79
+dist/types.d.ts
+  e13f64cc5963a2de 51-68,76-77
+src/__tests__/vercel-api.test.ts
+  e13f64cc5963a2de 41
+src/__tests__/project-config.test.ts
+  e13f64cc5963a2de 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "a08587ebd1c3263cd3a4c4b54060bb97f6df584b",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 124,
+      "total_deletions": 91,
+      "accepted_lines": 1421,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/f021a25278bc395c65a5f896e6c5dfdaafc114db1178fd9284829d9aaf391ed5"
+    }
+  }
+}
