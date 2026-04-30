@@ -95,6 +95,20 @@ The name of deployment name.
 
 The GitHub Deployment ID. Only set when `github-deployment` is `true`. Can be used by downstream steps to reference the deployment.
 
+## Claude Code Skill
+
+This repository ships a [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) agent skill so AI assistants can wire `amondnet/vercel-action` into a workflow correctly — covering required tokens and IDs, CLI vs experimental API mode, prebuilt flows, alias domains, GitHub Deployments, and the action's outputs.
+
+### Install
+
+```bash
+npx skills add amondnet/vercel-action
+```
+
+Once installed, prompts like *"deploy to Vercel from GitHub Actions"*, *"post a Vercel preview URL on a PR"*, or *"set up prebuilt Vercel deployments"* surface the skill automatically.
+
+The skill source lives at [`skills/use-vercel-action/SKILL.md`](./skills/use-vercel-action/SKILL.md) — every input it documents is cross-checked against [`action.yml`](./action.yml).
+
 ## How To Use
 
 ### Disable Vercel for GitHub
