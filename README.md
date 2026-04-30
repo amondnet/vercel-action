@@ -139,40 +139,7 @@ export const config: VercelConfig = {
 
 Since we do the `build` in `github actions`, we don't need to build in `vercel`.
 
-#### Method 1 - via vercel interface
-
-- Specify "Other" as the framework preset, and
-- Enable the Override option for the Build Command, and
-- Leave the Build Command **empty**.
-- This will prevent the build from being attempted and serve your content as-is.
-
-See [docs](https://vercel.com/docs/concepts/deployments/build-step#build-command) for more details
-
-#### Method 2 - via project configuration
-
-You can override the build command in your project configuration to skip Vercel's build step.
-
-**`vercel.ts`** (recommended):
-
-```typescript
-import type { VercelConfig } from '@vercel/config/v1';
-
-export const config: VercelConfig = {
-  buildCommand: '',
-};
-```
-
-**`vercel.json`**:
-
-```json
-{
-  "buildCommand": ""
-}
-```
-
-See [Build Command docs](https://vercel.com/docs/deployments/configure-a-build#build-command) and [Programmatic Configuration](https://vercel.com/docs/project-configuration/vercel-ts) for more details.
-
-#### Method 3 - Prebuilt deployments (recommended)
+#### Method 1 - Prebuilt deployments (recommended)
 
 You can build your project locally (or in GitHub Actions) using `vercel build` and upload only the build artifacts to Vercel — without giving Vercel access to the source code. This uses the [Build Output API](https://vercel.com/docs/build-output-api/v3) specification.
 
@@ -207,9 +174,9 @@ jobs:
 
 See [Vercel's official GitHub Actions example](https://github.com/vercel/examples/tree/main/ci-cd/github-actions) for more details.
 
-#### Method 4 - Build inside the action (`vercel-build`)
+#### Method 2 - Build inside the action (`vercel-build`)
 
-If you want the same prebuilt-deploy benefits as Method 3 but prefer not to manage `vercel pull` / `vercel build` steps yourself, set `vercel-build: true`. The action will run `vercel pull` followed by `vercel build` inside the runner and then upload the resulting `.vercel/output` via the prebuilt path.
+If you want the same prebuilt-deploy benefits as Method 1 but prefer not to manage `vercel pull` / `vercel build` steps yourself, set `vercel-build: true`. The action will run `vercel pull` followed by `vercel build` inside the runner and then upload the resulting `.vercel/output` via the prebuilt path.
 
 This mirrors the [Vercel KB recommended GitHub Actions workflow](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel#configuring-github-actions-for-vercel) but consolidates pull + build + deploy into a single step.
 
@@ -232,7 +199,7 @@ jobs:
 
 Notes:
 
-- `vercel-build` and `prebuilt` are mutually exclusive. Use `prebuilt: true` if you've already produced `.vercel/output` in an earlier step (Method 3); use `vercel-build: true` to let the action run the build for you.
+- `vercel-build` and `prebuilt` are mutually exclusive. Use `prebuilt: true` if you've already produced `.vercel/output` in an earlier step (Method 1); use `vercel-build: true` to let the action run the build for you.
 - Build-time secrets (`build-env`) are forwarded to `vercel build`.
 - The Vercel token is supplied to the CLI via the `VERCEL_TOKEN` environment variable (the documented non-interactive auth path), never as a `--token` argument.
 - When `target: production` is set, the action passes `--environment=production` to `vercel pull` and `--prod` to `vercel build`.
