@@ -115,13 +115,22 @@ export interface BuildStepResult {
   vercelOutputDir: string
 }
 
+function resolveOutputDir(config: ActionConfig): string {
+  if (config.vercelOutputDir) {
+    return path.isAbsolute(config.vercelOutputDir)
+      ? config.vercelOutputDir
+      : path.resolve(config.workingDirectory || process.cwd(), config.vercelOutputDir)
+  }
+  const basePath = config.workingDirectory || process.cwd()
+  return path.join(basePath, '.vercel', 'output')
+}
+
 export async function runBuildStep(config: ActionConfig): Promise<BuildStepResult> {
   await runVercelPull(config)
   await runVercelBuild(config)
-  const basePath = config.workingDirectory || process.cwd()
   return {
     prebuilt: true,
-    vercelOutputDir: path.join(basePath, '.vercel', 'output'),
+    vercelOutputDir: resolveOutputDir(config),
   }
 }
 
@@ -132,6 +141,13 @@ export async function runVercelBuild(config: ActionConfig): Promise<void> {
     args.push('--prod')
   }
   appendScope(args, config)
+  // When the user supplies a custom vercel-output-dir, tell `vercel build`
+  // to write the artifact there so the subsequent prebuilt deploy reads
+  // from the same directory. Without this, build defaults to .vercel/output
+  // while deploy looks at config.vercelOutputDir — silently mismatched.
+  if (config.vercelOutputDir) {
+    args.push('--output', resolveOutputDir(config))
+  }
 
   core.info(`Running vercel build (target=${config.target})`)
   const env = { ...tokenEnv(config), ...config.buildEnv }

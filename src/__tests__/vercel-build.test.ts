@@ -261,6 +261,33 @@ describe('runVercelBuild', () => {
     const opts = vi.mocked(exec.exec).mock.calls[0][2]
     expect(opts?.cwd).toBeUndefined()
   })
+
+  it('omits --output when vercelOutputDir is empty', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    await runVercelBuild(makeConfig({ vercelOutputDir: '' }))
+    const args = vi.mocked(exec.exec).mock.calls[0][1] ?? []
+    expect(args).not.toContain('--output')
+  })
+
+  it('passes --output <absolute> when vercelOutputDir is an absolute path', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    await runVercelBuild(makeConfig({ vercelOutputDir: '/abs/out' }))
+    const args = vi.mocked(exec.exec).mock.calls[0][1] ?? []
+    const idx = args.indexOf('--output')
+    expect(idx).toBeGreaterThan(-1)
+    expect(args[idx + 1]).toBe('/abs/out')
+  })
+
+  it('resolves relative vercelOutputDir against workingDirectory for --output', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    await runVercelBuild(makeConfig({
+      workingDirectory: '/work',
+      vercelOutputDir: 'custom/out',
+    }))
+    const args = vi.mocked(exec.exec).mock.calls[0][1] ?? []
+    const idx = args.indexOf('--output')
+    expect(args[idx + 1]).toBe('/work/custom/out')
+  })
 })
 
 describe('runBuildStep', () => {
@@ -289,6 +316,24 @@ describe('runBuildStep', () => {
 
     expect(result.prebuilt).toBe(true)
     expect(result.vercelOutputDir).toContain('.vercel/output')
+  })
+
+  it('returns user-supplied vercelOutputDir (absolute) instead of default', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    const config = makeConfig({ workingDirectory: '/proj', vercelOutputDir: '/custom/out' })
+
+    const result = await runBuildStep(config)
+
+    expect(result.vercelOutputDir).toBe('/custom/out')
+  })
+
+  it('resolves relative vercelOutputDir against workingDirectory in result', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    const config = makeConfig({ workingDirectory: '/proj', vercelOutputDir: 'custom/out' })
+
+    const result = await runBuildStep(config)
+
+    expect(result.vercelOutputDir).toBe('/proj/custom/out')
   })
 
   it('propagates BuildFailedError from pull (does not run build)', async () => {

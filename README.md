@@ -233,7 +233,9 @@ Notes:
 
 - `vercel-build` and `prebuilt` are mutually exclusive. Use `prebuilt: true` if you've already produced `.vercel/output` in an earlier step (Method 3); use `vercel-build: true` to let the action run the build for you.
 - Build-time secrets (`build-env`) are forwarded to `vercel build`.
+- The Vercel token is supplied to the CLI via the `VERCEL_TOKEN` environment variable (the documented non-interactive auth path), never as a `--token` argument.
 - When `target: production` is set, the action passes `--environment=production` to `vercel pull` and `--prod` to `vercel build`.
+- When `vercel-output-dir` is also provided, the action passes `--output <dir>` to `vercel build` so the artifact is written where the prebuilt deploy step reads from.
 - If `vercel build` fails, the action exits non-zero and (when `github-comment: true`) posts a comment on the PR/commit with the last 20 lines of build output.
 
 ### Project Linking

@@ -18,9 +18,10 @@ The current default behavior (uploading source via `@vercel/client` for remote b
 
 - [ ] FR-1: Add a new boolean action input `vercel-build` to `action.yml` (default: `false`).
 - [ ] FR-2: When `vercel-build: true` and `prebuilt: false`, the action MUST execute, in order, in the configured `working-directory`:
-  1. `vercel pull --yes --environment=<target> --token=<vercel-token>` (where `<target>` is `production` or `preview` based on the existing `production`/`target` inputs)
-  2. `vercel build [--prod] --token=<vercel-token>` (the `--prod` flag is included only when targeting production)
-  3. Treat the resulting `.vercel/output` directory as the deploy artifact, using the existing prebuilt deploy code path (`config.prebuilt = true`, `vercelOutputDir` defaulted to `<working-directory>/.vercel/output`).
+  1. `vercel pull --yes --environment=<target> [--scope <scope>]` (where `<target>` is `production` or `preview` based on the existing `production`/`target` inputs)
+  2. `vercel build [--prod] [--scope <scope>] [--output <dir>]` (the `--prod` flag is included only when targeting production; `--output <dir>` is included only when `vercel-output-dir` is provided)
+  3. Treat the resulting build output directory as the deploy artifact, using the existing prebuilt deploy code path (`config.prebuilt = true`, `vercelOutputDir` defaulted to `<working-directory>/.vercel/output` or set to `vercel-output-dir` when provided).
+  - Authentication for both commands MUST be supplied via the `VERCEL_TOKEN` environment variable (the documented non-interactive auth path), never via a `--token`/`-t` CLI argument.
 - [ ] FR-3: When `vercel-build: true` AND `prebuilt: true`, the action MUST fail fast with a clear error: the two flags are mutually exclusive (prebuilt means the user already built; `vercel-build: true` asks the action to build).
 - [ ] FR-4: When `vercel-build: false` (default), preserve the current source-upload behavior — no behavior change for existing users.
 - [ ] FR-5: The `vercel pull` and `vercel build` commands MUST be invoked programmatically through the `@vercel/client` SDK if it exposes a build/pull API; otherwise fall back to executing the bundled `vercel` package via `@actions/exec`. (Investigation of `@vercel/client` capability happens in the plan phase.)
@@ -46,6 +47,7 @@ The current default behavior (uploading source via `@vercel/client` for remote b
 - [ ] AC-4: When `vercel build` fails, the action exits non-zero, the failure is visible in the GitHub Actions log, and a PR/commit comment containing the truncated tail of build output is posted (when comments are enabled).
 - [ ] AC-5: Targeting production (`production: true`) passes `--prod` to `vercel build` and `--environment=production` to `vercel pull`; otherwise uses `preview`.
 - [ ] AC-6: Build secrets (`build-env`) and team scope (`vercel-org-id`) are honored by the local `vercel build` execution.
+- [ ] AC-7: When `vercel-output-dir` is provided, `vercel build` is invoked with `--output <dir>` so the build artifact is written where the prebuilt deploy step expects it. When `vercel-output-dir` is empty, `vercel build` writes to its default `.vercel/output` and the deploy reads from the same default.
 
 ## Out of Scope
 

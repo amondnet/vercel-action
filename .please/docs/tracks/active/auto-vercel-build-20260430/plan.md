@@ -42,9 +42,11 @@ run() in src/index.ts
   │     └─ validates vercelBuild XOR prebuilt   ← FR-3
   │
   ├─► [if config.vercelBuild]
-  │     └─► runVercelBuild(config)          [NEW: vercel-build.ts]
-  │           ├─ exec: npx vercel pull --yes --environment=<target>
-  │           └─ exec: npx vercel build [--prod]
+  │     └─► runBuildStep(config)            [NEW: vercel-build.ts]
+  │           ├─ exec: npx vercel pull --yes --environment=<target> [--scope <scope>]
+  │           │       env: VERCEL_TOKEN=<token>, silent: true
+  │           └─ exec: npx vercel build [--prod] [--scope <scope>] [--output <dir>]
+  │                   env: VERCEL_TOKEN=<token>, ...buildEnv, silent: true
   │           ├─ throws BuildFailedError on failure (with stderr tail)
   │           └─ on success: returns { prebuilt: true, vercelOutputDir }
   │     └─► config = { ...config, prebuilt: true, vercelOutputDir }
