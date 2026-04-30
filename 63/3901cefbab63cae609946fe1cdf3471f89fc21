@@ -1,0 +1,38 @@
+src/config.ts
+  e13f64cc5963a2de 74-78,82-85,88-90,97,107,115,126
+dist/index.js
+  e13f64cc5963a2de 99104,99108-99111,99113-99115,99120,99128,99134,99145,100625-100628
+src/vercel.ts
+  e13f64cc5963a2de 21-24
+dist/config.d.ts
+  e13f64cc5963a2de 1-2
+src/__tests__/config.test.ts
+  e13f64cc5963a2de 189,192,194,197,199,202,204,207,209-224,769-800
+.please/docs/tracks/completed/cli-default-experimental-api-20260430/plan.md
+  e13f64cc5963a2de 110
+README.md
+  e13f64cc5963a2de 55
+src/__tests__/index.test.ts
+  e13f64cc5963a2de 234-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "633901cefbab63cae609946fe1cdf3471f89fc21",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 99,
+      "total_deletions": 31,
+      "accepted_lines": 1622,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/5146df59911103fafac6072759634db4926aad51a45ab4b7dd5d9fcb04dcc757"
+    }
+  }
+}
