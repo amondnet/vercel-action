@@ -589,6 +589,146 @@ describe('api deployment inputs', () => {
   })
 })
 
+describe('vercel-build input', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+  })
+
+  it('defaults vercelBuild to false when input is empty', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      if (name === 'vercel-token')
+        return 'v-token'
+      if (name === 'alias-domains' || name === 'vercel-version')
+        return ''
+      return ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.vercelBuild).toBe(false)
+  })
+
+  it('parses vercelBuild as true when input is "true"', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.vercelBuild).toBe(true)
+  })
+
+  it('treats non-"true" values as false', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'yes',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.vercelBuild).toBe(false)
+  })
+
+  it('throws when both vercel-build and prebuilt are true', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'prebuilt': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).toThrow(
+      /vercel-build.*prebuilt.*mutually exclusive/i,
+    )
+  })
+
+  it('throws when vercel-build is true and vercel-args is non-empty', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'vercel-args': '--prod',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).toThrow(
+      /vercel-build.*vercel-args/i,
+    )
+  })
+
+  it('treats whitespace-only vercel-args as empty for mutex check', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'vercel-args': '   ',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).not.toThrow()
+  })
+
+  it('does not throw when only vercel-build is true', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'prebuilt': 'false',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).not.toThrow()
+  })
+
+  it('does not throw when only prebuilt is true', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'false',
+        'prebuilt': 'true',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).not.toThrow()
+  })
+})
+
 describe('createOctokitClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()

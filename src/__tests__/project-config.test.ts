@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { buildProjectConfig, readNodeVersion, readVercelJson } from '../project-config'
+import { buildProjectConfig, normalizeNodeVersion, readNodeVersion, readVercelJson } from '../project-config'
 
 function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
   return {
@@ -156,6 +156,52 @@ describe('readNodeVersion', () => {
   })
 })
 
+describe('normalizeNodeVersion', () => {
+  // Vercel REST API only accepts the canonical "NN.x" enum for
+  // projectSettings.nodeVersion. Forwarding raw engines.node values like
+  // ">=24.0.0" or "24.0.0" causes 400 bad_request (issue #359).
+  it.each([
+    ['24.x', '24.x'],
+    ['22.x', '22.x'],
+    ['20.x', '20.x'],
+  ])('passes canonical %s through unchanged', (input, expected) => {
+    expect(normalizeNodeVersion(input)).toBe(expected)
+  })
+
+  it.each([
+    ['>=24.0.0', '24.x'],
+    ['^20.0.0', '20.x'],
+    ['24.0.0', '24.x'],
+    // Highest-first iteration matches Vercel CLI parity (@vercel/build-utils
+    // `getSupportedNodeVersion`) — open-ended ranges resolve to the newest
+    // supported major.
+    ['>=18', '24.x'],
+    ['>=22.0.0', '24.x'],
+  ])('normalizes range %s to %s', (input, expected) => {
+    expect(normalizeNodeVersion(input)).toBe(expected)
+  })
+
+  it('returns undefined for a discontinued-but-valid major (e.g. 18.x)', () => {
+    // 18.x parses cleanly as a range but does not intersect any currently
+    // supported Vercel major. The action falls back to the project default
+    // rather than sending an invalid value.
+    expect(normalizeNodeVersion('18.x')).toBeUndefined()
+  })
+
+  it('returns undefined when the range matches no supported version', () => {
+    expect(normalizeNodeVersion('>=99.0.0')).toBeUndefined()
+  })
+
+  it('returns undefined for invalid semver input', () => {
+    expect(normalizeNodeVersion('not-a-version')).toBeUndefined()
+  })
+
+  it('returns undefined for empty input', () => {
+    expect(normalizeNodeVersion(undefined)).toBeUndefined()
+    expect(normalizeNodeVersion('')).toBeUndefined()
+  })
+})
+
 describe('buildProjectConfig', () => {
   let tmpDir: string
 
@@ -167,7 +213,10 @@ describe('buildProjectConfig', () => {
     rmSync(tmpDir, { recursive: true, force: true })
   })
 
-  it('returns nowConfig from vercel.json with buildCommand and zero-config projectSettings', () => {
+  it('copies vercel.json buildCommand and installCommand into projectSettings', () => {
+    // The Vercel REST API rejects `nowConfig` as an undeclared additional
+    // property; we mirror the CLI's parity behavior of copying select
+    // vercel.json keys into projectSettings. See #359.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
       JSON.stringify({ buildCommand: './build.sh', installCommand: 'pnpm i' }),
@@ -175,11 +224,33 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: './build.sh', installCommand: 'pnpm i' })
+    expect(result).not.toHaveProperty('nowConfig')
+    expect(result.projectSettings?.buildCommand).toBe('./build.sh')
+    expect(result.projectSettings?.installCommand).toBe('pnpm i')
     // zero-config: builds absent → projectSettings gets rootDirectory + sourceFilesOutsideRootDirectory
-    expect(result.projectSettings).toBeDefined()
     expect(result.projectSettings?.rootDirectory).toBeNull()
     expect(result.projectSettings?.sourceFilesOutsideRootDirectory).toBe(true)
+  })
+
+  it('copies all whitelisted vercel.json keys: buildCommand, installCommand, outputDirectory, framework, devCommand', () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({
+        buildCommand: 'build',
+        installCommand: 'install',
+        outputDirectory: 'dist',
+        framework: 'nextjs',
+        devCommand: 'dev',
+      }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(result.projectSettings?.installCommand).toBe('install')
+    expect(result.projectSettings?.outputDirectory).toBe('dist')
+    expect(result.projectSettings?.framework).toBe('nextjs')
+    expect(result.projectSettings?.devCommand).toBe('dev')
   })
 
   it('omits projectSettings.rootDirectory when vercel.json defines builds', () => {
@@ -192,22 +263,69 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ builds: [{ src: 'api/*.ts', use: '@vercel/node' }] })
-    // builds present → skip rootDirectory/sourceFilesOutsideRootDirectory
+    // `builds` is not in the projectSettings whitelist; presence of vercel.json
+    // is enough to skip the zero-config branch.
     expect(result.projectSettings?.rootDirectory).toBeUndefined()
     expect(result.projectSettings?.sourceFilesOutsideRootDirectory).toBeUndefined()
   })
 
-  it('strips images from nowConfig', () => {
+  it('preserves explicit null values for whitelisted keys (Vercel "use default" sentinel)', () => {
+    // The Vercel REST API treats `null` and `undefined` differently: omission
+    // means "keep current project setting", null means "explicit override to
+    // no command". The action must preserve null verbatim.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
-      JSON.stringify({ buildCommand: 'build', images: { sizes: [640, 1080] } }),
+      JSON.stringify({ buildCommand: null, framework: 'hugo' }),
     )
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: 'build' })
-    expect(result.nowConfig).not.toHaveProperty('images')
+    expect(result.projectSettings?.buildCommand).toBeNull()
+    expect(result.projectSettings?.framework).toBe('hugo')
+  })
+
+  it('rejects non-string/non-null values for whitelisted keys without sending them to the API', () => {
+    // Defensive guard: a user with a malformed vercel.json (e.g. `framework: 42`)
+    // should get a local warning rather than a 400 from the deployment endpoint.
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({
+        buildCommand: 42,
+        installCommand: true,
+        outputDirectory: ['dist'],
+        framework: { name: 'nextjs' },
+        devCommand: 'dev',
+      }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings).not.toHaveProperty('buildCommand')
+    expect(result.projectSettings).not.toHaveProperty('installCommand')
+    expect(result.projectSettings).not.toHaveProperty('outputDirectory')
+    expect(result.projectSettings).not.toHaveProperty('framework')
+    expect(result.projectSettings?.devCommand).toBe('dev')
+  })
+
+  it('does not copy images, redirects, or other non-whitelisted vercel.json keys into projectSettings', () => {
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({
+        buildCommand: 'build',
+        images: { sizes: [640, 1080] },
+        redirects: [{ source: '/a', destination: '/b' }],
+        rewrites: [{ source: '/c', destination: '/d' }],
+        headers: [{ source: '/e', headers: [] }],
+      }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(result.projectSettings).not.toHaveProperty('images')
+    expect(result.projectSettings).not.toHaveProperty('redirects')
+    expect(result.projectSettings).not.toHaveProperty('rewrites')
+    expect(result.projectSettings).not.toHaveProperty('headers')
   })
 
   it('returns empty object when vercel.json and package.json are both absent', () => {
@@ -248,9 +366,10 @@ describe('buildProjectConfig', () => {
     expect(() => buildProjectConfig(createConfig({ workingDirectory: tmpDir }))).toThrow()
   })
 
-  it('strips __proto__ and constructor keys from nowConfig', () => {
-    // Crafted vercel.json with prototype-pollution gadgets. Must not reach
-    // downstream consumers that might forward the object via [[Set]].
+  it('does not let prototype-pollution gadgets reach projectSettings', () => {
+    // The static whitelist (buildCommand, installCommand, outputDirectory,
+    // framework, devCommand) excludes __proto__/constructor/prototype by
+    // construction. Locking the contract.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
       '{"buildCommand":"build","__proto__":{"polluted":true},"constructor":{"prototype":{"polluted":true}}}',
@@ -258,12 +377,9 @@ describe('buildProjectConfig', () => {
 
     const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
 
-    expect(result.nowConfig).toEqual({ buildCommand: 'build' })
-    // Use Object.getOwnPropertyNames so we only inspect own keys — `toHaveProperty`
-    // walks the prototype chain and would match `__proto__` on any normal object.
-    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('__proto__')
-    expect(Object.getOwnPropertyNames(result.nowConfig ?? {})).not.toContain('constructor')
-    // sanity: Object.prototype was not mutated in the process
+    expect(result.projectSettings?.buildCommand).toBe('build')
+    expect(Object.getOwnPropertyNames(result.projectSettings ?? {})).not.toContain('__proto__')
+    expect(Object.getOwnPropertyNames(result.projectSettings ?? {})).not.toContain('constructor')
     expect(({} as Record<string, unknown>).polluted).toBeUndefined()
   })
 })

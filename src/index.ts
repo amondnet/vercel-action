@@ -3,10 +3,16 @@ import { execSync } from 'node:child_process'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { createOctokitClient, getActionConfig, setVercelEnv } from './config'
-import { createCommentOnCommit, createCommentOnPullRequest } from './github-comments'
+import {
+  createBuildFailureCommentOnCommit,
+  createBuildFailureCommentOnPullRequest,
+  createCommentOnCommit,
+  createCommentOnPullRequest,
+} from './github-comments'
 import { createGitHubDeployment, updateGitHubDeploymentStatus } from './github-deployment'
 import { isPullRequestType } from './utils'
 import { aliasDomainsToDeployment, createVercelClient, vercelDeploy, vercelInspect } from './vercel'
+import { BuildFailedError, runBuildStep } from './vercel-build'
 
 const { context } = github
 
@@ -242,10 +248,40 @@ async function handleGitHubDeploymentSuccess(
   )
 }
 
-async function run(): Promise<void> {
+async function postBuildFailureComment(
+  octokit: OctokitClient | undefined,
+  ctx: GitHubContext,
+  sha: string,
+  error: BuildFailedError,
+): Promise<void> {
+  if (!octokit) {
+    return
+  }
+  if (isPullRequestType(ctx.eventName) && ctx.issueNumber) {
+    await createBuildFailureCommentOnPullRequest(octokit, ctx, sha, error.exitCode, error.stderrTail)
+    return
+  }
+  if (ctx.eventName === 'push') {
+    await createBuildFailureCommentOnCommit(octokit, ctx, sha, error.exitCode, error.stderrTail)
+  }
+}
+
+async function maybeRunVercelBuild(config: ActionConfig): Promise<ActionConfig> {
+  if (!config.vercelBuild) {
+    return config
+  }
+  const result = await runBuildStep(config)
+  return {
+    ...config,
+    prebuilt: result.prebuilt,
+    vercelOutputDir: result.vercelOutputDir,
+  }
+}
+
+export async function run(): Promise<void> {
   logContextDebug()
 
-  const config = getActionConfig()
+  let config = getActionConfig()
   const octokit = createOctokitClient(config.githubToken)
 
   setVercelEnv(config)
@@ -253,6 +289,16 @@ async function run(): Promise<void> {
   const deploymentContext = await getDeploymentContext(octokit)
   const { sha } = deploymentContext
   const ctx = buildGitHubContext()
+
+  try {
+    config = await maybeRunVercelBuild(config)
+  }
+  catch (error) {
+    if (error instanceof BuildFailedError && config.githubComment !== false) {
+      await postBuildFailureComment(octokit, ctx, sha, error)
+    }
+    throw error
+  }
 
   let githubDeployment: GitHubDeploymentResult | null = null
   if (config.githubDeployment) {
@@ -299,11 +345,18 @@ async function run(): Promise<void> {
   }
 }
 
-run().catch((error: unknown) => {
-  if (error instanceof Error) {
-    core.setFailed(error.message)
-  }
-  else {
-    core.setFailed('An unexpected error occurred')
-  }
-})
+// Auto-invoke run() only inside the GitHub Actions runner.
+// GITHUB_ACTIONS is the canonical, runner-set sentinel that is not
+// user-controllable. Unit tests override this to '' in vitest.config.ts
+// (via test.env) so that module imports during tests do not trigger
+// auto-invocation.
+if (process.env.GITHUB_ACTIONS === 'true') {
+  run().catch((error: unknown) => {
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
+    else {
+      core.setFailed('An unexpected error occurred')
+    }
+  })
+}

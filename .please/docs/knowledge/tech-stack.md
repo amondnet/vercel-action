@@ -22,6 +22,7 @@
 | `axios` | HTTP requests for alias domain management |
 | `vercel` (v50.0.0) | Vercel CLI — deployment engine (fallback when `vercel-args` provided) |
 | `common-tags` | Template literal tag functions for comment formatting |
+| `semver` | Normalizes `package.json` `engines.node` into Vercel's `NN.x` API enum (see #359) |
 
 ## Dev Tooling
 

@@ -25,6 +25,10 @@ export default defineConfig({
           exclude: ['node_modules', 'dist', 'example'],
           testTimeout: 10000,
           hookTimeout: 10000,
+          // Prevent index.ts from auto-invoking run() when tests import it.
+          // The guard uses GITHUB_ACTIONS === 'true', which is set to 'true'
+          // in the CI runner environment where unit tests also run.
+          env: { GITHUB_ACTIONS: '' },
         },
       },
       {

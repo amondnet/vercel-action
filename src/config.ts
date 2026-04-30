@@ -108,6 +108,25 @@ export function getActionConfig(): ActionConfig {
 
   const githubDeploymentEnvInput = core.getInput('github-deployment-environment')
 
+  const prebuilt = core.getInput('prebuilt') === 'true'
+  const vercelBuild = core.getInput('vercel-build') === 'true'
+  if (prebuilt && vercelBuild) {
+    throw new Error(
+      'Inputs "vercel-build" and "prebuilt" are mutually exclusive. '
+      + 'Set "vercel-build: true" to build inside the action, OR set "prebuilt: true" '
+      + 'to deploy an already-built .vercel/output, but not both.',
+    )
+  }
+  if (vercelBuild && vercelArgs.trim() !== '') {
+    throw new Error(
+      'Input "vercel-build" cannot be used together with a non-empty "vercel-args". '
+      + '"vercel-build" builds locally and deploys the generated .vercel/output via '
+      + 'the prebuilt/API path, while "vercel-args" routes the deployment through the '
+      + 'Vercel CLI path which would ignore the local build output. '
+      + 'Remove "vercel-args" to use "vercel-build", or disable "vercel-build" to deploy with CLI arguments.',
+    )
+  }
+
   return {
     githubToken: core.getInput('github-token'),
     githubComment: getGithubCommentInput(core.getInput('github-comment')),
@@ -124,7 +143,8 @@ export function getActionConfig(): ActionConfig {
     aliasDomains: parseAliasDomains(),
     // API-based deployment inputs
     target,
-    prebuilt: core.getInput('prebuilt') === 'true',
+    prebuilt,
+    vercelBuild,
     vercelOutputDir: core.getInput('vercel-output-dir'),
     force: core.getInput('force') === 'true',
     env: maskSecretValues(parseKeyValueLines(core.getInput('env'))),

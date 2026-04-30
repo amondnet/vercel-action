@@ -47,6 +47,7 @@
     "@vercel/client": "17.2.65",
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",
+    "semver": "^7.7.4",
     "vercel": "^50.0.0"
   },
   "devDependencies": {
@@ -56,6 +57,7 @@
     "@octokit/rest": "^22.0.1",
     "@types/common-tags": "^1.8.4",
     "@types/node": "^24.0.0",
+    "@types/semver": "^7.7.1",
     "@vercel/ncc": "^0.36.0",
     "@vitest/coverage-v8": "^3.0.0",
     "emulate": "^0.2.0",

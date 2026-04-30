@@ -86,6 +86,7 @@ export interface ActionConfig {
   // API-based deployment inputs (mapped to @vercel/client options)
   target: 'production' | 'preview'
   prebuilt: boolean
+  vercelBuild: boolean
   vercelOutputDir: string
   force: boolean
   env: Record<string, string>

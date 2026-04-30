@@ -117,6 +117,76 @@ export async function createCommentOnCommit(
   }
 }
 
+// Backslash-escape any run of 3+ backticks so embedded ``` cannot close the
+// Markdown fenced code block we wrap stderrTail in. Build output is
+// untrusted text — a malicious dependency could print ``` to break out of
+// the fence and inject Markdown into the PR comment.
+function escapeFencedBlock(text: string): string {
+  return text.replace(/`{3,}/g, match => match.replace(/`/g, '\\`'))
+}
+
+function buildBuildFailureBody(sha: string, exitCode: number, stderrTail: string): string {
+  const truncatedTail = escapeFencedBlock(stderrTail || '(no output captured)')
+  return stripIndents`
+    ❌ Vercel build failed
+
+    Build for commit \`${sha}\` exited with exit code ${exitCode}.
+
+    \`\`\`
+    ${truncatedTail}
+    \`\`\`
+
+    See the GitHub Actions log for the full output. This workflow run is
+    being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action).
+  `
+}
+
+export async function createBuildFailureCommentOnPullRequest(
+  octokit: OctokitClient,
+  ctx: GitHubContext,
+  sha: string,
+  exitCode: number,
+  stderrTail: string,
+): Promise<void> {
+  try {
+    await octokit.rest.issues.createComment({
+      ...ctx.repo,
+      issue_number: ctx.issueNumber,
+      body: buildBuildFailureBody(sha, exitCode, stderrTail),
+    })
+  }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    core.warning(
+      `Failed to post build failure comment on pull request: ${message}. `
+      + 'Ensure the github-token has write permissions to the repository.',
+    )
+  }
+}
+
+export async function createBuildFailureCommentOnCommit(
+  octokit: OctokitClient,
+  ctx: GitHubContext,
+  sha: string,
+  exitCode: number,
+  stderrTail: string,
+): Promise<void> {
+  try {
+    await octokit.rest.repos.createCommitComment({
+      ...ctx.repo,
+      commit_sha: sha,
+      body: buildBuildFailureBody(sha, exitCode, stderrTail),
+    })
+  }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    core.warning(
+      `Failed to post build failure comment on commit: ${message}. `
+      + 'Ensure the github-token has write permissions to the repository.',
+    )
+  }
+}
+
 export async function createCommentOnPullRequest(
   octokit: OctokitClient,
   ctx: GitHubContext,
