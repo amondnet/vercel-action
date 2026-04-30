@@ -16,7 +16,7 @@ This skill teaches an agent how to consume `amondnet/vercel-action` correctly. I
 
 ## When NOT to use
 
-- The user just wants the Vercel CLI locally (no GitHub Actions involved) — refer them to the `vercel:vercel-cli` skill instead.
+- The user just wants the Vercel CLI locally (no GitHub Actions involved) — refer them to the [official Vercel CLI docs](https://vercel.com/docs/cli) instead.
 - The user is happy with Vercel's native GitHub integration and isn't asking for action-based deploys.
 
 ## Mandatory prerequisites
@@ -90,6 +90,7 @@ jobs:
 Build with the Vercel CLI in a prior step, then deploy the prebuilt output. Best when you need to share the build artifact with other steps (tests, smoke checks).
 
 ```yaml
+- run: npm install --global vercel@latest
 - run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
   env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -105,6 +106,8 @@ Build with the Vercel CLI in a prior step, then deploy the prebuilt output. Best
     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
     prebuilt: true
 ```
+
+The `npm install --global vercel@latest` step is required on a fresh runner — the Vercel CLI is not preinstalled on GitHub-hosted runners.
 
 ### Prebuilt — Method 2: let the action build
 
@@ -168,13 +171,13 @@ Deployment lifecycle: created `in_progress` before deploy, then transitioned to 
 | Input | Required | Notes |
 |---|---|---|
 | `vercel-token` | yes | Vercel personal token. |
-| `vercel-org-id` | recommended | Required for Vercel CLI 17+. Works for both CLI and API modes — prefer over `scope`. |
-| `vercel-project-id` | recommended | Required for Vercel CLI 17+. |
-| `vercel-args` | no | Ad-hoc CLI flags (e.g. `--prod`, `--force`). **Mutually exclusive with `experimental-api`**. |
+| `vercel-org-id` | yes | Required for Vercel CLI 17+. Works for both CLI and API modes — prefer over `scope`. |
+| `vercel-project-id` | yes | Required for Vercel CLI 17+. |
+| `vercel-args` | no | Ad-hoc CLI flags (e.g. `--prod`, `--force`). **Mutually exclusive with `experimental-api` and `vercel-build`**. |
 | `working-directory` | no | Run the deploy from a subdirectory. |
 | `alias-domains` | no | Multi-line list; supports `{{PR_NUMBER}}` and `{{BRANCH}}`. |
 | `prebuilt` | no | Deploy a prebuilt `.vercel/output` directory. **Mutually exclusive with `vercel-build`**. |
-| `vercel-build` | no | Run `vercel pull` + `vercel build` inside the action. **Mutually exclusive with `prebuilt`**. |
+| `vercel-build` | no | Run `vercel pull` + `vercel build` inside the action. **Mutually exclusive with `prebuilt` and `vercel-args`**. |
 | `vercel-output-dir` | no | Override the prebuilt output path. Defaults to `{working-directory}/.vercel/output` when `prebuilt: true`. |
 | `github-token` | no | Needed for PR/commit comments. |
 | `github-comment` | no | `true` (default), `false`, or a custom comment string. |
@@ -195,8 +198,9 @@ For the long tail (`target`, `force`, `env`, `build-env`, `regions`, `archive`, 
 
 - `experimental-api: true` cannot be combined with `vercel-args`. The API client uses `@vercel/client`, an internal Vercel package without semver guarantees — keep CLI mode (the default) unless the user explicitly wants the typed inputs (`target`, `regions`, `env`, `build-env`, `public`, `with-cache`, `custom-environment`, `auto-assign-custom-domains`).
 - `prebuilt` cannot be combined with `vercel-build`. Pick exactly one prebuilt flow.
+- `vercel-build: true` cannot be combined with a non-empty `vercel-args`. The action throws at config-parse time with a clear error — `vercel-build` deploys the locally produced `.vercel/output` via the prebuilt path, while `vercel-args` routes through the CLI path which would ignore that output.
 - `scope` is CLI-mode only. Prefer `vercel-org-id` so the same workflow works in both modes.
-- The auto-detected GitHub Deployment environment is `production` if `vercel-args` contains `--prod` or `--production`, otherwise `preview`. Set `github-deployment-environment` explicitly for `staging` and similar.
+- The auto-detected GitHub Deployment environment is mode-dependent. **CLI mode**: `production` if `vercel-args` contains `--prod` or `--production`, otherwise `preview`. **Experimental API mode**: derived from `target` (`production` or `preview`). Set `github-deployment-environment` explicitly for `staging` and similar in either mode.
 - Deprecated input aliases (still accepted, emit deprecation warnings): `zeit-token` → `vercel-token`, `now-args` → `vercel-args`, `now-project-id` → `vercel-project-id`, `now-org-id` → `vercel-org-id`. Always rewrite to the modern names.
 - The action sets `VERCEL_TELEMETRY_DISABLED=1` and exports `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` from the corresponding inputs — don't redeclare them in `env:` for the action step itself.
 
