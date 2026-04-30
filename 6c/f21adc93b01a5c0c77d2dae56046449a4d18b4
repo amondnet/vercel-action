@@ -1,0 +1,36 @@
+src/github-comments.ts
+  d6759eea1de654f9 120-127,129
+src/__tests__/vercel-build.test.ts
+  d6759eea1de654f9 118-137,189-207
+src/__tests__/run-build.test.ts
+  d6759eea1de654f9 8-11,85-91,156-216
+.please/docs/tracks/active/auto-vercel-build-20260430/plan.md
+  d6759eea1de654f9 141-145
+src/vercel-build.ts
+  d6759eea1de654f9 50-54,59-64,87,97-100,103,107,137-138
+dist/index.js
+  d6759eea1de654f9 99298-99304,99306,100512-100517,100538,100546-100548,100551,100554,100576-100577
+src/__tests__/github-comments.test.ts
+  d6759eea1de654f9 346-364
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "6cf21adc93b01a5c0c77d2dae56046449a4d18b4",
+  "prompts": {
+    "d6759eea1de654f9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b21871a-0c2d-4a45-9d98-61f40adebe93",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 188,
+      "total_deletions": 27,
+      "accepted_lines": 1485,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/820a829177de516388d94805d9b7d11f171a54bb45f490ac99b3667a6d1334d0"
+    }
+  }
+}
