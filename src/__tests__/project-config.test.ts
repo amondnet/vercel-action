@@ -269,6 +269,44 @@ describe('buildProjectConfig', () => {
     expect(result.projectSettings?.sourceFilesOutsideRootDirectory).toBeUndefined()
   })
 
+  it('preserves explicit null values for whitelisted keys (Vercel "use default" sentinel)', () => {
+    // The Vercel REST API treats `null` and `undefined` differently: omission
+    // means "keep current project setting", null means "explicit override to
+    // no command". The action must preserve null verbatim.
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: null, framework: 'hugo' }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings?.buildCommand).toBeNull()
+    expect(result.projectSettings?.framework).toBe('hugo')
+  })
+
+  it('rejects non-string/non-null values for whitelisted keys without sending them to the API', () => {
+    // Defensive guard: a user with a malformed vercel.json (e.g. `framework: 42`)
+    // should get a local warning rather than a 400 from the deployment endpoint.
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({
+        buildCommand: 42,
+        installCommand: true,
+        outputDirectory: ['dist'],
+        framework: { name: 'nextjs' },
+        devCommand: 'dev',
+      }),
+    )
+
+    const result = buildProjectConfig(createConfig({ workingDirectory: tmpDir }))
+
+    expect(result.projectSettings).not.toHaveProperty('buildCommand')
+    expect(result.projectSettings).not.toHaveProperty('installCommand')
+    expect(result.projectSettings).not.toHaveProperty('outputDirectory')
+    expect(result.projectSettings).not.toHaveProperty('framework')
+    expect(result.projectSettings?.devCommand).toBe('dev')
+  })
+
   it('does not copy images, redirects, or other non-whitelisted vercel.json keys into projectSettings', () => {
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),

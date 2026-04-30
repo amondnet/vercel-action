@@ -130,12 +130,21 @@ export function buildProjectConfig(config: ActionConfig): ProjectConfig {
 
   if (vercelJson) {
     for (const key of PROJECT_SETTINGS_KEYS) {
-      if (key in vercelJson) {
-        // The Vercel REST API validates each value type itself. We only
-        // copy whitelisted keys, so prototype-pollution gadgets in
-        // vercel.json (`__proto__`, `constructor`, ...) cannot reach
-        // projectSettings.
-        projectSettings[key] = vercelJson[key] as string | null
+      if (Object.hasOwn(vercelJson, key)) {
+        // Whitelist + own-property check keeps prototype-pollution gadgets
+        // (`__proto__`, `constructor`, ...) out of projectSettings. The
+        // value-type guard rejects unexpected shapes (numbers, booleans,
+        // arrays) before the Vercel API validator sees them, surfacing a
+        // local warning instead of a 400 from the deployment endpoint.
+        const value = vercelJson[key]
+        if (typeof value === 'string' || value === null) {
+          projectSettings[key] = value
+        }
+        else {
+          core.warning(
+            `Ignoring vercel.json "${key}" — expected string or null, got ${typeof value === 'object' ? (Array.isArray(value) ? 'array' : 'object') : typeof value}.`,
+          )
+        }
       }
     }
   }
