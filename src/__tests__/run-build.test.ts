@@ -5,6 +5,10 @@
  */
 import * as core from '@actions/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  createBuildFailureCommentOnCommit,
+  createBuildFailureCommentOnPullRequest,
+} from '../github-comments'
 import { createVercelClient, vercelDeploy } from '../vercel'
 import { BuildFailedError, runBuildStep } from '../vercel-build'
 
@@ -78,6 +82,13 @@ vi.mock('../github-deployment', () => ({
   updateGitHubDeploymentStatus: vi.fn(),
 }))
 
+vi.mock('../github-comments', () => ({
+  createBuildFailureCommentOnPullRequest: vi.fn().mockResolvedValue(undefined),
+  createBuildFailureCommentOnCommit: vi.fn().mockResolvedValue(undefined),
+  createCommentOnPullRequest: vi.fn().mockResolvedValue(undefined),
+  createCommentOnCommit: vi.fn().mockResolvedValue(undefined),
+}))
+
 function setInputs(overrides: Record<string, string>) {
   vi.mocked(core.getInput).mockImplementation((name: string) => {
     const defaults: Record<string, string> = {
@@ -141,5 +152,66 @@ describe('run() with vercel-build: true', () => {
 
     const { run } = await import('../index')
     await expect(run()).rejects.toBeInstanceOf(BuildFailedError)
+  })
+
+  it('posts a build-failure PR comment carrying exitCode and stderrTail', async () => {
+    setInputs({ 'vercel-build': 'true', 'github-comment': 'true' })
+    vi.mocked(runBuildStep).mockRejectedValue(new BuildFailedError())
+
+    const { run } = await import('../index')
+    await expect(run()).rejects.toBeInstanceOf(BuildFailedError)
+
+    expect(createBuildFailureCommentOnPullRequest).toHaveBeenCalledOnce()
+    const callArgs = vi.mocked(createBuildFailureCommentOnPullRequest).mock.calls[0]
+    expect(callArgs[2]).toBe('sha-123')
+    expect(callArgs[3]).toBe(1)
+    expect(callArgs[4]).toBe('stderr tail')
+    expect(createBuildFailureCommentOnCommit).not.toHaveBeenCalled()
+  })
+
+  it('posts a build-failure commit comment for push events', async () => {
+    setInputs({ 'vercel-build': 'true', 'github-comment': 'true' })
+    vi.mocked(runBuildStep).mockRejectedValue(new BuildFailedError())
+
+    const github = await import('@actions/github')
+    const ctx = github.context as {
+      eventName: string
+      issue: { number: number }
+      payload: Record<string, unknown>
+    }
+    const originalEvent = ctx.eventName
+    const originalPayload = ctx.payload
+    const originalIssue = ctx.issue
+    ctx.eventName = 'push'
+    ctx.payload = {}
+    ctx.issue = { number: 0 }
+
+    try {
+      const { run } = await import('../index')
+      await expect(run()).rejects.toBeInstanceOf(BuildFailedError)
+
+      expect(createBuildFailureCommentOnCommit).toHaveBeenCalledOnce()
+      const callArgs = vi.mocked(createBuildFailureCommentOnCommit).mock.calls[0]
+      expect(callArgs[2]).toBe('sha-123')
+      expect(callArgs[3]).toBe(1)
+      expect(callArgs[4]).toBe('stderr tail')
+      expect(createBuildFailureCommentOnPullRequest).not.toHaveBeenCalled()
+    }
+    finally {
+      ctx.eventName = originalEvent
+      ctx.payload = originalPayload
+      ctx.issue = originalIssue
+    }
+  })
+
+  it('does not post a build-failure comment when github-comment is false', async () => {
+    setInputs({ 'vercel-build': 'true', 'github-comment': 'false' })
+    vi.mocked(runBuildStep).mockRejectedValue(new BuildFailedError())
+
+    const { run } = await import('../index')
+    await expect(run()).rejects.toBeInstanceOf(BuildFailedError)
+
+    expect(createBuildFailureCommentOnPullRequest).not.toHaveBeenCalled()
+    expect(createBuildFailureCommentOnCommit).not.toHaveBeenCalled()
   })
 })

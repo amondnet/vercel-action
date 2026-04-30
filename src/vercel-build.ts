@@ -47,11 +47,21 @@ interface ExecResult {
   stderr: string
 }
 
-async function execVercel(args: string[], cwd: string, env?: Record<string, string>): Promise<ExecResult> {
+async function execVercel(
+  args: string[],
+  cwd: string,
+  env: Record<string, string>,
+): Promise<ExecResult> {
   let stdout = ''
   let stderr = ''
   const options: exec.ExecOptions = {
     ignoreReturnCode: true,
+    // Suppress @actions/exec's [command]... echo line on outStream so the
+    // resolved argv (which historically included `-t <token>` in the legacy
+    // CLI path) cannot land in raw stdout. Token is now passed via
+    // VERCEL_TOKEN env, so this is defense-in-depth on top of `setSecret`.
+    silent: true,
+    env: { ...process.env, ...env } as Record<string, string>,
     listeners: {
       stdout: (data: Buffer) => {
         const chunk = data.toString()
@@ -68,17 +78,13 @@ async function execVercel(args: string[], cwd: string, env?: Record<string, stri
   if (cwd) {
     options.cwd = cwd
   }
-  if (env) {
-    options.env = { ...process.env, ...env } as Record<string, string>
-  }
 
   const exitCode = await exec.exec('npx', args, options)
   return { exitCode, stdout, stderr }
 }
 
 function commonArgs(config: ActionConfig): string[] {
-  const args: string[] = [config.vercelBin]
-  return args
+  return [config.vercelBin]
 }
 
 function appendScope(args: string[], config: ActionConfig): string[] {
@@ -88,13 +94,17 @@ function appendScope(args: string[], config: ActionConfig): string[] {
   return args
 }
 
+function tokenEnv(config: ActionConfig): Record<string, string> {
+  return { VERCEL_TOKEN: config.vercelToken }
+}
+
 export async function runVercelPull(config: ActionConfig): Promise<void> {
   const args = commonArgs(config)
-  args.push('pull', '--yes', `--environment=${config.target}`, '-t', config.vercelToken)
+  args.push('pull', '--yes', `--environment=${config.target}`)
   appendScope(args, config)
 
   core.info(`Running vercel pull (environment=${config.target})`)
-  const result = await execVercel(args, config.workingDirectory)
+  const result = await execVercel(args, config.workingDirectory, tokenEnv(config))
   if (result.exitCode !== 0) {
     throw BuildFailedError.fromOutput('vercel pull', result.exitCode, result.stdout, result.stderr)
   }
@@ -121,12 +131,11 @@ export async function runVercelBuild(config: ActionConfig): Promise<void> {
   if (config.target === 'production') {
     args.push('--prod')
   }
-  args.push('-t', config.vercelToken)
   appendScope(args, config)
 
   core.info(`Running vercel build (target=${config.target})`)
-  const buildEnv = Object.keys(config.buildEnv).length > 0 ? config.buildEnv : undefined
-  const result = await execVercel(args, config.workingDirectory, buildEnv)
+  const env = { ...tokenEnv(config), ...config.buildEnv }
+  const result = await execVercel(args, config.workingDirectory, env)
   if (result.exitCode !== 0) {
     throw BuildFailedError.fromOutput('vercel build', result.exitCode, result.stdout, result.stderr)
   }

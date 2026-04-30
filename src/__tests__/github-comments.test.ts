@@ -343,6 +343,25 @@ describe('createBuildFailureCommentOnPullRequest', () => {
     expect(body).toMatch(/```[\s\S]*multi\nline\noutput[\s\S]*```/)
   })
 
+  it('escapes triple-backticks in stderr tail to prevent fence breakout', async () => {
+    const ctx = createContext({ eventName: 'pull_request' })
+    mockCreateComment.mockResolvedValue({})
+
+    await createBuildFailureCommentOnPullRequest(
+      createMockOctokit(),
+      ctx,
+      'abc',
+      1,
+      'before\n```\n# Injected Heading\n[link](https://evil.example)\n```\nafter',
+    )
+
+    const body = mockCreateComment.mock.calls[0][0].body as string
+    // The injected raw triple-backticks must be escaped (e.g. \`\`\`) so the
+    // surrounding fence stays open and the markdown does not render.
+    expect(body).not.toMatch(/^```\n# Injected Heading$/m)
+    expect(body).toContain('\\`\\`\\`')
+  })
+
   it('warns and does not throw when the API call fails', async () => {
     const ctx = createContext({ eventName: 'pull_request' })
     mockCreateComment.mockRejectedValue(new Error('forbidden'))

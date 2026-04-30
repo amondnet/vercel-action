@@ -112,9 +112,27 @@ describe('runVercelPull', () => {
     expect(args).toContain('pull')
     expect(args).toContain('--yes')
     expect(args).toContain('--environment=preview')
-    expect(args).toContain('-t')
-    expect(args).toContain('tok')
     expect(opts?.cwd).toBe('/app')
+  })
+
+  it('passes token via VERCEL_TOKEN env var, never via argv', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    const config = makeConfig({ vercelToken: 'super-secret' })
+
+    await runVercelPull(config)
+
+    const [, args, opts] = vi.mocked(exec.exec).mock.calls[0]
+    expect(args).not.toContain('-t')
+    expect(args).not.toContain('--token')
+    expect(args.join(' ')).not.toContain('super-secret')
+    expect(opts?.env?.VERCEL_TOKEN).toBe('super-secret')
+  })
+
+  it('runs exec with silent: true to suppress [command] echo', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    await runVercelPull(makeConfig())
+    const opts = vi.mocked(exec.exec).mock.calls[0][2]
+    expect(opts?.silent).toBe(true)
   })
 
   it('uses --environment=production when target is production', async () => {
@@ -165,9 +183,28 @@ describe('runVercelBuild', () => {
     expect(cmd).toBe('npx')
     expect(args).toContain('build')
     expect(args).not.toContain('--prod')
-    expect(args).toContain('-t')
-    expect(args).toContain('tok')
     expect(opts?.cwd).toBe('/app')
+  })
+
+  it('passes token via VERCEL_TOKEN env var, never via argv', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    const config = makeConfig({ vercelToken: 'super-secret', buildEnv: { FOO: 'bar' } })
+
+    await runVercelBuild(config)
+
+    const [, args, opts] = vi.mocked(exec.exec).mock.calls[0]
+    expect(args).not.toContain('-t')
+    expect(args).not.toContain('--token')
+    expect(args.join(' ')).not.toContain('super-secret')
+    expect(opts?.env?.VERCEL_TOKEN).toBe('super-secret')
+    expect(opts?.env?.FOO).toBe('bar')
+  })
+
+  it('runs exec with silent: true to suppress [command] echo', async () => {
+    vi.mocked(exec.exec).mockResolvedValue(0)
+    await runVercelBuild(makeConfig())
+    const opts = vi.mocked(exec.exec).mock.calls[0][2]
+    expect(opts?.silent).toBe(true)
   })
 
   it('passes --prod when target is production', async () => {

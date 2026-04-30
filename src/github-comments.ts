@@ -117,8 +117,16 @@ export async function createCommentOnCommit(
   }
 }
 
+// Backslash-escape any run of 3+ backticks so embedded ``` cannot close the
+// Markdown fenced code block we wrap stderrTail in. Build output is
+// untrusted text — a malicious dependency could print ``` to break out of
+// the fence and inject Markdown into the PR comment.
+function escapeFencedBlock(text: string): string {
+  return text.replace(/`{3,}/g, match => match.replace(/`/g, '\\`'))
+}
+
 function buildBuildFailureBody(sha: string, exitCode: number, stderrTail: string): string {
-  const truncatedTail = stderrTail || '(no output captured)'
+  const truncatedTail = escapeFencedBlock(stderrTail || '(no output captured)')
   return stripIndents`
     ❌ Vercel build failed
 

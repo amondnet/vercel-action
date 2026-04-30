@@ -138,6 +138,11 @@ Automated:
 - 2026-04-30 — T014 completed: emulate.dev integration test (3 tests) verifying runBuildStep produces correct vercelOutputDir, end-to-end deploy through real emulator using prebuilt output, and fail-fast on pull error. Full suite: 272 tests passing.
 - 2026-04-30 — T015 completed: README updated with `vercel-build` input row, "Method 4 - Build inside the action" usage example, KB workflow reference, and notes on mutual exclusivity, build-env, target=production, and failure comments.
 - 2026-04-30 — T016 completed: dist/ rebuilt via `pnpm build` (4336 kB bundle). Coverage: vercel-build.ts 94.39% (> 80% NFR-4 target), overall lines 87.42%.
+- 2026-04-30 — Code review fixes applied (5 findings):
+  - Fix 1 (CRITICAL, security): Token now passed via `VERCEL_TOKEN` env var instead of `-t <token>` argv; added `silent: true` to ExecOptions to suppress `[command]…` echo. Validated by Vercel CLI source (packages/cli/src/commands/build/index.ts:309). 4 new tests asserting token is NOT in argv and IS in env.
+  - Fix 2 (IMPORTANT, security): `escapeFencedBlock()` escapes triple-backticks in `stderrTail` to prevent fence breakout / Markdown injection in PR comments. 1 new test asserting injected ``` is escaped.
+  - Fix 3+4+5 (IMPORTANT, tests): 3 new orchestration tests in run-build.test.ts — failure-comment call assertion (PR + push variants) + githubComment:false suppression.
+  - dist/ rebuilt. Full suite: 280 tests passing.
 
 ## Decision Log
 
