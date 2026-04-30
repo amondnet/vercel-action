@@ -50,18 +50,19 @@ This action make a Vercel deployment with github actions.
 | github-deployment-environment    | <ul><li>- [ ] </li></ol> |         | The environment for the GitHub deployment (e.g., `production`, `staging`, `preview`). If not specified, auto-detects: `production` when `vercel-args` contains `--prod`, otherwise `preview`. |
 | vercel-project-id                | <ul><li>- [x] </li></ol> |         | ❗Vercel CLI 17+,The `name` property in vercel.json is deprecated (https://zeit.ink/5F)                  |
 | vercel-org-id                    | <ul><li>- [x] </li></ol> |         | Vercel team ID (also used as `teamId` for API deployments). See [How can I use GitHub Actions with Vercel](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel) |
-| vercel-args                      | <ul><li>- [ ] </li></ol> |         | ⚠️ **Deprecated.** Use the new API inputs below instead. When provided, falls back to CLI-based deployment. |
+| vercel-args                      | <ul><li>- [ ] </li></ol> |         | Ad-hoc CLI flags forwarded to the Vercel CLI (e.g. `--prod --force`). Mutually exclusive with `experimental-api`. |
 | working-directory                | <ul><li>- [ ] </li></ol> |         | the working directory                                                                             |
-| scope                            | <ul><li>- [ ] </li></ol> |         | ⚠️ **Deprecated.** Team slug for CLI `--scope` flag. For API deployments, use `vercel-org-id` instead.
+| scope                            | <ul><li>- [ ] </li></ol> |         | Team slug for the Vercel CLI `--scope` flag. Prefer `vercel-org-id`, which works in both CLI and experimental API modes.
+| experimental-api                 | <ul><li>- [ ] </li></ol> |  false  | ⚠️ **Experimental.** Opt in to API-based deployment via `@vercel/client`. The CLI is the default and recommended path. The API client relies on an internal Vercel package without semver guarantees and may break across updates. Mutually exclusive with `vercel-args`. |
 | alias-domains                    | <ul><li>- [ ] </li></ol> |         | You can assign a domain to this deployment. Please note that this domain must have been configured in the project. You can use pull request number via `{{PR_NUMBER}}` and branch via `{{BRANCH}}`.
 | vercel-project-name              | <ul><li>- [ ] </li></ol> |         | The name of the project; if absent we'll use the `vercel inspect` command to determine. [#27](https://github.com/amondnet/vercel-action/issues/27) & [#28](https://github.com/amondnet/vercel-action/issues/28)
 | vercel-version                   | <ul><li>- [x] </li></ol> |         | vercel-cli package version if absent we will use one declared in [package.json](https://github.com/amondnet/vercel-action/blob/master/package.json)
 
-### API Deployment Inputs (New)
+### Experimental API Deployment Inputs
 
-These inputs use the `@vercel/client` API directly instead of the CLI. They are used when `vercel-args` is **not** provided.
+These typed inputs map onto `@vercel/client`'s `DeploymentOptions` and `VercelClientOptions`. They only take effect when **experimental API mode is enabled** with `experimental-api: true` (see [Deployment Mode](#deployment-mode) below). They are ignored in the default CLI mode.
 
-> **Note:** Starting with this change, the API path honors your project's `vercel.json` — including `buildCommand`, `installCommand`, `outputDirectory`, and `framework` — along with `engines.node` from `package.json`. Projects with custom build scripts (e.g. `"buildCommand": "./build.sh"`) no longer need the `vercel-args: "--prod"` workaround. Fixes [#336](https://github.com/amondnet/vercel-action/issues/336).
+> **Note:** When experimental API mode is enabled, the API path honors your project's `vercel.json` — including `buildCommand`, `installCommand`, `outputDirectory`, and `framework` — along with `engines.node` from `package.json`. Projects with custom build scripts (e.g. `"buildCommand": "./build.sh"`) work without a `--prod` workaround. Fixes [#336](https://github.com/amondnet/vercel-action/issues/336).
 
 | Name                       | Required | Default   | Description                                                        |
 |----------------------------|:--------:|-----------|--------------------------------------------------------------------|
@@ -362,28 +363,13 @@ The deployment lifecycle:
 
 > **Note:** GitHub Deployment errors are non-blocking. If the GitHub API call fails, the Vercel deployment will still proceed normally.
 
-## Migration to API-based Deployment
+## Deployment Mode
 
-Starting from v42, the default deployment method has changed from **CLI-based** (`vercel` CLI exec) to **API-based** (`@vercel/client` programmatic API). This provides faster deployments, typed inputs, and eliminates the need for CLI installation at runtime.
+The action runs the Vercel CLI by default. An experimental API-based path using `@vercel/client` is also available behind an opt-in flag.
 
-### What Changed
+### CLI mode (default, recommended)
 
-| Before (CLI-based) | After (API-based) |
-|---|---|
-| `vercel-args: --prod` | `target: production` |
-| `vercel-args: --prebuilt` | `prebuilt: true` |
-| `vercel-args: --force` | `force: true` |
-| `vercel-args: --public` | `public: true` |
-| `vercel-args: --env KEY=VALUE` | `env: KEY=VALUE` (multiline) |
-| `vercel-args: --build-env KEY=VALUE` | `build-env: KEY=VALUE` (multiline) |
-| `vercel-args: --regions iad1,sfo1` | `regions: iad1,sfo1` |
-| `vercel-args: --archive=tgz` | `archive: tgz` |
-| `vercel-args: --root-directory ./app` | `root-directory: ./app` |
-| `scope: my-team` | `vercel-org-id: team_xxx` |
-
-### Migration Examples
-
-**Before (CLI-based):**
+The default mode runs the Vercel CLI under the hood. It is stable, depends only on published `vercel` CLI versions, and supports all CLI flags through the `vercel-args` input.
 
 ```yaml
 - uses: amondnet/vercel-action@v42
@@ -392,10 +378,14 @@ Starting from v42, the default deployment method has changed from **CLI-based** 
     github-token: ${{ secrets.GITHUB_TOKEN }}
     vercel-org-id: ${{ secrets.ORG_ID }}
     vercel-project-id: ${{ secrets.PROJECT_ID }}
-    vercel-args: --prod --force --env API_URL=https://api.example.com
+    vercel-args: --prod
 ```
 
-**After (API-based):**
+When the CLI path is selected, the action logs `Using CLI-based deployment`.
+
+### Experimental API mode (opt-in)
+
+API mode runs `@vercel/client` directly instead of spawning the CLI. It exposes typed inputs (`target`, `prebuilt`, `force`, `env`, `build-env`, `regions`, `archive`, `root-directory`, `auto-assign-custom-domains`, `custom-environment`, `public`, `with-cache`) that map onto `DeploymentOptions` and `VercelClientOptions`.
 
 ```yaml
 - uses: amondnet/vercel-action@v42
@@ -404,58 +394,63 @@ Starting from v42, the default deployment method has changed from **CLI-based** 
     github-token: ${{ secrets.GITHUB_TOKEN }}
     vercel-org-id: ${{ secrets.ORG_ID }}
     vercel-project-id: ${{ secrets.PROJECT_ID }}
+    experimental-api: true
     target: production
     force: true
     env: |
       API_URL=https://api.example.com
 ```
 
-**Before (CLI prebuilt):**
+When the API path is selected, the action emits a `core.warning`:
 
-```yaml
-- uses: amondnet/vercel-action@v42
-  with:
-    vercel-token: ${{ secrets.VERCEL_TOKEN }}
-    vercel-org-id: ${{ secrets.ORG_ID }}
-    vercel-project-id: ${{ secrets.PROJECT_ID }}
-    vercel-args: --prebuilt
+```
+Using experimental API-based deployment via @vercel/client. This is an internal
+Vercel package without semver guarantees and may break across updates. Set
+"experimental-api: false" or remove the input to use the stable CLI-based deployment.
 ```
 
-**After (API prebuilt):**
+> **Why is this experimental?** `@vercel/client` is an internal Vercel package published on npm under Apache-2.0 but without semver guarantees. Vercel may change its behavior or types between releases. The CLI is the supported, stable path; only opt in to API mode if you need the typed inputs and accept the upgrade risk.
 
-```yaml
-- uses: amondnet/vercel-action@v42
-  with:
-    vercel-token: ${{ secrets.VERCEL_TOKEN }}
-    vercel-org-id: ${{ secrets.ORG_ID }}
-    vercel-project-id: ${{ secrets.PROJECT_ID }}
-    prebuilt: true
-```
+### Mutual exclusion
 
-### Routing Logic
+`experimental-api: true` and `vercel-args` cannot be used together. The action fails fast at config parse time with a clear error explaining the conflict — choose one mode and remove the other input.
 
-The action automatically selects the deployment method:
+### CLI ↔ API input mapping
 
-- **`vercel-args` is empty (default)** → API-based deployment using `@vercel/client`
-- **`vercel-args` is provided** → CLI-based deployment using `vercel` CLI (backward compatible)
+If you choose to opt in to experimental API mode, the typed inputs replace the equivalent CLI flags:
 
-No changes are required if you are already using `vercel-args`. Your existing workflows will continue to work as before. To migrate, simply remove `vercel-args` and use the new typed inputs instead.
+| CLI mode (`vercel-args`) | Experimental API mode |
+|---|---|
+| `--prod` | `target: production` |
+| `--prebuilt` | `prebuilt: true` |
+| `--force` | `force: true` |
+| `--public` | `public: true` |
+| `--env KEY=VALUE` | `env: KEY=VALUE` (multiline) |
+| `--build-env KEY=VALUE` | `build-env: KEY=VALUE` (multiline) |
+| `--regions iad1,sfo1` | `regions: iad1,sfo1` |
+| `--archive=tgz` | `archive: tgz` |
+| `--root-directory ./app` | `root-directory: ./app` |
+| `scope: my-team` | `vercel-org-id: team_xxx` |
 
-### New API-only Inputs
+### API-only inputs
 
-These inputs are only available with API-based deployment (when `vercel-args` is not set):
+These inputs only take effect in experimental API mode (`experimental-api: true`):
 
-- `auto-assign-custom-domains` — Automatically assign custom domains (default: `true`)
-- `custom-environment` — Custom environment slug or ID
-- `with-cache` — Retain build cache from previous deployments
-- `vercel-output-dir` — Directory containing prebuilt output (only relevant when `prebuilt: true`)
+- `auto-assign-custom-domains` — automatically assign custom domains (default: `true`)
+- `custom-environment` — custom environment slug or ID
+- `with-cache` — retain build cache from previous deployments
+- `vercel-output-dir` — directory containing prebuilt output (relevant when `prebuilt: true`)
 
-### Deprecated Inputs
+### Migrating from a previous version
 
-| Input | Replacement | Notes |
-|---|---|---|
-| `vercel-args` | Use individual typed inputs | Falls back to CLI when provided |
-| `scope` | `vercel-org-id` | Only used for CLI-based deployments |
+Earlier `v42.x` releases routed to the API client by default whenever `vercel-args` was empty. Starting with this release, the CLI is the default in every case and the API path requires explicit opt-in.
+
+If your workflow previously relied on the implicit API default (no `vercel-args`, no opt-in), you have two options:
+
+1. **Stay on CLI (recommended).** Your workflow already does the right thing — no change required. If you previously set typed inputs like `target` or `force`, move those values into `vercel-args` (e.g. `vercel-args: --prod --force`).
+2. **Keep using API mode.** Add `experimental-api: true` to your workflow inputs and accept the experimental warning. Typed inputs (`target`, `force`, `env`, …) continue to apply.
+
+Workflows that already passed `vercel-args` are unaffected — they were on the CLI path before and remain on the CLI path now.
 
 ## Migration from v2
 

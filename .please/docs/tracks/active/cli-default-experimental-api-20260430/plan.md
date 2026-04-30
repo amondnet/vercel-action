@@ -50,12 +50,12 @@ The experimental warning is emitted in the factory (not the constructor) because
 
 ### Phase 3 — action.yml cleanup
 
-- [ ] T008 Replace the empty `description` of `vercel-args` in `action.yml` with a real description noting it is for ad-hoc CLI passthrough; reword the `deprecationMessage` of `scope` so it no longer claims scope is "only for CLI when vercel-args is provided" (since CLI is now the default regardless of vercel-args). Keep zeit-*/now-* deprecations untouched (file: action.yml) (depends on T001)
+- [x] T008 Replace the empty `description` of `vercel-args` in `action.yml` with a real description noting it is for ad-hoc CLI passthrough; reword the `deprecationMessage` of `scope` so it no longer claims scope is "only for CLI when vercel-args is provided" (since CLI is now the default regardless of vercel-args). Keep zeit-*/now-* deprecations untouched (file: action.yml) (depends on T001)
 
 ### Phase 4 — Documentation
 
-- [ ] T009 Add a new "Deployment Mode" section to README.md near the top of the inputs documentation: explain CLI is the default, document the `experimental-api` opt-in, surface the experimental warning, document the mutual-exclusion rule (file: README.md) (depends on T008)
-- [ ] T010 [P] Add a migration note to README.md (or a release-notes section) explicitly calling out that users who relied on the previous API-default must now set `experimental-api: true` to keep that behavior (file: README.md) (depends on T009)
+- [x] T009 Add a new "Deployment Mode" section to README.md near the top of the inputs documentation: explain CLI is the default, document the `experimental-api` opt-in, surface the experimental warning, document the mutual-exclusion rule (file: README.md) (depends on T008)
+- [x] T010 [P] Add a migration note to README.md (or a release-notes section) explicitly calling out that users who relied on the previous API-default must now set `experimental-api: true` to keep that behavior (file: README.md) (depends on T009)
 
 ### Phase 5 — Integration verification
 

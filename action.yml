@@ -5,9 +5,9 @@ inputs:
     description: Vercel token
     required: true
   vercel-args:
-    description: ''
     required: false
     default: ''
+    description: 'Ad-hoc CLI flags forwarded directly to the Vercel CLI (e.g. "--prod --force"). The CLI is the default deployment mode. Mutually exclusive with experimental-api.'
   github-comment:
     required: false
     default: 'true'
@@ -40,8 +40,8 @@ inputs:
     description: vercel-cli package version
   scope:
     required: false
-    description: 'Team slug for Vercel CLI --scope flag. For API deployments, use vercel-org-id instead.'
-    deprecationMessage: 'Use "vercel-org-id" for team identification. The "scope" input is only used for CLI-based deployments (when vercel-args is provided).'
+    description: 'Team slug for the Vercel CLI --scope flag (used in the default CLI deployment mode). Prefer vercel-org-id, which works for both CLI and experimental API modes.'
+    deprecationMessage: 'Prefer "vercel-org-id" for team identification — it works in both CLI and experimental API modes. The "scope" input is only honored by the CLI deployment path.'
   zeit-token:
     description: zeit.co token
     required: false
