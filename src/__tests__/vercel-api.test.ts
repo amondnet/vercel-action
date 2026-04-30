@@ -364,7 +364,7 @@ describe('vercelApiClient.deploy', () => {
   })
 })
 
-describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
+describe('vercelApiClient.deploy — projectSettings from vercel.json', () => {
   let tmpDir: string
 
   beforeEach(() => {
@@ -376,7 +376,10 @@ describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
     rmSync(tmpDir, { recursive: true, force: true })
   })
 
-  it('includes nowConfig.buildCommand when vercel.json is present', async () => {
+  it('forwards vercel.json keys via projectSettings without sending nowConfig', async () => {
+    // The Vercel REST API rejects `nowConfig` as an undeclared additional
+    // property. The CLI honors vercel.json by copying select keys into
+    // projectSettings instead. We must mirror that. See #359.
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
       JSON.stringify({ buildCommand: './build.sh', framework: 'hugo' }),
@@ -392,12 +395,12 @@ describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
     await client.deploy(config, createDeployContext())
 
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.nowConfig).toBeDefined()
-    expect(deployOpts.nowConfig.buildCommand).toBe('./build.sh')
-    expect(deployOpts.nowConfig.framework).toBe('hugo')
+    expect(deployOpts.nowConfig).toBeUndefined()
+    expect(deployOpts.projectSettings?.buildCommand).toBe('./build.sh')
+    expect(deployOpts.projectSettings?.framework).toBe('hugo')
   })
 
-  it('omits nowConfig when vercel.json is absent', async () => {
+  it('does not send nowConfig when vercel.json is absent', async () => {
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
       { type: 'created', payload: { url: 'https://test.vercel.app' } },
       { type: 'ready', payload: {} },
@@ -411,10 +414,14 @@ describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
     expect(deployOpts.nowConfig).toBeUndefined()
   })
 
-  it('strips images from nowConfig', async () => {
+  it('does not copy non-whitelisted vercel.json keys (images, redirects) into projectSettings', async () => {
     writeFileSync(
       path.join(tmpDir, 'vercel.json'),
-      JSON.stringify({ buildCommand: 'build', images: { sizes: [640] } }),
+      JSON.stringify({
+        buildCommand: 'build',
+        images: { sizes: [640] },
+        redirects: [{ source: '/a', destination: '/b' }],
+      }),
     )
 
     mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
@@ -427,7 +434,10 @@ describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
     await client.deploy(config, createDeployContext())
 
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
-    expect(deployOpts.nowConfig).toEqual({ buildCommand: 'build' })
+    expect(deployOpts.nowConfig).toBeUndefined()
+    expect(deployOpts.projectSettings?.buildCommand).toBe('build')
+    expect(deployOpts.projectSettings).not.toHaveProperty('images')
+    expect(deployOpts.projectSettings).not.toHaveProperty('redirects')
   })
 
   it('populates projectSettings.nodeVersion from package.json engines.node', async () => {
@@ -451,6 +461,36 @@ describe('vercelApiClient.deploy — nowConfig/projectSettings', () => {
 
     const deployOpts = mockCreateDeployment.mock.calls[0][1]
     expect(deployOpts.projectSettings?.nodeVersion).toBe('20.x')
+  })
+
+  it('regression #359: semver-range engines.node + vercel.json produces an API-acceptable payload', async () => {
+    // Both bugs from issue #359 in one scenario: a semver-range engines.node
+    // value plus a vercel.json with buildCommand. The resulting deployment
+    // payload must (1) normalize nodeVersion to "24.x", (2) carry buildCommand
+    // via projectSettings, and (3) NOT contain a top-level nowConfig field.
+    writeFileSync(
+      path.join(tmpDir, 'vercel.json'),
+      JSON.stringify({ buildCommand: './build.sh', framework: 'hugo' }),
+    )
+    writeFileSync(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ engines: { node: '>=24.0.0' } }),
+    )
+
+    mockCreateDeployment.mockReturnValue(fakeDeploymentEvents([
+      { type: 'created', payload: { url: 'https://test.vercel.app' } },
+      { type: 'ready', payload: {} },
+    ]))
+
+    const config = createConfig({ workingDirectory: tmpDir })
+    const client = new VercelApiClient(config)
+    await client.deploy(config, createDeployContext())
+
+    const deployOpts = mockCreateDeployment.mock.calls[0][1]
+    expect(deployOpts.nowConfig).toBeUndefined()
+    expect(deployOpts.projectSettings?.nodeVersion).toBe('24.x')
+    expect(deployOpts.projectSettings?.buildCommand).toBe('./build.sh')
+    expect(deployOpts.projectSettings?.framework).toBe('hugo')
   })
 
   it('fails fast when vercel.json is malformed', async () => {

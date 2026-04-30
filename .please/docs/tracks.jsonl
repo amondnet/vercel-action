@@ -1,4 +1,5 @@
 {"id":"prebuilt-project-id-bug-20260408","type":"bugfix","status":"review","phase":"finalize","issue":"#330","created":"2026-04-08","section":"completed"}
 {"id":"relative-working-dir-20260423","type":"bugfix","status":"review","phase":"finalize","issue":"#341","pr":"#349","created":"2026-04-23","section":"completed"}
 {"id":"build-exit-255-20260423","type":"bugfix","status":"review","phase":"finalize","issue":"#336","pr":"#350","created":"2026-04-23","section":"completed"}
+{"id":"fix-vercel-validation-20260430","type":"bugfix","status":"review","phase":"finalize","issue":"#359","pr":"#364","created":"2026-04-30","section":"completed"}
 {"id":"auto-vercel-build-20260430","type":"feature","status":"review","phase":"finalize","issue":"#360","pr":"#361","created":"2026-04-30","section":"completed"}

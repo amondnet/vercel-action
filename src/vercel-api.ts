@@ -124,17 +124,12 @@ function applyConditionalFlags(options: DeploymentOptions, config: ActionConfig)
   }
 }
 
-// Merge nowConfig (vercel.json contents) and projectSettings (rootDirectory,
-// nodeVersion, etc.) so the Vercel API honors the user's
-// buildCommand/installCommand/outputDirectory instead of falling back to
-// framework auto-detection. `nowConfig` is accepted by the REST API but not
-// declared in DeploymentOptions — passed through via Object.assign, same
-// pattern as `project` in buildDeploymentOptions. See: #336
+// Honor select `vercel.json` keys via `projectSettings` (buildCommand,
+// installCommand, outputDirectory, framework, devCommand) plus a normalized
+// `nodeVersion` from `package.json` engines.node. The Vercel REST API does
+// not accept `nowConfig` as a top-level field — see #359.
 function applyProjectConfig(options: DeploymentOptions, config: ActionConfig): void {
   const projectConfig = buildProjectConfig(config)
-  if (projectConfig.nowConfig) {
-    Object.assign(options, { nowConfig: projectConfig.nowConfig })
-  }
   if (projectConfig.projectSettings) {
     options.projectSettings = projectConfig.projectSettings
   }

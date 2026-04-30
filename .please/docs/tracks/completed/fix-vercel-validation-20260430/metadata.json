@@ -1,0 +1,11 @@
+{
+  "track_id": "fix-vercel-validation-20260430",
+  "type": "bugfix",
+  "status": "review",
+  "created_at": "2026-04-30T00:00:00Z",
+  "updated_at": "2026-04-30T04:35:00Z",
+  "issue": "#359",
+  "pr": "#364",
+  "project": "",
+  "project_item_id": ""
+}
