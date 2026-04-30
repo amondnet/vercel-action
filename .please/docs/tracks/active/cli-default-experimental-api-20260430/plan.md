@@ -59,8 +59,8 @@ The experimental warning is emitted in the factory (not the constructor) because
 
 ### Phase 5 — Integration verification
 
-- [ ] T011 Update or add an integration test in `src/__integration__/` that runs the action twice against the emulator: once with default inputs (CLI path) and once with `experimental-api: true` (API path), verifying both produce a valid `preview-url` (file: src/__integration__/vercel-api.test.ts) (depends on T005)
-- [ ] T012 Run the full quality gate locally: `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, `pnpm test:integration`. Fix any failures uncovered (depends on T006, T007, T011)
+- [x] T011 Update or add an integration test in `src/__integration__/` that runs the action twice against the emulator: once with default inputs (CLI path) and once with `experimental-api: true` (API path), verifying both produce a valid `preview-url` (file: src/__integration__/vercel-api.test.ts) (depends on T005)
+- [x] T012 Run the full quality gate locally: `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, `pnpm test:integration`. Fix any failures uncovered (depends on T006, T007, T011)
 
 ## Dependencies
 
@@ -103,7 +103,11 @@ T001 ──► T008 ──► T009 ──► T010 [P]
 
 ## Progress
 
-_(Updated by /please:implement)_
+- 2026-04-30 — Phase 1 complete: T001 added `experimental-api` input; T002 added `experimentalApi: boolean` to `ActionConfig`; T003 added parsing + mutual-exclusion validation; T004 added 7 config tests (defaults, parsing, error message)
+- 2026-04-30 — Phase 2 complete: T005 inverted routing default in `createVercelClient()` and emits `core.warning` when API path is taken; T006 rewrote `describe('createVercelClient', ...)` as the four-case AC-1 matrix; T007 updated `createConfig` test helper
+- 2026-04-30 — Phase 3 complete: T008 replaced empty `vercel-args` description, reworded `scope` deprecation message
+- 2026-04-30 — Phase 4 complete: T009 replaced "Migration to API-based Deployment" with "Deployment Mode" section in README; T010 added migration note for users on the previous v42 API default
+- 2026-04-30 — Phase 5 complete: T011 added factory-routing integration tests + `experimentalApi` field to integration `createConfig`; T012 quality gate (lint, typecheck, build, full test suite + integration suite) all green — 244 unit + 19 integration tests pass
 
 ## Decision Log
 

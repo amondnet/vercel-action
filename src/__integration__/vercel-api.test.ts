@@ -2,8 +2,11 @@ import type { ActionConfig } from '../types'
 import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import * as core from '@actions/core'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createVercelClient } from '../vercel'
 import { VercelApiClient } from '../vercel-api'
+import { VercelCliClient } from '../vercel-cli'
 import { TEST_PROJECT, TEST_TEAM, VERCEL_TOKEN, vercelFetch } from './helpers'
 
 function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
@@ -34,6 +37,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     customEnvironment: '',
     isPublic: false,
     withCache: false,
+    experimentalApi: false,
     ...overrides,
   }
 }
@@ -209,6 +213,39 @@ describe('vercelApiClient (integration)', () => {
           createTeamConfig({ workingDirectory: projectDir }),
           { ref: 'main', sha: 'abc', commit: 'test', commitOrg: 'org', commitRepo: 'repo' },
         )).rejects.toThrow(/vercel\.json/)
+      })
+    })
+
+    describe('factory routing', () => {
+      let warnSpy: ReturnType<typeof vi.spyOn>
+      let infoSpy: ReturnType<typeof vi.spyOn>
+
+      beforeEach(() => {
+        warnSpy = vi.spyOn(core, 'warning').mockImplementation(() => {})
+        infoSpy = vi.spyOn(core, 'info').mockImplementation(() => {})
+      })
+
+      afterEach(() => {
+        warnSpy.mockRestore()
+        infoSpy.mockRestore()
+      })
+
+      it('routes to VercelCliClient by default (CLI is the default path)', () => {
+        const client = createVercelClient(createTeamConfig())
+
+        expect(client).toBeInstanceOf(VercelCliClient)
+        expect(infoSpy).toHaveBeenCalledWith('Using CLI-based deployment')
+        expect(warnSpy).not.toHaveBeenCalled()
+      })
+
+      it('routes to VercelApiClient when experimental-api is opted in, with warning', () => {
+        const client = createVercelClient(createTeamConfig({ experimentalApi: true }))
+
+        expect(client).toBeInstanceOf(VercelApiClient)
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        const message = warnSpy.mock.calls[0][0] as string
+        expect(message).toContain('experimental')
+        expect(message).toContain('@vercel/client')
       })
     })
 
