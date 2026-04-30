@@ -648,6 +648,40 @@ describe('vercel-build input', () => {
     )
   })
 
+  it('throws when vercel-build is true and vercel-args is non-empty', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'vercel-args': '--prod',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).toThrow(
+      /vercel-build.*vercel-args/i,
+    )
+  })
+
+  it('treats whitespace-only vercel-args as empty for mutex check', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'alias-domains': '',
+        'vercel-version': '',
+        'vercel-build': 'true',
+        'vercel-args': '   ',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).not.toThrow()
+  })
+
   it('does not throw when only vercel-build is true', async () => {
     vi.mocked(core.getInput).mockImplementation((name: string) => {
       const inputs: Record<string, string> = {

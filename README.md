@@ -67,7 +67,7 @@ These inputs use the `@vercel/client` API directly instead of the CLI. They are 
 |----------------------------|:--------:|-----------|--------------------------------------------------------------------|
 | target                     |    No    | `preview` | Deployment target: `production` or `preview`                       |
 | prebuilt                   |    No    | `false`   | Deploy prebuilt output (requires a prior `vercel build` step). Mutually exclusive with `vercel-build`. |
-| vercel-build               |    No    | `false`   | Run `vercel pull` + `vercel build` inside the action before deploying, then upload `.vercel/output` via the prebuilt path. Mutually exclusive with `prebuilt`. See ["Build inside the action"](#build-inside-the-action-vercel-build) below. |
+| vercel-build               |    No    | `false`   | Run `vercel pull` + `vercel build` inside the action before deploying, then upload `.vercel/output` via the prebuilt path. Mutually exclusive with `prebuilt`. See ["Build inside the action"](#method-4---build-inside-the-action-vercel-build) below. |
 | vercel-output-dir          |    No    |           | Custom path to prebuilt output. Defaults to `{working-directory}/.vercel/output` |
 | force                      |    No    | `false`   | Force new deployment, bypassing dedupe and build cache             |
 | env                        |    No    |           | Environment variables (`KEY=VALUE` per line)                       |

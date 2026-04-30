@@ -252,6 +252,34 @@ describe('runVercelBuild', () => {
     })
   })
 
+  it('caps captured stderr buffer when output is huge (no OOM)', async () => {
+    // Simulate a 1 MB stderr stream. The captured buffer must not grow
+    // unboundedly — it should retain only the trailing ~64 KB so the
+    // BuildFailedError's stderrTail remains representative without
+    // pinning megabytes of memory per build.
+    const oneKb = 'x'.repeat(1024)
+    vi.mocked(exec.exec).mockImplementation(async (_cmd, _args, options: any) => {
+      for (let i = 0; i < 1024; i++) {
+        options.listeners.stderr(Buffer.from(`${oneKb}\n`))
+      }
+      // Final marker so we can prove the tail is preserved.
+      options.listeners.stderr(Buffer.from('FINAL_MARKER\n'))
+      return 1
+    })
+
+    try {
+      await runVercelBuild(makeConfig())
+      throw new Error('expected runVercelBuild to throw')
+    }
+    catch (err: any) {
+      expect(err.name).toBe('BuildFailedError')
+      // Trailing marker is retained.
+      expect(err.stderrTail).toContain('FINAL_MARKER')
+      // Captured buffer is bounded; should be far under 1 MB.
+      expect(err.stderrTail.length).toBeLessThan(128 * 1024)
+    }
+  })
+
   it('uses process.cwd() when workingDirectory is empty', async () => {
     vi.mocked(exec.exec).mockResolvedValue(0)
     const config = makeConfig({ workingDirectory: '' })

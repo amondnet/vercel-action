@@ -94,6 +94,15 @@ export function getActionConfig(): ActionConfig {
       + 'to deploy an already-built .vercel/output, but not both.',
     )
   }
+  if (vercelBuild && vercelArgs.trim() !== '') {
+    throw new Error(
+      'Input "vercel-build" cannot be used together with a non-empty "vercel-args". '
+      + '"vercel-build" builds locally and deploys the generated .vercel/output via '
+      + 'the prebuilt/API path, while "vercel-args" routes the deployment through the '
+      + 'Vercel CLI path which would ignore the local build output. '
+      + 'Remove "vercel-args" to use "vercel-build", or disable "vercel-build" to deploy with CLI arguments.',
+    )
+  }
 
   return {
     githubToken: core.getInput('github-token'),

@@ -47,6 +47,20 @@ interface ExecResult {
   stderr: string
 }
 
+// Cap captured output (per stream) at ~64 KB. Long `vercel build` runs can
+// produce many MB of logs; we already stream them live through core.info, so
+// the in-memory buffer only needs enough tail to populate BuildFailedError's
+// stderrTail (last ~20 lines).
+const MAX_CAPTURED_BYTES = 64 * 1024
+
+function appendBounded(existing: string, chunk: string, maxBytes: number): string {
+  const combined = existing + chunk
+  if (combined.length <= maxBytes) {
+    return combined
+  }
+  return combined.slice(combined.length - maxBytes)
+}
+
 async function execVercel(
   args: string[],
   cwd: string,
@@ -65,12 +79,12 @@ async function execVercel(
     listeners: {
       stdout: (data: Buffer) => {
         const chunk = data.toString()
-        stdout += chunk
+        stdout = appendBounded(stdout, chunk, MAX_CAPTURED_BYTES)
         core.info(chunk)
       },
       stderr: (data: Buffer) => {
         const chunk = data.toString()
-        stderr += chunk
+        stderr = appendBounded(stderr, chunk, MAX_CAPTURED_BYTES)
         core.info(chunk)
       },
     },

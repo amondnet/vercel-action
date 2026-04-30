@@ -136,7 +136,7 @@ function buildBuildFailureBody(sha: string, exitCode: number, stderrTail: string
     ${truncatedTail}
     \`\`\`
 
-    See the GitHub Actions log for the full output. This pull request is
+    See the GitHub Actions log for the full output. This workflow run is
     being automatically deployed with [vercel-action](https://github.com/marketplace/actions/vercel-action).
   `
 }

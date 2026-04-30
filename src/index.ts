@@ -345,7 +345,11 @@ export async function run(): Promise<void> {
   }
 }
 
-if (!process.env.VITEST) {
+// Auto-invoke run() only inside the GitHub Actions runner. A negative guard
+// like `!process.env.VITEST` would silently disable the action in any
+// workflow that happens to set VITEST (e.g. a step running unit tests in the
+// same job). GITHUB_ACTIONS is the canonical, runner-set sentinel.
+if (process.env.GITHUB_ACTIONS === 'true') {
   run().catch((error: unknown) => {
     if (error instanceof Error) {
       core.setFailed(error.message)
