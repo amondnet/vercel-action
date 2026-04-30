@@ -1,0 +1,36 @@
+.please/docs/product-specs/deployment/vercel-build.md
+  d6759eea1de654f9 1-128
+.please/docs/product-specs/index.md
+  d6759eea1de654f9 3,5-7
+.please/docs/tracks.jsonl
+  d6759eea1de654f9 4
+.please/docs/tracks/completed/auto-vercel-build-20260430/spec.md
+  d6759eea1de654f9 1-67
+.please/docs/tracks/completed/auto-vercel-build-20260430/plan.md
+  d6759eea1de654f9 157-191
+.please/docs/tracks/tech-debt-tracker.md
+  d6759eea1de654f9 9-10
+.please/docs/tracks/completed/auto-vercel-build-20260430/metadata.json
+  d6759eea1de654f9 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "fb288abba3af3e7c2b9a3cf040073732c9f03a4a",
+  "prompts": {
+    "d6759eea1de654f9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b21871a-0c2d-4a45-9d98-61f40adebe93",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 441,
+      "total_deletions": 198,
+      "accepted_lines": 405,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/1e6b0ac59acf0a90b2c31dffb693c61760190b50a6e47369e66addf638b94500"
+    }
+  }
+}
