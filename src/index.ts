@@ -345,10 +345,11 @@ export async function run(): Promise<void> {
   }
 }
 
-// Auto-invoke run() only inside the GitHub Actions runner. A negative guard
-// like `!process.env.VITEST` would silently disable the action in any
-// workflow that happens to set VITEST (e.g. a step running unit tests in the
-// same job). GITHUB_ACTIONS is the canonical, runner-set sentinel.
+// Auto-invoke run() only inside the GitHub Actions runner.
+// GITHUB_ACTIONS is the canonical, runner-set sentinel that is not
+// user-controllable. Unit tests override this to '' in vitest.config.ts
+// (via test.env) so that module imports during tests do not trigger
+// auto-invocation.
 if (process.env.GITHUB_ACTIONS === 'true') {
   run().catch((error: unknown) => {
     if (error instanceof Error) {
