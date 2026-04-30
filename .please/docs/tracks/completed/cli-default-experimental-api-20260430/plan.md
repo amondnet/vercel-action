@@ -107,7 +107,7 @@ T001 ──► T008 ──► T009 ──► T010 [P]
 - 2026-04-30 — Phase 2 complete: T005 inverted routing default in `createVercelClient()` and emits `core.warning` when API path is taken; T006 rewrote `describe('createVercelClient', ...)` as the four-case AC-1 matrix; T007 updated `createConfig` test helper
 - 2026-04-30 — Phase 3 complete: T008 replaced empty `vercel-args` description, reworded `scope` deprecation message
 - 2026-04-30 — Phase 4 complete: T009 replaced "Migration to API-based Deployment" with "Deployment Mode" section in README; T010 added migration note for users on the previous v42 API default
-- 2026-04-30 — Phase 5 complete: T011 added factory-routing integration tests + `experimentalApi` field to integration `createConfig`; T012 quality gate (lint, typecheck, build, full test suite + integration suite) all green — 244 unit + 19 integration tests pass
+- 2026-04-30 — Phase 5 complete: T011 added factory-routing integration tests + `experimentalApi` field to integration `createConfig`; T012 quality gate (lint, typecheck, build, full test suite + integration suite) all green — 243 unit + 19 integration tests pass (later raised to 248 after the discriminated-union refactor + post-review fixes)
 
 ## Decision Log
 

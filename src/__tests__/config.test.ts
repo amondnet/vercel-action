@@ -186,28 +186,42 @@ describe('resolveDeploymentEnvironment', () => {
 
   it('returns explicit environment when provided', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    expect(resolveDeploymentEnvironment('staging', '--prod')).toBe('staging')
+    expect(resolveDeploymentEnvironment('staging', { kind: 'cli', vercelArgs: '--prod' }, 'preview')).toBe('staging')
   })
 
-  it('returns "production" when vercel-args contains --prod', async () => {
+  it('returns "production" when CLI vercel-args contains --prod', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    expect(resolveDeploymentEnvironment('', '--prod')).toBe('production')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '--prod' }, 'preview')).toBe('production')
   })
 
-  it('returns "preview" when vercel-args does not contain --prod', async () => {
+  it('returns "preview" when CLI vercel-args does not contain --prod', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    expect(resolveDeploymentEnvironment('', '')).toBe('preview')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '' }, 'preview')).toBe('preview')
   })
 
-  it('returns "production" when --prod is among other args', async () => {
+  it('returns "production" when --prod is among other CLI args', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    expect(resolveDeploymentEnvironment('', '--force --prod --debug')).toBe('production')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '--force --prod --debug' }, 'preview')).toBe('production')
   })
 
-  it('returns "production" when args contain --production', async () => {
+  it('returns "production" when CLI args contain --production', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    // --production is also matched by the regex since it contains --prod
-    expect(resolveDeploymentEnvironment('', '--production')).toBe('production')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '--production' }, 'preview')).toBe('production')
+  })
+
+  it('returns "production" in experimental-api mode when target is production', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', { kind: 'experimental-api' }, 'production')).toBe('production')
+  })
+
+  it('returns "preview" in experimental-api mode when target is preview', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('', { kind: 'experimental-api' }, 'preview')).toBe('preview')
+  })
+
+  it('explicit environment beats experimental-api target', async () => {
+    const { resolveDeploymentEnvironment } = await import('../config')
+    expect(resolveDeploymentEnvironment('staging', { kind: 'experimental-api' }, 'production')).toBe('staging')
   })
 })
 
@@ -751,5 +765,37 @@ describe('getActionConfig - deployment mode', () => {
 
     expect(() => getActionConfig()).toThrow(/experimental-api/)
     expect(() => getActionConfig()).toThrow(/vercel-args/)
+  })
+
+  it('does NOT throw when experimental-api=true and vercel-args is whitespace-only', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'experimental-api': 'true',
+        'vercel-args': '   \t  ',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    expect(() => getActionConfig()).not.toThrow()
+
+    const config = getActionConfig()
+    expect(config.deployment).toEqual({ kind: 'experimental-api' })
+  })
+
+  it('trims vercel-args whitespace when constructing the cli deployment variant', async () => {
+    vi.mocked(core.getInput).mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'vercel-token': 'v-token',
+        'vercel-args': '  --prod  ',
+      }
+      return inputs[name] ?? ''
+    })
+
+    const { getActionConfig } = await import('../config')
+    const config = getActionConfig()
+
+    expect(config.deployment).toEqual({ kind: 'cli', vercelArgs: '--prod' })
   })
 })

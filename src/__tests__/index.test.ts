@@ -231,9 +231,9 @@ describe('github deployment integration', () => {
 
   it('resolveDeploymentEnvironment auto-detects production from --prod', async () => {
     const { resolveDeploymentEnvironment } = await import('../config')
-    expect(resolveDeploymentEnvironment('', '--prod')).toBe('production')
-    expect(resolveDeploymentEnvironment('', '')).toBe('preview')
-    expect(resolveDeploymentEnvironment('staging', '--prod')).toBe('staging')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '--prod' }, 'preview')).toBe('production')
+    expect(resolveDeploymentEnvironment('', { kind: 'cli', vercelArgs: '' }, 'preview')).toBe('preview')
+    expect(resolveDeploymentEnvironment('staging', { kind: 'cli', vercelArgs: '--prod' }, 'preview')).toBe('staging')
   })
 
   it('octokit has deployment API methods available', () => {

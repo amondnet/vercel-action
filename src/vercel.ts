@@ -18,6 +18,10 @@ export function createVercelClient(config: ActionConfig): VercelClient {
     case 'cli':
       core.info('Using CLI-based deployment')
       return new VercelCliClient(config)
+    default: {
+      const exhaustive: never = config.deployment
+      throw new Error(`Unhandled deployment mode: ${JSON.stringify(exhaustive)}`)
+    }
   }
 }
 
