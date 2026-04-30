@@ -1,0 +1,24 @@
+dist/index.js
+  d6759eea1de654f9 102506-102510
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "faeeff0455a6f0a6fb08cc1029221961dd7bf616",
+  "prompts": {
+    "d6759eea1de654f9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b21871a-0c2d-4a45-9d98-61f40adebe93",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 4,
+      "accepted_lines": 1571,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/5f13fbc870449c1416af6ceb94fab64d1b8a933d541e86e5bcb90c76afcb4971"
+    }
+  }
+}
