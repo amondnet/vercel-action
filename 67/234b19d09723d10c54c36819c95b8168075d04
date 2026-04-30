@@ -1,0 +1,34 @@
+.please/docs/tracks/completed/cli-default-experimental-api-20260430/metadata.json
+  e13f64cc5963a2de 4-6
+.please/docs/product-specs/index.md
+  e13f64cc5963a2de 3,5-7
+.please/docs/product-specs/deployment/spec.md
+  e13f64cc5963a2de 1-114
+.please/docs/tracks.jsonl
+  e13f64cc5963a2de 4
+.please/docs/tracks/completed/cli-default-experimental-api-20260430/plan.md
+  e13f64cc5963a2de 127-164
+.please/docs/tracks/completed/cli-default-experimental-api-20260430/spec.md
+  e13f64cc5963a2de 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "67234b19d09723d10c54c36819c95b8168075d04",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 384,
+      "total_deletions": 6,
+      "accepted_lines": 346,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/43c48c12362662f8fdc720000b214130302c4845c433c509e43e358ba3fe224e"
+    }
+  }
+}
