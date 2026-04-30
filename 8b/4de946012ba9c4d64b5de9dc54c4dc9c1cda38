@@ -1,0 +1,24 @@
+.please/docs/knowledge/product.md
+  e13f64cc5963a2de 16-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "8b4de946012ba9c4d64b5de9dc54c4dc9c1cda38",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 5,
+      "accepted_lines": 6,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/a5a3f165768a956c9b5d5426c87c6b1d11a1a3af791de0f982934931f078baec"
+    }
+  }
+}
