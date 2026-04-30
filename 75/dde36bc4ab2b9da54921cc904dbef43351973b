@@ -1,0 +1,98 @@
+src/__integration__/vercel-build.test.ts
+  e13f64cc5963a2de 1-158
+dist/project-config.d.ts
+  e13f64cc5963a2de 6-10,15
+src/__tests__/vercel-api.test.ts
+  e13f64cc5963a2de 367,379-382,398-400,403,417,420-424,437-440,466-493
+.please/docs/tracks/completed/auto-vercel-build-20260430/metadata.json
+  e13f64cc5963a2de 1-11
+.please/docs/tracks/completed/auto-vercel-build-20260430/spec.md
+  e13f64cc5963a2de 1-67
+action.yml
+  e13f64cc5963a2de 73-76
+.please/docs/tracks/completed/fix-vercel-validation-20260430/metadata.json
+  e13f64cc5963a2de 1-11
+src/__tests__/github-comments.test.ts
+  e13f64cc5963a2de 4-9,304-424
+.please/docs/tracks/completed/fix-vercel-validation-20260430/investigation.md
+  e13f64cc5963a2de 1-166
+src/types.ts
+  e13f64cc5963a2de 89
+src/vercel-build.ts
+  e13f64cc5963a2de 1-172
+.please/docs/tracks/completed/fix-vercel-validation-20260430/spec.md
+  e13f64cc5963a2de 1-94
+.please/docs/knowledge/tech-stack.md
+  e13f64cc5963a2de 25
+.please/docs/product-specs/deployment/spec.md
+  e13f64cc5963a2de 2
+.please/docs/product-specs/index.md
+  e13f64cc5963a2de 7
+.please/docs/tracks/completed/auto-vercel-build-20260430/plan.md
+  e13f64cc5963a2de 1-191
+src/__tests__/project-config.test.ts
+  e13f64cc5963a2de 6,159-204,216-219,227-229,235-255,266-267,272-310,313-319,324-328,369-372,380-382
+src/__tests__/config.test.ts
+  e13f64cc5963a2de 592-731
+dist/index.js
+  e13f64cc5963a2de 67937-70649,101845-101858,101875-101876,101961-101962,102035-102084,102272-102577,102582,102588-102599,102603-102627,102669,102679,102681-102696,102708-102717,103117-103120,103250-103432,111875
+src/index.ts
+  e13f64cc5963a2de 6-11,15,251-281,284,293-302,348-362
+.please/docs/product-specs/deployment/vercel-build.md
+  e13f64cc5963a2de 1-128
+src/__integration__/vercel-api.test.ts
+  e13f64cc5963a2de 193-254
+dist/github-comments.d.ts
+  e13f64cc5963a2de 3-4
+vitest.config.ts
+  e13f64cc5963a2de 28-31
+src/config.ts
+  e13f64cc5963a2de 111-129,146-147
+src/project-config.ts
+  e13f64cc5963a2de 4-5,14-18,25-35,40-67,116,129,132-149,163-174
+.please/docs/tracks.jsonl
+  e13f64cc5963a2de 4-5
+src/__tests__/run-build.test.ts
+  e13f64cc5963a2de 1-217
+src/__tests__/vercel-build.test.ts
+  e13f64cc5963a2de 1-394
+dist/vercel-build.d.ts
+  e13f64cc5963a2de 1-14
+.please/docs/tracks/completed/fix-vercel-validation-20260430/plan.md
+  e13f64cc5963a2de 1-127
+package.json
+  e13f64cc5963a2de 50,60
+src/github-comments.ts
+  e13f64cc5963a2de 120-189
+dist/types.d.ts
+  e13f64cc5963a2de 86
+dist/licenses.txt
+  e13f64cc5963a2de 3122-3140
+src/vercel-api.ts
+  e13f64cc5963a2de 127-130
+.please/docs/tracks/tech-debt-tracker.md
+  e13f64cc5963a2de 9-10
+dist/index.d.ts
+  e13f64cc5963a2de 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "75dde36bc4ab2b9da54921cc904dbef43351973b",
+  "prompts": {
+    "e13f64cc5963a2de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a5e19e38-af4a-4e20-ba55-1902a8009f3e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 9337,
+      "total_deletions": 3264,
+      "accepted_lines": 27556,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/4678c71ad5224f844943ec9b8bfc3cb72a17f6a89a543dde399cf572c70d88cc"
+    }
+  }
+}
