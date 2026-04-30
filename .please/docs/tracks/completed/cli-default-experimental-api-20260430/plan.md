@@ -124,3 +124,41 @@ T001 ──► T008 ──► T009 ──► T010 [P]
 - The spec's FR-6 mentioned removing a `deprecationMessage` from `vercel-args`, but inspection of `action.yml:7-10` shows `vercel-args` has no `deprecationMessage` at all — only an empty description. The real cleanup target is the `scope` input (line 44), whose deprecation message references "CLI-based deployments (when vercel-args is provided)" — that conditional clause is now misleading because CLI is the default regardless of `vercel-args`. T008 captures this corrected scope.
 - Existing tests in `src/__tests__/vercel.test.ts:495-515` already provide a routing test scaffold; this plan rewrites them rather than creating new files.
 - `src/__tests__/vercel.test.ts:27-55` `createConfig` helper does not currently include `githubDeployment` / `githubDeploymentEnvironment` fields — it produces a `Partial<ActionConfig>` cast as full. T007 will update it for the new `experimentalApi` field; whether to also fix the missing legacy fields is out of scope for this track.
+- Initial implementation modeled the routing as `experimentalApi: boolean` + `vercelArgs: string`. During code review, the type-analyzer reviewer (confidence 82) flagged that the mutual-exclusion invariant only existed at runtime; the type allowed `{ experimentalApi: true, vercelArgs: '--prod' }` to typecheck. A post-implementation refactor (commit `a08587e`) replaced both fields with a discriminated union `DeploymentMode = { kind: 'cli', vercelArgs: string } | { kind: 'experimental-api' }` and an exhaustive `switch` in `createVercelClient()`. The runtime mutual-exclusion check stayed but is now scoped to input parsing only.
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+
+- New `experimental-api` boolean action input (default `false`).
+- `ActionConfig.deployment: DeploymentMode` discriminated union encoding the (CLI ↔ experimental-API) mutual-exclusion at the type level.
+- `createVercelClient()` switches on `deployment.kind`; CLI is the default path with `core.info`, API path emits a single `core.warning`.
+- Mutual-exclusion error thrown at config-parse time when both `experimental-api: true` and `vercel-args` are set.
+- README "Deployment Mode" section documenting CLI default, experimental-api opt-in, mutual exclusion, CLI ↔ API input mapping, and a migration note for users who relied on the previous v42 API default.
+- 7 new config tests + 3 new routing matrix tests + 2 new factory routing integration tests.
+- `action.yml` polished: real description for `vercel-args`; `scope` `deprecationMessage` removed (input remains, with description preferring `vercel-org-id`).
+
+### What Went Well
+
+- TDD cycle (RED → GREEN) caught the routing matrix end-to-end before the implementation switched defaults.
+- Spec compliance audit during /please:review caught FR-6 (the `scope` `deprecationMessage` was rewritten rather than removed) immediately.
+- The type-system refactor was suggested *after* a working implementation and validated by a re-review iteration; the change was small, self-contained, and improved the design without expanding scope.
+- All gates (lint, typecheck, build, 243 unit + 19 integration tests) stayed green throughout multiple commits.
+
+### What Could Improve
+
+- The original spec FR-6 was based on an assumption that turned out to be wrong (`vercel-args` had no `deprecationMessage`). A short codebase scan during spec authoring would have caught this; future bug/refactor specs should ground claims in `git grep` / current state before locking the wording.
+- The type-system encoding (discriminated union) was a cleaner design from day one, but only emerged through an external review. Future specs that involve mutual-exclusion of inputs should consider tagged-union shapes upfront.
+
+### Tech Debt Created
+
+- None directly from this track. The `dist/` regeneration adds noise to the diff but is required for GitHub Actions consumption per `CLAUDE.md`.
+- Pre-existing warnings (`ts/no-explicit-any` in test files) remain — out of scope for this track, but a candidate for a future sweep.
+
+### Stats
+
+- Tasks: 12/12 complete
+- Tests: 243 unit + 19 integration
+- Commits: 9 (track docs, setup, 4 implementation phases, doc sync, FR-6 fix, type refactor)
+- Code review iterations: 2 (1 issue → fix → 0 issues)
+- Spec compliance: 17/17 IMPLEMENTED
