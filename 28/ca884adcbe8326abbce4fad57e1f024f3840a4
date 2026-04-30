@@ -1,0 +1,24 @@
+skills/use-vercel-action/SKILL.md
+  6679aa25b3cf64d6 19,93,110-111,174-176,180,201,203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "28ca884adcbe8326abbce4fad57e1f024f3840a4",
+  "prompts": {
+    "6679aa25b3cf64d6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "30d1f3b7-fb3a-46b4-bacc-e8f284f7e62b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 10,
+      "total_deletions": 6,
+      "accepted_lines": 10,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/d67edb36f6c801c0dc5d355151051a821d96abd7711cc66f036cf4c30d613470"
+    }
+  }
+}
