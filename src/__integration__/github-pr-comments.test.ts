@@ -11,7 +11,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     githubDeploymentEnvironment: 'preview',
     workingDirectory: '',
     vercelToken: 'v-token',
-    vercelArgs: '',
+    deployment: { kind: 'cli', vercelArgs: '' },
     vercelOrgId: '',
     vercelProjectId: '',
     vercelProjectName: '',

@@ -1,4 +1,4 @@
-import type { ActionConfig, OctokitClient, PullRequestPayload } from './types'
+import type { ActionConfig, DeploymentMode, OctokitClient, PullRequestPayload } from './types'
 import path from 'node:path'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
@@ -78,12 +78,7 @@ export function resolveDeploymentEnvironment(explicitEnv: string, vercelArgs: st
   return /(?:^|\s)--prod(?:uction)?(?:\s|$)/.test(vercelArgs) ? 'production' : 'preview'
 }
 
-export function getActionConfig(): ActionConfig {
-  const vercelToken = core.getInput('vercel-token', { required: true })
-  core.setSecret(vercelToken)
-
-  const vercelArgs = core.getInput('vercel-args')
-  const experimentalApi = core.getInput('experimental-api') === 'true'
+function parseDeploymentMode(vercelArgs: string, experimentalApi: boolean): DeploymentMode {
   if (experimentalApi && vercelArgs) {
     throw new Error(
       'The "experimental-api" and "vercel-args" inputs are mutually exclusive. '
@@ -91,6 +86,16 @@ export function getActionConfig(): ActionConfig {
       + 'or set "experimental-api: false" (or remove it) to use CLI mode with vercel-args.',
     )
   }
+  return experimentalApi ? { kind: 'experimental-api' } : { kind: 'cli', vercelArgs }
+}
+
+export function getActionConfig(): ActionConfig {
+  const vercelToken = core.getInput('vercel-token', { required: true })
+  core.setSecret(vercelToken)
+
+  const vercelArgs = core.getInput('vercel-args')
+  const experimentalApi = core.getInput('experimental-api') === 'true'
+  const deployment = parseDeploymentMode(vercelArgs, experimentalApi)
 
   const githubDeploymentEnvInput = core.getInput('github-deployment-environment')
 
@@ -101,7 +106,7 @@ export function getActionConfig(): ActionConfig {
     githubDeploymentEnvironment: resolveDeploymentEnvironment(githubDeploymentEnvInput, vercelArgs),
     workingDirectory: parseWorkingDirectory(core.getInput('working-directory')),
     vercelToken,
-    vercelArgs,
+    deployment,
     vercelOrgId: core.getInput('vercel-org-id'),
     vercelProjectId: core.getInput('vercel-project-id'),
     vercelScope: core.getInput('scope'),
@@ -122,7 +127,6 @@ export function getActionConfig(): ActionConfig {
     customEnvironment: core.getInput('custom-environment'),
     isPublic: core.getInput('public') === 'true',
     withCache: core.getInput('with-cache') === 'true',
-    experimentalApi,
   }
 }
 

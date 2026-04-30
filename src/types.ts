@@ -52,6 +52,22 @@ export interface VercelClient {
   assignAlias: (_deploymentUrl: string, _domain: string) => Promise<void>
 }
 
+/**
+ * Deployment dispatch shape — one of two mutually exclusive modes.
+ *
+ * - `cli` (default) carries the raw `vercel-args` passthrough string. The Vercel
+ *   CLI is invoked under the hood and stable across releases.
+ * - `experimental-api` opts in to the `@vercel/client` programmatic API. There
+ *   is no `vercelArgs` field on this variant, which makes the (`experimental-api`,
+ *   `vercel-args`) combination unrepresentable at the type level.
+ *
+ * The action input `experimental-api: true` together with a non-empty
+ * `vercel-args` is rejected at config-parse time in `getActionConfig()`.
+ */
+export type DeploymentMode =
+  | { kind: 'cli', vercelArgs: string }
+  | { kind: 'experimental-api' }
+
 export interface ActionConfig {
   githubToken: string
   githubComment: boolean | string
@@ -59,7 +75,8 @@ export interface ActionConfig {
   githubDeploymentEnvironment: string
   workingDirectory: string
   vercelToken: string
-  vercelArgs: string
+  /** Mutually exclusive routing — see {@link DeploymentMode}. */
+  deployment: DeploymentMode
   vercelOrgId: string
   vercelProjectId: string
   vercelScope?: string
@@ -80,7 +97,6 @@ export interface ActionConfig {
   customEnvironment: string
   isPublic: boolean
   withCache: boolean
-  experimentalApi: boolean
 }
 
 export interface GitHubDeploymentResult {

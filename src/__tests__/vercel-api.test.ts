@@ -38,7 +38,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     githubComment: false,
     workingDirectory: '/test/path',
     vercelToken: 'test-token',
-    vercelArgs: '',
+    deployment: { kind: 'cli', vercelArgs: '' },
     vercelOrgId: '',
     vercelProjectId: '',
     vercelScope: '',

@@ -26,7 +26,8 @@ function buildDeployArgs(
 ): string[] {
   const { ref, commit, sha, commitOrg, commitRepo } = deployContext
   const { context } = github
-  const providedArgs = parseArgs(config.vercelArgs)
+  const vercelArgs = config.deployment.kind === 'cli' ? config.deployment.vercelArgs : ''
+  const providedArgs = parseArgs(vercelArgs)
 
   const args = [
     ...providedArgs,

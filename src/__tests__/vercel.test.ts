@@ -30,7 +30,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     githubComment: false,
     workingDirectory: '',
     vercelToken: 'test-token',
-    vercelArgs: '',
+    deployment: { kind: 'cli', vercelArgs: '' },
     vercelOrgId: '',
     vercelProjectId: '',
     vercelScope: '',
@@ -50,7 +50,6 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     customEnvironment: '',
     isPublic: false,
     withCache: false,
-    experimentalApi: false,
     ...overrides,
   }
 }
@@ -499,14 +498,15 @@ describe('createVercelClient', () => {
   })
 
   // Routing matrix (spec AC-1):
-  // experimentalApi=false, vercelArgs=""    → VercelCliClient
-  // experimentalApi=false, vercelArgs="..." → VercelCliClient
-  // experimentalApi=true,  vercelArgs=""    → VercelApiClient (with warning)
-  // experimentalApi=true,  vercelArgs="..." → mutual-exclusion error
-  //   (enforced upstream in getActionConfig; not exercised here)
+  // deployment.kind = 'cli', vercelArgs=""    → VercelCliClient
+  // deployment.kind = 'cli', vercelArgs="..." → VercelCliClient
+  // deployment.kind = 'experimental-api'      → VercelApiClient (with warning)
+  // ('experimental-api', vercel-args="...")   → mutual-exclusion error
+  //   (enforced upstream in getActionConfig — the discriminated union makes
+  //    this state unrepresentable here)
 
-  it('returns VercelCliClient by default (experimentalApi=false, vercelArgs="")', () => {
-    const config = createConfig({ experimentalApi: false, vercelArgs: '' })
+  it('returns VercelCliClient by default (deployment.kind = "cli", vercelArgs="")', () => {
+    const config = createConfig({ deployment: { kind: 'cli', vercelArgs: '' } })
     const client = createVercelClient(config)
 
     expect(client).toBeInstanceOf(VercelCliClient)
@@ -514,8 +514,8 @@ describe('createVercelClient', () => {
     expect(core.warning).not.toHaveBeenCalled()
   })
 
-  it('returns VercelCliClient when vercelArgs is provided (experimentalApi=false)', () => {
-    const config = createConfig({ experimentalApi: false, vercelArgs: '--prod' })
+  it('returns VercelCliClient when vercelArgs is provided', () => {
+    const config = createConfig({ deployment: { kind: 'cli', vercelArgs: '--prod' } })
     const client = createVercelClient(config)
 
     expect(client).toBeInstanceOf(VercelCliClient)
@@ -523,8 +523,8 @@ describe('createVercelClient', () => {
     expect(core.warning).not.toHaveBeenCalled()
   })
 
-  it('returns VercelApiClient when experimentalApi=true and emits an experimental warning', () => {
-    const config = createConfig({ experimentalApi: true, vercelArgs: '' })
+  it('returns VercelApiClient when deployment.kind = "experimental-api" and emits a warning', () => {
+    const config = createConfig({ deployment: { kind: 'experimental-api' } })
     const client = createVercelClient(config)
 
     expect(client).toBeInstanceOf(VercelApiClient)

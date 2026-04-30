@@ -17,7 +17,7 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     githubDeploymentEnvironment: 'preview',
     workingDirectory: '',
     vercelToken: VERCEL_TOKEN,
-    vercelArgs: '',
+    deployment: { kind: 'cli', vercelArgs: '' },
     vercelOrgId: '',
     vercelProjectId: '',
     vercelProjectName: '',
@@ -37,7 +37,6 @@ function createConfig(overrides: Partial<ActionConfig> = {}): ActionConfig {
     customEnvironment: '',
     isPublic: false,
     withCache: false,
-    experimentalApi: false,
     ...overrides,
   }
 }
@@ -239,7 +238,7 @@ describe('vercelApiClient (integration)', () => {
       })
 
       it('routes to VercelApiClient when experimental-api is opted in, with warning', () => {
-        const client = createVercelClient(createTeamConfig({ experimentalApi: true }))
+        const client = createVercelClient(createTeamConfig({ deployment: { kind: 'experimental-api' } }))
 
         expect(client).toBeInstanceOf(VercelApiClient)
         expect(warnSpy).toHaveBeenCalledTimes(1)
