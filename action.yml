@@ -41,7 +41,6 @@ inputs:
   scope:
     required: false
     description: 'Team slug for the Vercel CLI --scope flag (used in the default CLI deployment mode). Prefer vercel-org-id, which works for both CLI and experimental API modes.'
-    deprecationMessage: 'Prefer "vercel-org-id" for team identification — it works in both CLI and experimental API modes. The "scope" input is only honored by the CLI deployment path.'
   zeit-token:
     description: zeit.co token
     required: false
