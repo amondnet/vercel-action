@@ -154,4 +154,38 @@ Automated:
 
 ## Surprises & Discoveries
 
-(populated by /please:implement)
+- `@vercel/client` v17 does **not** expose `build`/`pull` primitives — confirmed by reading the package's exports and corroborated by the official Vercel CLI source. The spec FR-5 SDK-or-exec branch resolves deterministically to "exec".
+- The `[command]…` echo line in `@actions/exec` (`toolrunner.js:402-403`) writes the resolved argv to stdout *before* `setSecret` masking can fully claim it, making `-t <token>` argv unsafe even when the value is registered via `core.setSecret`. The fix is `silent: true` + `VERCEL_TOKEN` env var.
+- A subtle bug emerged from the gemini-code-assist review: `vercel-output-dir` was silently ignored when combined with `vercel-build: true` (build wrote to default `.vercel/output`, deploy looked at the configured path). Caught only because reviewer asked about the spec wording.
+- The `process.env.VITEST` guard pattern lets us export `run()` for testability while keeping the production fire-and-forget invocation intact.
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+
+- New opt-in `vercel-build` action input + new `src/vercel-build.ts` module (BuildFailedError, runVercelPull, runVercelBuild, runBuildStep)
+- Mutual-exclusivity validation against `prebuilt` at config parse time
+- Build-failure comment helpers in `src/github-comments.ts` (PR + commit variants), with stderr-tail capture and triple-backtick escaping
+- Wired into `run()` orchestrator with proper failure-comment routing
+- `--output <dir>` flag passthrough so `vercel-output-dir` is honored end-to-end
+- Token transport via `VERCEL_TOKEN` env var (never `-t` argv) + `silent: true` exec
+- README "Method 4 - Build inside the action" section
+- 33 new tests across 5 files (252 → 285 total). Coverage on `vercel-build.ts` 94%+.
+
+### What Went Well
+
+- **TDD pairing**: every implementation task had a RED test sibling (T002↔T003, T004↔T005, …); refactors stayed safe.
+- **Vertical slicing**: each commit shipped a self-contained, testable slice (input parsing → error class → runners → orchestrator → comments → wiring → tests/docs/dist).
+- **Architecture decision was sound**: the new module / orchestration pattern (Approach A) cleanly reused the existing prebuilt deploy path with zero changes to `vercel-api.ts`. AGENTS.md compliance held throughout (file ≤ 300 LOC, function ≤ 50 LOC, params ≤ 5, side-effect isolation).
+- **Review feedback compounded value**: the security agent caught the `[command]` echo issue (Critical), the test agent caught 3 orchestration coverage gaps, and gemini-code-assist caught a real `--output` data-flow bug. All five findings turned into concrete improvements.
+
+### What Could Improve
+
+- **Spec FR-5 was too speculative**: the "use SDK if it exposes the API; else fall back to exec" condition resolved to a single branch. Should have verified `@vercel/client` capabilities during spec authoring rather than deferring to the plan phase.
+- **`vercel-output-dir` interaction was overlooked in the original spec**: should have traced the data flow between build output and deploy upload at spec time. The new AC-7 fills the gap, but it took an external bot review to surface.
+- **Pre-existing `-t <token>` pattern in `vercel-cli.ts`** has the same security concern as the fix applied to `vercel-build.ts`. Left for a separate hardening track to keep this PR focused, but it should be addressed.
+
+### Tech Debt Created
+
+- **`src/vercel-cli.ts` token transport**: still uses `-t <token>` argv. Same `[command]` echo concern. → Tracked in `tech-debt-tracker.md` for follow-up hardening track.
+- **No e2e test for the `--output` data-flow bug fix**: the new unit tests cover `runVercelBuild` argv and `runBuildStep` return value, but the integration test does not yet wire a non-default `vercel-output-dir` through to a real deploy. Acceptable risk given unit coverage; revisit if regressions surface.

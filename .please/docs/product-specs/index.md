@@ -1,6 +1,7 @@
 # Product Specs Index
 
-> Auto-maintained by /please:spec --product.
+> Auto-maintained by /please:sync-specs.
 
-| Spec | Feature | Created | Related Tracks |
-|------|---------|---------|----------------|
+| Spec | Domain | Feature | Created | Related Tracks |
+|------|--------|---------|---------|----------------|
+| SPEC-001 | deployment | vercel-build | 2026-04-30 | ["auto-vercel-build-20260430"] |
