@@ -48,7 +48,7 @@
     "axios": "^1.6.8",
     "common-tags": "^1.8.0",
     "semver": "^7.7.4",
-    "vercel": "^50.0.0"
+    "vercel": "^52.2.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.0.0",
